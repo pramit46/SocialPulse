@@ -19,6 +19,21 @@ const dataStats = {
   lastSync: "2 min",
 };
 
+// Mock collection status for demonstration
+const collectionStatus = {
+  isCollecting: false,
+  lastCollection: new Date().toISOString(),
+  recordsCollected: 1247,
+  errors: 0,
+  platforms: {
+    twitter: { status: 'active', lastSync: '2 min ago', records: 547 },
+    reddit: { status: 'active', lastSync: '5 min ago', records: 700 },
+    facebook: { status: 'error', lastSync: '3 days ago', records: 0 },
+    youtube: { status: 'inactive', lastSync: 'Never', records: 0 },
+    instagram: { status: 'inactive', lastSync: 'Never', records: 0 },
+  }
+};
+
 // Mock connection status for demonstration - showing Twitter and Reddit as working
 const connectionStatus = {
   twitter: true,
@@ -133,6 +148,36 @@ export default function DataManagement() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Collection Status */}
+      <Card className="bg-dark-secondary border-dark-border mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+            <RotateCw className={`h-5 w-5 ${collectionStatus.isCollecting ? 'animate-spin text-green-400' : 'text-blue-400'}`} />
+            Collection Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-white">{collectionStatus.recordsCollected.toLocaleString()}</p>
+              <p className="text-sm text-gray-400">Records Today</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-green-400">{Object.values(collectionStatus.platforms).filter(p => p.status === 'active').length}</p>
+              <p className="text-sm text-gray-400">Active Sources</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-red-400">{collectionStatus.errors}</p>
+              <p className="text-sm text-gray-400">Errors</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-blue-400">{new Date(collectionStatus.lastCollection).toLocaleTimeString()}</p>
+              <p className="text-sm text-gray-400">Last Sync</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Data Source Connections */}
       <Card className="bg-dark-secondary border-dark-border mb-8">

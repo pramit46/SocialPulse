@@ -91,30 +91,48 @@ export default function AeroBot() {
     setInputValue("");
     setIsTyping(true);
 
-    try {
-      // Always connect to the llm-services at the backend.
-      const response = await apiRequest("POST", "/api/aerobot/chat", { message: currentQuery });
-      const data = await response.json();
+    // Check if it's a sample query first
+    const fallbackContent = await getResponse(currentQuery);
+    const lowerQuery = currentQuery.toLowerCase();
+    const isSampleQuery = lowerQuery.includes("sentiment") || lowerQuery.includes("indigo") ||
+                         lowerQuery.includes("luggage") || lowerQuery.includes("baggage") ||
+                         lowerQuery.includes("lounge") || lowerQuery.includes("security") ||
+                         lowerQuery.includes("check") || lowerQuery.includes("checkin");
+
+    if (isSampleQuery) {
+      // Use mock response for sample queries
       const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        content: data.response,
-        sender: "bot",
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, botResponse]);
-    } catch (error) {
-      console.error("AeroBot API error:", error);
-      // Fallback to predefined responses or LLM service
-      const fallbackContent = await getResponse(currentQuery);
-      const fallbackResponse: Message = {
         id: (Date.now() + 1).toString(),
         content: fallbackContent,
         sender: "bot",
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, fallbackResponse]);
-    } finally {
+      setMessages(prev => [...prev, botResponse]);
       setIsTyping(false);
+    } else {
+      // Route unknown queries to LLM service
+      try {
+        const response = await apiRequest("POST", "/api/aerobot/chat", { message: currentQuery });
+        const data = await response.json();
+        const botResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          content: data.response || fallbackContent,
+          sender: "bot",
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, botResponse]);
+      } catch (error) {
+        console.error("AeroBot API error:", error);
+        const fallbackResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          content: fallbackContent,
+          sender: "bot",
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, fallbackResponse]);
+      } finally {
+        setIsTyping(false);
+      }
     }
   };
 
@@ -200,13 +218,13 @@ export default function AeroBot() {
                           )}
                         </div>
                         <div
-                          className={`max-w-[70%] px-4 py-2 rounded-lg break-words ${
+                          className={`max-w-[65%] px-3 py-2 rounded-lg break-words overflow-hidden ${
                             message.sender === "user"
                               ? "bg-blue-500 text-white"
                               : "bg-dark-accent text-gray-100"
                           }`}
                         >
-                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                          <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">{message.content}</p>
                           <p className="text-xs opacity-70 mt-1">
                             {message.timestamp.toLocaleTimeString()}
                           </p>

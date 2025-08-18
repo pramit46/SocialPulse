@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Trash2, UserPlus, Users, CheckCircle } from "lucide-react";
+import { Trash2, UserPlus, Users, CheckCircle, Moon, Sun } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface User {
   id: string;
@@ -53,6 +54,7 @@ export default function Settings() {
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   // Fetch users
   const { data: users = [], isLoading: usersLoading } = useQuery({
@@ -225,7 +227,7 @@ export default function Settings() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {users.map((user: User) => (
+                    {(users as User[]).map((user: User) => (
                       <TableRow key={user.id} className="border-dark-border">
                         <TableCell className="text-white">
                           <div className="flex items-center gap-2">
@@ -312,6 +314,32 @@ export default function Settings() {
                   <Switch
                     checked={settings.autoCleanup}
                     onCheckedChange={(checked) => handleSettingChange("autoCleanup", checked)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Appearance Settings */}
+          <Card className="bg-dark-secondary border-dark-border">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold text-white">Appearance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="font-medium text-white flex items-center gap-2">
+                      {isDarkMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                      Dark Theme
+                    </Label>
+                    <p className="text-sm text-gray-400">
+                      {isDarkMode ? 'Switch to light theme for better visibility' : 'Switch to dark theme for reduced eye strain'}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={isDarkMode}
+                    onCheckedChange={toggleTheme}
                   />
                 </div>
               </div>
