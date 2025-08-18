@@ -37,7 +37,7 @@ export default function DataManagement() {
 
   const dataCollectionMutation = useMutation({
     mutationFn: async ({ source, credentials: creds }: { source: string; credentials: DataSourceCredentials }) => {
-      return apiRequest('/api/collect-data', 'POST', { source, credentials: creds });
+      return apiRequest('POST', '/api/collect-data', { source, credentials: creds });
     },
     onSuccess: (data, variables) => {
       toast({
