@@ -13,12 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
-const dataStats = {
-  totalRecords: "2.3M",
-  storageUsed: "847 GB",
-  lastSync: "2 min",
-};
-
 // Mock collection status for demonstration
 const collectionStatus = {
   isCollecting: false,
@@ -33,6 +27,24 @@ const collectionStatus = {
     instagram: { status: 'inactive', lastSync: 'Never', records: 0 },
   }
 };
+
+// Dynamic data stats that update based on collection status
+const getDataStats = () => {
+  const totalRecords = collectionStatus.recordsCollected.toLocaleString();
+  const activePlatforms = Object.values(collectionStatus.platforms).filter(p => p.status === 'active').length;
+  const lastSyncTime = Math.min(...Object.values(collectionStatus.platforms)
+    .filter(p => p.status === 'active')
+    .map(p => p.lastSync === '2 min ago' ? 2 : p.lastSync === '5 min ago' ? 5 : 60));
+  
+  return {
+    totalRecords: totalRecords,
+    storageUsed: `${Math.round(collectionStatus.recordsCollected * 0.68 / 1000)} GB`, // Approximate calculation
+    lastSync: `${lastSyncTime} min`,
+    activePlatforms
+  };
+};
+
+const dataStats = getDataStats();
 
 // Mock connection status for demonstration - showing Twitter and Reddit as working
 const connectionStatus = {
@@ -96,8 +108,64 @@ export default function DataManagement() {
     setCredentials(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleExport = () => {
-    console.log("Exporting data...");
+  const convertToCSV = (data: any[]) => {
+    if (!data || data.length === 0) return '';
+    
+    const headers = Object.keys(data[0]);
+    const csvRows = [
+      headers.join(','),
+      ...data.map(row => 
+        headers.map(header => {
+          const value = row[header];
+          return typeof value === 'string' && value.includes(',') 
+            ? `"${value}"` 
+            : value;
+        }).join(',')
+      )
+    ];
+    
+    return csvRows.join('\n');
+  };
+
+  const downloadCSV = (csv: string, filename: string) => {
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleExport = async () => {
+    try {
+      const response = await apiRequest("GET", "/api/social-events");
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        const csvData = convertToCSV(data);
+        downloadCSV(csvData, `bangalore-airport-data-${new Date().toISOString().split('T')[0]}.csv`);
+        
+        toast({
+          title: "Export Complete",
+          description: "Your data has been downloaded successfully.",
+        });
+      } else {
+        toast({
+          title: "No Data",
+          description: "No data available for export.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export data. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

@@ -4,6 +4,7 @@ import PlatformChart from "@/components/dashboard/platform-chart";
 import RecentPosts from "@/components/dashboard/recent-posts";
 import InsightsPanel from "@/components/dashboard/insights-panel";
 import SentimentAnalysis from "@/components/dashboard/sentiment-analysis";
+import EngagementTrends from "@/components/dashboard/engagement-trends";
 
 export default function Dashboard() {
   return (
@@ -26,6 +27,11 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <EngagementChart />
         <PlatformChart />
+      </div>
+
+      {/* Engagement Trends */}
+      <div className="mb-8">
+        <EngagementTrends />
       </div>
 
       {/* Recent Posts and Insights */}

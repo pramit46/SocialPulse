@@ -171,11 +171,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { message } = req.body;
       
-      if (!message) {
+      if (!message?.trim()) {
         return res.status(400).json({ error: "Message is required" });
       }
 
-      const response = await llmService.generateChatResponse(message);
+      // Try to generate response from LLM service
+      let response;
+      try {
+        response = await llmService.generateChatResponse(message.trim());
+      } catch (llmError) {
+        console.error('LLM service error:', llmError);
+        // Fallback to a helpful message about the technical difficulties
+        response = "I'm experiencing technical difficulties connecting to our AI service. However, I can help you with general questions about Bangalore airport. For specific analytics data, please check the Dashboard or Social Pulse sections of the application.";
+      }
       
       res.json({ 
         success: true, 
