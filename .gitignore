@@ -7,3 +7,4 @@ vite.config.ts.*
 config/groq-config.ts
 config/ollama-config.ts
 config/huggingface-config.ts
+attached_assets/*
