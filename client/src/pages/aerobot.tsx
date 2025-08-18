@@ -3,8 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User, Plane, Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Send, Bot, User, Plane } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
 interface Message {
@@ -14,6 +13,7 @@ interface Message {
   timestamp: Date;
 }
 
+// DO NOT CHANGE the values of these constants:
 const sampleQueries = [
   "What's the sentiment about IndiGo at Bangalore airport?",
   "How is the luggage handling experience?",
@@ -33,7 +33,7 @@ const mockResponses: Record<string, string> = {
 
 function getResponse(query: string): string {
   const lowerQuery = query.toLowerCase();
-  
+
   if (lowerQuery.includes("sentiment") || lowerQuery.includes("indigo")) {
     return mockResponses.sentiment;
   } else if (lowerQuery.includes("luggage") || lowerQuery.includes("baggage")) {
@@ -53,7 +53,7 @@ export default function AeroBot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      content: "Hello! I'm AVA (Aerobot Virtual Assitant), your AI assistant for Bangalore Airport insights. I can help you understand passenger sentiment, airline performance, and service feedback. What would you like to know?",
+      content: "Hello! I'm AVA (Aerobot Virtual Assistant), your AI assistant for Bangalore Airport insights. I can help you understand passenger sentiment, airline performance, and service feedback. What would you like to know?",
       sender: "bot",
       timestamp: new Date()
     }
@@ -61,7 +61,6 @@ export default function AeroBot() {
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -69,58 +68,49 @@ export default function AeroBot() {
     }
   }, [messages]);
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+  const handleSendMessage = async (msg?: string) => {
+    const currentQuery = msg !== undefined ? msg : inputValue;
+    if (!currentQuery.trim()) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: inputValue,
+      content: currentQuery,
       sender: "user",
       timestamp: new Date()
     };
-
     setMessages(prev => [...prev, userMessage]);
-    const currentQuery = inputValue;
     setInputValue("");
     setIsTyping(true);
 
     try {
-      // Call the AeroBot API
-      const response = await apiRequest('/api/aerobot/chat', 'POST', { message: currentQuery });
-      
+      // Always connect to the llm-services at the backend.
+      const response = await apiRequest("/api/aerobot/chat", "POST", { message: currentQuery });
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
         content: response.response,
         sender: "bot",
         timestamp: new Date()
       };
-
       setMessages(prev => [...prev, botResponse]);
     } catch (error) {
-      console.error('AeroBot API error:', error);
-      
-      // Fallback to mock response if API fails
-      const botResponse: Message = {
+      console.error("AeroBot API error:", error);
+      // Fallback without showing API Unavailable message.
+      const fallbackResponse: Message = {
         id: (Date.now() + 1).toString(),
         content: getResponse(currentQuery),
         sender: "bot",
         timestamp: new Date()
       };
-
-      setMessages(prev => [...prev, botResponse]);
-      
-      toast({
-        title: "API Unavailable",
-        description: "Using offline responses. Configure OpenAI API key for AI-powered insights.",
-        variant: "destructive",
-      });
+      setMessages(prev => [...prev, fallbackResponse]);
     } finally {
       setIsTyping(false);
     }
   };
 
+  // Sample queries trigger an immediate send.
   const handleSampleQuery = (query: string) => {
-    setInputValue(query);
+    setInputValue("");
+    handleSendMessage(query);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -190,9 +180,7 @@ export default function AeroBot() {
                         }`}
                       >
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          message.sender === "user" 
-                            ? "bg-blue-500" 
-                            : "bg-gray-600"
+                          message.sender === "user" ? "bg-blue-500" : "bg-gray-600"
                         }`}>
                           {message.sender === "user" ? (
                             <User className="h-4 w-4 text-white" />
@@ -243,7 +231,7 @@ export default function AeroBot() {
                       disabled={isTyping}
                     />
                     <Button
-                      onClick={handleSendMessage}
+                      onClick={() => handleSendMessage()}
                       className="bg-blue-500 hover:bg-blue-600 text-white"
                       disabled={isTyping || !inputValue.trim()}
                     >
