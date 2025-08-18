@@ -1,5 +1,5 @@
 import { ChromaClient, Collection } from 'chromadb';
-import { huggingfaceApiKey } from '../config/huggingface-config';
+import { encodedHuggingFaceKey } from '../config/huggingface-config';
 
 export class LLMService {
   private hfKey: string;
@@ -9,8 +9,8 @@ export class LLMService {
   private embeddingModel = 'Qwen/Qwen3-Embedding-0.6B';
 
   constructor() {
-    // Set the Hugging Face API key from config
-    this.hfKey = huggingfaceApiKey;
+    // Decode the Hugging Face API key from base64
+    this.hfKey = Buffer.from(encodedHuggingFaceKey, 'base64').toString('utf8');
 
     // Using Hugging Face for model inference
     try {
