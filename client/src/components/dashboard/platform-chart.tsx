@@ -24,13 +24,13 @@ export default function PlatformChart() {
         <CardTitle className="text-lg font-semibold text-white">Platform Distribution</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={280}>
+        <ResponsiveContainer width="100%" height={200}>
           <PieChart>
             <Pie
               data={mockChartData.platforms}
               cx="50%"
-              cy="35%"
-              outerRadius={75}
+              cy="40%"
+              outerRadius={60}
               fill="#8884d8"
               dataKey="value"
               label={false}
@@ -46,7 +46,7 @@ export default function PlatformChart() {
               layout="horizontal"
               align="center"
               verticalAlign="bottom"
-              height={60}
+              height={40}
             />
           </PieChart>
         </ResponsiveContainer>

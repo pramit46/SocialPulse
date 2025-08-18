@@ -28,6 +28,7 @@ const mockResponses: Record<string, string> = {
   "lounge": "Vistara leads in lounge satisfaction with 90% positive sentiment. Their lounge at Bangalore airport is praised for excellent food, comfortable seating, and reliable WiFi. Air India lounges receive moderate ratings.",
   "security": "Security processes receive mixed feedback with 31% positive sentiment. While most passengers appreciate the efficiency, some report longer wait times during peak hours. Recent improvements in digital systems have helped.",
   "checkin": "Check-in experiences vary by airline. Air India's new digital kiosks receive 80% positive feedback for speed and efficiency. IndiGo maintains consistent positive ratings, while SpiceJet faces challenges with staff communication.",
+  "delay": "Flight delays at Bangalore airport show varying patterns across airlines. IndiGo maintains the best on-time performance at 82%, followed by Vistara at 78%. Air India has improved to 71% on-time, while SpiceJet faces challenges with 65% punctuality. Weather and air traffic are the primary delay factors during monsoon season.",
   "default": "I understand you're asking about Bangalore airport experiences. Based on our AI analysis of social media data, I can provide insights about sentiment, airline performance, and passenger feedback across various airport services."
 };
 
@@ -45,6 +46,8 @@ async function getResponse(query: string): Promise<string> {
     return mockResponses.security;
   } else if (lowerQuery.includes("check") || lowerQuery.includes("checkin")) {
     return mockResponses.checkin;
+  } else if (lowerQuery.includes("delay")) {
+    return mockResponses.delay;
   } else {
     // Route unknown queries to LLM service
     try {
@@ -97,7 +100,8 @@ export default function AeroBot() {
     const isSampleQuery = lowerQuery.includes("sentiment") || lowerQuery.includes("indigo") ||
                          lowerQuery.includes("luggage") || lowerQuery.includes("baggage") ||
                          lowerQuery.includes("lounge") || lowerQuery.includes("security") ||
-                         lowerQuery.includes("check") || lowerQuery.includes("checkin");
+                         lowerQuery.includes("check") || lowerQuery.includes("checkin") ||
+                         lowerQuery.includes("delay");
 
     if (isSampleQuery) {
       // Use mock response for sample queries

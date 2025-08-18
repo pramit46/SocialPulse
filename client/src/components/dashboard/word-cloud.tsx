@@ -61,7 +61,7 @@ export default function WordCloud() {
         </p>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-wrap gap-3 items-center justify-center min-h-[280px] p-4">
+        <div className="flex flex-wrap gap-2 items-center justify-center min-h-[180px] p-3">
           {wordCloudData.map((item, index) => (
             <div
               key={index}
@@ -84,8 +84,8 @@ export default function WordCloud() {
         </div>
         
         {/* Legend */}
-        <div className="mt-6 pt-4 border-t border-dark-border">
-          <div className="flex flex-wrap gap-4 justify-center text-sm">
+        <div className="mt-4 pt-3 border-t border-dark-border">
+          <div className="flex flex-wrap gap-3 justify-center text-xs">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-green-400 rounded"></div>
               <span className="text-gray-400">Very Positive</span>
