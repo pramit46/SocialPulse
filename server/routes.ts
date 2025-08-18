@@ -115,11 +115,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         case 'reddit':
           events = await dataCollectionService.collectRedditData(query);
           break;
+        case 'facebook':
+          events = await dataCollectionService.collectFacebookData(query);
+          break;
+        case 'youtube':
+          events = await dataCollectionService.collectYouTubeData(query);
+          break;
+        case 'instagram':
+          events = await dataCollectionService.collectInstagramData(query);
+          break;
+        case 'vimeo':
+          events = await dataCollectionService.collectVimeoData(query);
+          break;
+        case 'tiktok':
+          events = await dataCollectionService.collectTikTokData(query);
+          break;
+        case 'tumblr':
+          events = await dataCollectionService.collectTumblrData(query);
+          break;
         case 'aajtak':
         case 'wion':
         case 'zee_news':
         case 'ndtv':
-          events = await dataCollectionService.collectNewsData(source, credentials[`${source}_rss_url`]);
+        case 'cnn':
+          events = await dataCollectionService.collectNewsData(source, credentials[`${source}_rss_url`] || credentials[`${source}_api_key`]);
           break;
         default:
           return res.status(400).json({ error: `Data collection for ${source} not implemented yet` });
@@ -169,6 +188,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: "Failed to generate response",
         details: error instanceof Error ? error.message : "Unknown error"
       });
+    }
+  });
+
+  // General query endpoint for unknown queries to be handled by LLM
+  app.post("/api/query", async (req, res) => {
+    try {
+      const { query } = req.body;
+      
+      if (!query) {
+        return res.status(400).json({ error: "Query is required" });
+      }
+
+      const response = await llmService.generateChatResponse(query);
+      
+      res.json({ 
+        success: true, 
+        response: response,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Query processing error:', error);
+      res.status(500).json({ 
+        error: "Failed to process query",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // User management endpoints
+  app.get("/api/users", async (req, res) => {
+    try {
+      const users = await storage.getUsers();
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
+
+  app.post("/api/users", async (req, res) => {
+    try {
+      const userData = req.body;
+      const user = await storage.createUser(userData);
+      res.json({ success: true, user });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create user" });
+    }
+  });
+
+  app.delete("/api/users/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteUser(id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete user" });
     }
   });
 

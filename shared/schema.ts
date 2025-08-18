@@ -115,6 +115,25 @@ export const dataSourceCredentialsSchema = z.object({
 export type DataSourceCredentials = z.infer<typeof dataSourceCredentialsSchema>;
 
 // Data source configuration
+// User management schema
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  role: text("role").notNull().default("viewer"), // "super_admin", "admin", "editor", "viewer"
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+});
+
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  created_at: true,
+  updated_at: true,
+});
+
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;
+
 export const dataSources = {
   socialMedia: [
     { name: 'Twitter', key: 'twitter', icon: 'twitter', credentialFields: ['twitter_bearer_token'] },

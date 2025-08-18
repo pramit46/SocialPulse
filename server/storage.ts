@@ -4,7 +4,9 @@ import {
   type ContactMessage,
   type InsertContactMessage,
   type Settings,
-  type InsertSettings
+  type InsertSettings,
+  type User,
+  type InsertUser
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -21,6 +23,11 @@ export interface IStorage {
   getSettings(userId: string): Promise<Settings | undefined>;
   updateSettings(settings: InsertSettings): Promise<Settings>;
   
+  // User Management
+  getUsers(): Promise<User[]>;
+  createUser(user: InsertUser): Promise<User>;
+  deleteUser(id: string): Promise<void>;
+  
   // Analytics
   getAnalyticsMetrics(): Promise<any>;
   getChartData(): Promise<any>;
@@ -30,11 +37,13 @@ export class MemStorage implements IStorage {
   private socialEvents: Map<string, SocialEvent>;
   private contactMessages: Map<string, ContactMessage>;
   private settings: Map<string, Settings>;
+  private users: Map<string, User>;
 
   constructor() {
     this.socialEvents = new Map();
     this.contactMessages = new Map();
     this.settings = new Map();
+    this.users = new Map();
     
     // Initialize with some mock data
     this.initializeMockData();
@@ -150,6 +159,17 @@ export class MemStorage implements IStorage {
     mockEvents.forEach(event => {
       this.socialEvents.set(event.id, event);
     });
+
+    // Initialize Pramit as super admin
+    const pramit: User = {
+      id: "user_pramit",
+      name: "Pramit",
+      email: "pramit@blranalytics.com",
+      role: "super_admin",
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    this.users.set(pramit.id, pramit);
   }
 
   async getSocialEvents(): Promise<SocialEvent[]> {
@@ -264,10 +284,36 @@ export class MemStorage implements IStorage {
         { name: "Twitter", value: 35, color: "#3B82F6" },
         { name: "Reddit", value: 25, color: "#F97316" },
         { name: "Instagram", value: 20, color: "#EC4899" },
-        { name: "Facebook", value: 12, color: "#1877F2" },
-        { name: "YouTube", value: 8, color: "#EF4444" }
+        { name: "Facebook", value: 10, color: "#1877F2" },
+        { name: "YouTube", value: 10, color: "#FF0000" }
       ]
     };
+  }
+
+  async getUsers(): Promise<User[]> {
+    return Array.from(this.users.values()).sort((a, b) => 
+      new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+    );
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const id = randomUUID();
+    const user: User = { 
+      ...insertUser,
+      id,
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    this.users.set(id, user);
+    return user;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    // Prevent deleting Pramit (super admin)
+    if (id === "user_pramit") {
+      throw new Error("Cannot delete super admin user");
+    }
+    this.users.delete(id);
   }
 }
 

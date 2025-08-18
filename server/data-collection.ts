@@ -242,6 +242,54 @@ export class DataCollectionService {
     return null;
   }
 
+  async collectFacebookData(query: string): Promise<InsertSocialEvent[]> {
+    if (!this.credentials.facebook_access_token) {
+      throw new Error('Facebook access token is required');
+    }
+    // Placeholder implementation - would need Facebook Graph API integration
+    return [];
+  }
+
+  async collectYouTubeData(query: string): Promise<InsertSocialEvent[]> {
+    if (!this.credentials.youtube_api_key) {
+      throw new Error('YouTube API key is required');
+    }
+    // Placeholder implementation - would need YouTube Data API integration
+    return [];
+  }
+
+  async collectInstagramData(query: string): Promise<InsertSocialEvent[]> {
+    if (!this.credentials.instagram_access_token) {
+      throw new Error('Instagram access token is required');
+    }
+    // Placeholder implementation - would need Instagram Basic Display API integration
+    return [];
+  }
+
+  async collectVimeoData(query: string): Promise<InsertSocialEvent[]> {
+    if (!this.credentials.vimeo_access_token) {
+      throw new Error('Vimeo access token is required');
+    }
+    // Placeholder implementation - would need Vimeo API integration
+    return [];
+  }
+
+  async collectTikTokData(query: string): Promise<InsertSocialEvent[]> {
+    if (!this.credentials.tiktok_access_token) {
+      throw new Error('TikTok access token is required');
+    }
+    // Placeholder implementation - would need TikTok API integration
+    return [];
+  }
+
+  async collectTumblrData(query: string): Promise<InsertSocialEvent[]> {
+    if (!this.credentials.tumblr_consumer_key || !this.credentials.tumblr_consumer_secret) {
+      throw new Error('Tumblr consumer key and secret are required');
+    }
+    // Placeholder implementation - would need Tumblr API integration
+    return [];
+  }
+
   private async analyzeSentiment(text: string): Promise<any> {
     return await llmService.analyzeSentiment(text);
   }

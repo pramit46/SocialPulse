@@ -19,12 +19,21 @@ const dataStats = {
   lastSync: "2 min",
 };
 
-const platformColors = {
-  Twitter: "bg-blue-500/20 text-blue-400",
-  Reddit: "bg-orange-500/20 text-orange-400",
-  Instagram: "bg-pink-500/20 text-pink-400",
-  Facebook: "bg-blue-600/20 text-blue-400",
-  YouTube: "bg-red-500/20 text-red-400",
+// Mock connection status for demonstration - showing Twitter and Reddit as working
+const connectionStatus = {
+  twitter: true,
+  reddit: true,
+  facebook: false,
+  youtube: false,
+  instagram: false,
+  vimeo: false,
+  tiktok: false,
+  tumblr: false,
+  cnn: false,
+  aajtak: false,
+  wion: false,
+  zee_news: false,
+  ndtv: false,
 };
 
 export default function DataManagement() {
@@ -423,7 +432,7 @@ export default function DataManagement() {
                       <td className="py-3">
                         <Badge 
                           variant="secondary" 
-                          className={platformColors[record.platform as keyof typeof platformColors]}
+                          className="bg-blue-500/20 text-blue-400"
                         >
                           {record.platform}
                         </Badge>
