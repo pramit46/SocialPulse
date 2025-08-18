@@ -4,3 +4,6 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+config/groq-config.ts
+config/ollama-config.ts
+config/huggingface-config.ts
