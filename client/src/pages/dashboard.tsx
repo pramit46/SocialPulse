@@ -24,13 +24,13 @@ export default function Dashboard() {
       <SentimentAnalysis />
 
       {/* Charts and Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <WordCloud />
-        <PlatformChart />
+      <div className="mb-8">
+        <WordCloud />       
       </div>
 
       {/* Engagement Trends */}
-      <div className="mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+         <PlatformChart/>
         <EngagementTrends />
       </div>
 
