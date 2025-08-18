@@ -53,7 +53,7 @@ export default function AeroBot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      content: "Hello! I'm AVA (Aero Virtual Assitant), your AI assistant for Bangalore Airport insights. I can help you understand passenger sentiment, airline performance, and service feedback. What would you like to know?",
+      content: "Hello! I'm AVA (Aerobot Virtual Assitant), your AI assistant for Bangalore Airport insights. I can help you understand passenger sentiment, airline performance, and service feedback. What would you like to know?",
       sender: "bot",
       timestamp: new Date()
     }
