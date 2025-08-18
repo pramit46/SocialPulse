@@ -1,1 +1,1 @@
-export const encodedOllamaKey = "NjAyYjkyYmI5NDY5NDkwNzA4ZTZlMWJlYjMzMGU2MGIzLlhIWjFncjVwcnNRcUZrLXg4QzZ2ZFNlRXk=";
+export const encodedOllamaKey = "";
