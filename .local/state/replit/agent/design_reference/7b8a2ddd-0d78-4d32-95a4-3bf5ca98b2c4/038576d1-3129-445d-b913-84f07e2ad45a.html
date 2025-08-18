@@ -1,0 +1,829 @@
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@BLR - Social Media Analytics Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+    tailwind.config = {
+        darkMode: 'class',
+        theme: {
+            extend: {
+                fontFamily: {
+                    'inter': ['Inter', 'sans-serif'],
+                },
+                colors: {
+                    dark: {
+                        primary: '#0A0A0B',
+                        secondary: '#111827',
+                        accent: '#1F2937',
+                        border: '#374151',
+                    }
+                }
+            }
+        }
+    };
+    </script>
+</head>
+<body class="bg-dark-primary text-gray-100 font-inter">
+    <!-- @COMPONENT: AppLayout -->
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- @COMPONENT: Sidebar -->
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-dark-secondary border-r border-dark-border flex flex-col">
+            <div class="p-6 border-b border-dark-border">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">@</span>
+                    </div>
+                    <span class="text-xl font-bold text-white">BLR</span>
+                </div>
+            </div>
+            
+            <nav class="flex-1 p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#dashboard" data-page="dashboard" class="nav-link flex items-center px-4 py-3 text-gray-300 rounded-lg hover:bg-dark-accent hover:text-white transition-colors duration-200 bg-dark-accent text-white">
+                            <i class="fas fa-chart-line mr-3"></i>
+                            Social Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#talk-to-us" data-page="talk-to-us" class="nav-link flex items-center px-4 py-3 text-gray-300 rounded-lg hover:bg-dark-accent hover:text-white transition-colors duration-200">
+                            <i class="fas fa-comments mr-3"></i>
+                            Talk to Us
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#data-management" data-page="data-management" class="nav-link flex items-center px-4 py-3 text-gray-300 rounded-lg hover:bg-dark-accent hover:text-white transition-colors duration-200">
+                            <i class="fas fa-database mr-3"></i>
+                            Data Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#settings" data-page="settings" class="nav-link flex items-center px-4 py-3 text-gray-300 rounded-lg hover:bg-dark-accent hover:text-white transition-colors duration-200">
+                            <i class="fas fa-cog mr-3"></i>
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="p-4 border-t border-dark-border">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-white" data-mock="true">John Doe</p>
+                        <p class="text-xs text-gray-400" data-mock="true">Admin</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <!-- @END_COMPONENT: Sidebar -->
+
+        <!-- @COMPONENT: MainContent -->
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-auto">
+            
+            <!-- @COMPONENT: SocialDashboard -->
+            <!-- Social Dashboard Page -->
+            <div id="dashboard-page" class="page-content">
+                <div class="p-8">
+                    <!-- Header -->
+                    <div class="mb-8">
+                        <h1 class="text-3xl font-bold text-white mb-2">Social Dashboard</h1>
+                        <p class="text-gray-400">Monitor and analyze social media performance across all platforms</p>
+                    </div>
+
+                    <!-- @STATE: dashboardData:object with metrics -->
+                    <!-- Key Metrics Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-eye text-blue-400"></i>
+                                </div>
+                                <span class="text-green-400 text-sm font-medium">+12.5%</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-1" data-bind="metrics.totalViews" data-mock="true">2.4M</h3>
+                            <p class="text-gray-400 text-sm">Total Views</p>
+                        </div>
+
+                        <div class="bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-heart text-green-400"></i>
+                                </div>
+                                <span class="text-green-400 text-sm font-medium">+8.2%</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-1" data-bind="metrics.totalLikes" data-mock="true">187K</h3>
+                            <p class="text-gray-400 text-sm">Total Likes</p>
+                        </div>
+
+                        <div class="bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-share text-yellow-400"></i>
+                                </div>
+                                <span class="text-green-400 text-sm font-medium">+15.7%</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-1" data-bind="metrics.totalShares" data-mock="true">23.1K</h3>
+                            <p class="text-gray-400 text-sm">Total Shares</p>
+                        </div>
+
+                        <div class="bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-comments text-purple-400"></i>
+                                </div>
+                                <span class="text-green-400 text-sm font-medium">+22.1%</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-1" data-bind="metrics.totalComments" data-mock="true">45.2K</h3>
+                            <p class="text-gray-400 text-sm">Total Comments</p>
+                        </div>
+                    </div>
+
+                    <!-- Charts and Analytics -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        <!-- Engagement Trends Chart -->
+                        <div class="bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                            <h3 class="text-lg font-semibold text-white mb-4">Engagement Trends</h3>
+                            <canvas id="engagementChart" class="w-full h-64"></canvas>
+                        </div>
+
+                        <!-- Platform Distribution -->
+                        <div class="bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                            <h3 class="text-lg font-semibold text-white mb-4">Platform Distribution</h3>
+                            <canvas id="platformChart" class="w-full h-64"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Posts and Insights -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Recent High-Performing Posts -->
+                        <div class="lg:col-span-2 bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                            <h3 class="text-lg font-semibold text-white mb-4">Recent High-Performing Posts</h3>
+                            <!-- @MAP: recentPosts.map(post => ( -->
+                            <div class="space-y-4">
+                                <div class="flex items-start space-x-4 p-4 bg-dark-accent rounded-lg" data-mock="true">
+                                    <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-twitter text-white"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-white font-medium mb-1" data-bind="post.event_title">Breaking: New AI breakthrough announced</p>
+                                        <p class="text-gray-400 text-sm mb-2" data-bind="post.clean_event_text">This revolutionary AI technology could change everything we know about...</p>
+                                        <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                            <span data-bind="post.platform">Twitter</span>
+                                            <span data-bind="post.engagement_metrics.likes">1.2K likes</span>
+                                            <span data-bind="post.engagement_metrics.shares">234 shares</span>
+                                            <span data-bind="post.timestamp_utc">2 hours ago</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-4 p-4 bg-dark-accent rounded-lg" data-mock="true">
+                                    <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-reddit text-white"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-white font-medium mb-1" data-bind="post.event_title">Discussion: Best practices for data analysis</p>
+                                        <p class="text-gray-400 text-sm mb-2" data-bind="post.clean_event_text">Let's discuss the most effective approaches to analyzing large datasets...</p>
+                                        <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                            <span data-bind="post.platform">Reddit</span>
+                                            <span data-bind="post.engagement_metrics.likes">856 upvotes</span>
+                                            <span data-bind="post.engagement_metrics.comments">127 comments</span>
+                                            <span data-bind="post.timestamp_utc">4 hours ago</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-4 p-4 bg-dark-accent rounded-lg" data-mock="true">
+                                    <div class="w-10 h-10 bg-pink-500 rounded-lg flex items-center justify-center">
+                                        <i class="fab fa-instagram text-white"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-white font-medium mb-1" data-bind="post.event_title">Behind the scenes at our analytics lab</p>
+                                        <p class="text-gray-400 text-sm mb-2" data-bind="post.clean_event_text">Take a look at how we process millions of data points daily...</p>
+                                        <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                            <span data-bind="post.platform">Instagram</span>
+                                            <span data-bind="post.engagement_metrics.likes">2.1K likes</span>
+                                            <span data-bind="post.engagement_metrics.comments">89 comments</span>
+                                            <span data-bind="post.timestamp_utc">6 hours ago</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                        </div>
+
+                        <!-- Actionable Insights -->
+                        <div class="bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                            <h3 class="text-lg font-semibold text-white mb-4">Actionable Insights</h3>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg" data-mock="true">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mt-0.5">
+                                            <i class="fas fa-lightbulb text-xs text-white"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-white mb-1">Optimize Posting Time</h4>
+                                            <p class="text-sm text-gray-300 mb-2">Your Twitter engagement peaks at 2-4 PM EST. Schedule more posts during this window.</p>
+                                            <button class="text-blue-400 text-sm hover:text-blue-300 transition-colors">View Details →</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="p-4 bg-green-500/10 border border-green-500/20 rounded-lg" data-mock="true">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mt-0.5">
+                                            <i class="fas fa-chart-line text-xs text-white"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-white mb-1">Content Strategy</h4>
+                                            <p class="text-sm text-gray-300 mb-2">AI-related content performs 40% better than average. Consider increasing coverage.</p>
+                                            <button class="text-green-400 text-sm hover:text-green-300 transition-colors">Implement →</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg" data-mock="true">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center mt-0.5">
+                                            <i class="fas fa-users text-xs text-white"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-white mb-1">Audience Engagement</h4>
+                                            <p class="text-sm text-gray-300 mb-2">Reddit discussions generate 3x more comments. Focus on community building.</p>
+                                            <button class="text-yellow-400 text-sm hover:text-yellow-300 transition-colors">Learn More →</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: SocialDashboard -->
+
+            <!-- @COMPONENT: TalkToUsPage -->
+            <!-- Talk to Us Page -->
+            <div id="talk-to-us-page" class="page-content hidden">
+                <div class="p-8">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="mb-8">
+                            <h1 class="text-3xl font-bold text-white mb-2">Talk to Us</h1>
+                            <p class="text-gray-400">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Contact Form -->
+                            <div class="bg-dark-secondary rounded-xl p-8 border border-dark-border">
+                                <h2 class="text-xl font-semibold text-white mb-6">Send us a message</h2>
+                                <form class="space-y-6" data-implementation="Handle form submission">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Name</label>
+                                        <input type="text" class="w-full px-4 py-3 bg-dark-accent border border-dark-border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Your name" data-mock="true">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                                        <input type="email" class="w-full px-4 py-3 bg-dark-accent border border-dark-border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="your@email.com" data-mock="true">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Subject</label>
+                                        <select class="w-full px-4 py-3 bg-dark-accent border border-dark-border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" data-mock="true">
+                                            <option>General Inquiry</option>
+                                            <option>Technical Support</option>
+                                            <option>Feature Request</option>
+                                            <option>Partnership</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Message</label>
+                                        <textarea rows="4" class="w-full px-4 py-3 bg-dark-accent border border-dark-border rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" placeholder="Tell us how we can help you..." data-mock="true"></textarea>
+                                    </div>
+                                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200" data-event="click:handleContactSubmit">
+                                        Send Message
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Contact Information -->
+                            <div class="space-y-8">
+                                <div class="bg-dark-secondary rounded-xl p-8 border border-dark-border">
+                                    <h2 class="text-xl font-semibold text-white mb-6">Get in touch</h2>
+                                    <div class="space-y-6">
+                                        <div class="flex items-start space-x-4">
+                                            <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                                <i class="fas fa-envelope text-blue-400"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-medium text-white mb-1">Email</h3>
+                                                <p class="text-gray-400" data-mock="true">contact@blr.analytics</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start space-x-4">
+                                            <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                                <i class="fas fa-phone text-green-400"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-medium text-white mb-1">Phone</h3>
+                                                <p class="text-gray-400" data-mock="true">+1 (555) 123-4567</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start space-x-4">
+                                            <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                                <i class="fas fa-map-marker-alt text-purple-400"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-medium text-white mb-1">Office</h3>
+                                                <p class="text-gray-400" data-mock="true">123 Analytics Street<br>San Francisco, CA 94105</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-dark-secondary rounded-xl p-8 border border-dark-border">
+                                    <h2 class="text-xl font-semibold text-white mb-4">FAQ</h2>
+                                    <div class="space-y-4">
+                                        <div class="border-b border-dark-border pb-4">
+                                            <h3 class="font-medium text-white mb-2">How often is data updated?</h3>
+                                            <p class="text-gray-400 text-sm">Data is refreshed every 15 minutes across all connected platforms.</p>
+                                        </div>
+                                        <div class="border-b border-dark-border pb-4">
+                                            <h3 class="font-medium text-white mb-2">Which platforms do you support?</h3>
+                                            <p class="text-gray-400 text-sm">We currently support Twitter, Reddit, Instagram, Facebook, and YouTube.</p>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-medium text-white mb-2">Is my data secure?</h3>
+                                            <p class="text-gray-400 text-sm">Yes, we use enterprise-grade encryption and comply with all major data protection regulations.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: TalkToUsPage -->
+
+            <!-- @COMPONENT: DataManagementPage -->
+            <!-- Data Management Page -->
+            <div id="data-management-page" class="page-content hidden">
+                <div class="p-8">
+                    <div class="mb-8">
+                        <h1 class="text-3xl font-bold text-white mb-2">Data Management</h1>
+                        <p class="text-gray-400">Manage your social media data collection and storage</p>
+                    </div>
+
+                    <!-- Data Overview Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-database text-blue-400"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-1" data-bind="dataStats.totalRecords" data-mock="true">2.3M</h3>
+                            <p class="text-gray-400 text-sm">Total Records</p>
+                            <p class="text-green-400 text-xs mt-2">+15.2% this month</p>
+                        </div>
+
+                        <div class="bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-cloud text-green-400"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-1" data-bind="dataStats.storageUsed" data-mock="true">847 GB</h3>
+                            <p class="text-gray-400 text-sm">Storage Used</p>
+                            <p class="text-yellow-400 text-xs mt-2">78% of quota</p>
+                        </div>
+
+                        <div class="bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-sync text-purple-400"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-1" data-bind="dataStats.lastSync" data-mock="true">2 min</h3>
+                            <p class="text-gray-400 text-sm">Last Sync</p>
+                            <p class="text-green-400 text-xs mt-2">All platforms active</p>
+                        </div>
+                    </div>
+
+                    <!-- Data Schema and Recent Records -->
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                        <!-- Data Schema -->
+                        <div class="bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                            <h3 class="text-lg font-semibold text-white mb-4">Data Schema</h3>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">author_id</span>
+                                    <span class="text-blue-400">string</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">author_name</span>
+                                    <span class="text-blue-400">string</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">clean_event_text</span>
+                                    <span class="text-blue-400">string</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">engagement_metrics</span>
+                                    <span class="text-yellow-400">struct</span>
+                                </div>
+                                <div class="flex justify-between pl-4">
+                                    <span class="text-gray-500">├ comments</span>
+                                    <span class="text-green-400">long</span>
+                                </div>
+                                <div class="flex justify-between pl-4">
+                                    <span class="text-gray-500">├ likes</span>
+                                    <span class="text-green-400">long</span>
+                                </div>
+                                <div class="flex justify-between pl-4">
+                                    <span class="text-gray-500">└ shares</span>
+                                    <span class="text-green-400">long</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">event_content</span>
+                                    <span class="text-blue-400">string</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">event_id</span>
+                                    <span class="text-blue-400">string</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">platform</span>
+                                    <span class="text-blue-400">string</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">timestamp_utc</span>
+                                    <span class="text-blue-400">string</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Data Records -->
+                        <div class="xl:col-span-2 bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-white">Recent Data Records</h3>
+                                <button class="bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded-lg transition-colors duration-200" data-event="click:exportData">
+                                    <i class="fas fa-download mr-2"></i>Export
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr class="border-b border-dark-border">
+                                            <th class="text-left py-3 text-gray-400 font-medium">Event ID</th>
+                                            <th class="text-left py-3 text-gray-400 font-medium">Platform</th>
+                                            <th class="text-left py-3 text-gray-400 font-medium">Author</th>
+                                            <th class="text-left py-3 text-gray-400 font-medium">Engagement</th>
+                                            <th class="text-left py-3 text-gray-400 font-medium">Timestamp</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- @MAP: recentRecords.map(record => ( -->
+                                        <tr class="border-b border-dark-border/50" data-mock="true">
+                                            <td class="py-3 text-gray-300" data-bind="record.event_id">tw_1234567890</td>
+                                            <td class="py-3">
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-500/20 text-blue-400" data-bind="record.platform">
+                                                    Twitter
+                                                </span>
+                                            </td>
+                                            <td class="py-3 text-gray-300" data-bind="record.author_name">@john_doe</td>
+                                            <td class="py-3 text-gray-300">
+                                                <span data-bind="record.engagement_metrics.likes">1.2K</span> likes, 
+                                                <span data-bind="record.engagement_metrics.shares">234</span> shares
+                                            </td>
+                                            <td class="py-3 text-gray-400" data-bind="record.timestamp_utc">2024-01-15 14:30:00</td>
+                                        </tr>
+                                        <tr class="border-b border-dark-border/50" data-mock="true">
+                                            <td class="py-3 text-gray-300" data-bind="record.event_id">rd_9876543210</td>
+                                            <td class="py-3">
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-orange-500/20 text-orange-400" data-bind="record.platform">
+                                                    Reddit
+                                                </span>
+                                            </td>
+                                            <td class="py-3 text-gray-300" data-bind="record.author_name">analyst_pro</td>
+                                            <td class="py-3 text-gray-300">
+                                                <span data-bind="record.engagement_metrics.likes">856</span> upvotes, 
+                                                <span data-bind="record.engagement_metrics.comments">127</span> comments
+                                            </td>
+                                            <td class="py-3 text-gray-400" data-bind="record.timestamp_utc">2024-01-15 13:45:00</td>
+                                        </tr>
+                                        <tr class="border-b border-dark-border/50" data-mock="true">
+                                            <td class="py-3 text-gray-300" data-bind="record.event_id">ig_5555444433</td>
+                                            <td class="py-3">
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-pink-500/20 text-pink-400" data-bind="record.platform">
+                                                    Instagram
+                                                </span>
+                                            </td>
+                                            <td class="py-3 text-gray-300" data-bind="record.author_name">data_insights</td>
+                                            <td class="py-3 text-gray-300">
+                                                <span data-bind="record.engagement_metrics.likes">2.1K</span> likes, 
+                                                <span data-bind="record.engagement_metrics.comments">89</span> comments
+                                            </td>
+                                            <td class="py-3 text-gray-400" data-bind="record.timestamp_utc">2024-01-15 12:15:00</td>
+                                        </tr>
+                                        <!-- @END_MAP )) -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: DataManagementPage -->
+
+            <!-- @COMPONENT: SettingsPage -->
+            <!-- Settings Page -->
+            <div id="settings-page" class="page-content hidden">
+                <div class="p-8">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="mb-8">
+                            <h1 class="text-3xl font-bold text-white mb-2">Settings</h1>
+                            <p class="text-gray-400">Manage your account and application preferences</p>
+                        </div>
+
+                        <div class="space-y-8">
+                            <!-- Platform Connections -->
+                            <div class="bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                                <h2 class="text-xl font-semibold text-white mb-6">Platform Connections</h2>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-4 bg-dark-accent rounded-lg">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                                                <i class="fab fa-twitter text-white"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-medium text-white">Twitter</h3>
+                                                <p class="text-sm text-gray-400">Connected as @your_handle</p>
+                                            </div>
+                                        </div>
+                                        <button class="bg-green-500 text-white px-4 py-2 rounded-lg text-sm" data-mock="true">Connected</button>
+                                    </div>
+
+                                    <div class="flex items-center justify-between p-4 bg-dark-accent rounded-lg">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                                                <i class="fab fa-reddit text-white"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-medium text-white">Reddit</h3>
+                                                <p class="text-sm text-gray-400">Connected as u/your_username</p>
+                                            </div>
+                                        </div>
+                                        <button class="bg-green-500 text-white px-4 py-2 rounded-lg text-sm" data-mock="true">Connected</button>
+                                    </div>
+
+                                    <div class="flex items-center justify-between p-4 bg-dark-accent rounded-lg">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="w-10 h-10 bg-gray-500 rounded-lg flex items-center justify-center">
+                                                <i class="fab fa-facebook text-white"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-medium text-white">Facebook</h3>
+                                                <p class="text-sm text-gray-400">Not connected</p>
+                                            </div>
+                                        </div>
+                                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors" data-event="click:connectPlatform">Connect</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Data Collection Settings -->
+                            <div class="bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                                <h2 class="text-xl font-semibold text-white mb-6">Data Collection</h2>
+                                <div class="space-y-6">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h3 class="font-medium text-white">Real-time Collection</h3>
+                                            <p class="text-sm text-gray-400">Collect data in real-time from connected platforms</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" checked class="sr-only peer" data-mock="true">
+                                            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                                        </label>
+                                    </div>
+
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h3 class="font-medium text-white">Data Retention</h3>
+                                            <p class="text-sm text-gray-400">Keep data for analytics and insights</p>
+                                        </div>
+                                        <select class="bg-dark-accent border border-dark-border rounded-lg px-3 py-2 text-white text-sm" data-mock="true">
+                                            <option>90 days</option>
+                                            <option>6 months</option>
+                                            <option>1 year</option>
+                                            <option>Forever</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h3 class="font-medium text-white">Auto-cleanup</h3>
+                                            <p class="text-sm text-gray-400">Automatically remove old data based on retention policy</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" checked class="sr-only peer" data-mock="true">
+                                            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Notification Preferences -->
+                            <div class="bg-dark-secondary rounded-xl p-6 border border-dark-border">
+                                <h2 class="text-xl font-semibold text-white mb-6">Notifications</h2>
+                                <div class="space-y-6">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h3 class="font-medium text-white">Email Reports</h3>
+                                            <p class="text-sm text-gray-400">Receive weekly analytics reports via email</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" checked class="sr-only peer" data-mock="true">
+                                            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                                        </label>
+                                    </div>
+
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h3 class="font-medium text-white">Alert Notifications</h3>
+                                            <p class="text-sm text-gray-400">Get notified about unusual activity or trends</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer" data-mock="true">
+                                            <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Save Button -->
+                            <div class="flex justify-end">
+                                <button class="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 py-3 rounded-lg transition-colors duration-200" data-event="click:saveSettings">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: SettingsPage -->
+
+        </main>
+        <!-- @END_COMPONENT: MainContent -->
+    </div>
+    <!-- @END_COMPONENT: AppLayout -->
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        
+        (function() {
+            // Navigation functionality
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pages = document.querySelectorAll('.page-content');
+
+            function showPage(pageId) {
+                pages.forEach(page => page.classList.add('hidden'));
+                navLinks.forEach(link => {
+                    link.classList.remove('bg-dark-accent', 'text-white');
+                    link.classList.add('text-gray-300');
+                });
+
+                const targetPage = document.getElementById(pageId + '-page');
+                const targetLink = document.querySelector(`[data-page="${pageId}"]`);
+                
+                if (targetPage) {
+                    targetPage.classList.remove('hidden');
+                }
+                if (targetLink) {
+                    targetLink.classList.remove('text-gray-300');
+                    targetLink.classList.add('bg-dark-accent', 'text-white');
+                }
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = link.getAttribute('data-page');
+                    showPage(pageId);
+                });
+            });
+
+            // Initialize charts
+            function initializeCharts() {
+                // Engagement Trends Chart
+                const engagementCtx = document.getElementById('engagementChart').getContext('2d');
+                new Chart(engagementCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Likes',
+                            data: [12000, 19000, 15000, 25000, 22000, 30000],
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        }, {
+                            label: 'Shares',
+                            data: [3000, 5000, 4000, 7000, 6000, 8000],
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        }, {
+                            label: 'Comments',
+                            data: [5000, 8000, 6000, 12000, 10000, 15000],
+                            borderColor: '#F59E0B',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#D1D5DB'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: '#9CA3AF'
+                                },
+                                grid: {
+                                    color: '#374151'
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    color: '#9CA3AF'
+                                },
+                                grid: {
+                                    color: '#374151'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Platform Distribution Chart
+                const platformCtx = document.getElementById('platformChart').getContext('2d');
+                new Chart(platformCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Twitter', 'Reddit', 'Instagram', 'Facebook', 'YouTube'],
+                        datasets: [{
+                            data: [35, 25, 20, 12, 8],
+                            backgroundColor: [
+                                '#3B82F6',
+                                '#F97316',
+                                '#EC4899',
+                                '#1877F2',
+                                '#EF4444'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#D1D5DB',
+                                    padding: 20
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Initialize charts when DOM is loaded
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeCharts);
+            } else {
+                initializeCharts();
+            }
+
+            // Show dashboard by default
+            showPage('dashboard');
+        })();
+    </script>
+</body>
+</html>
