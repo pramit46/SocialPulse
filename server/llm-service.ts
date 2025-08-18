@@ -1,18 +1,18 @@
 import { ChromaClient, Collection } from 'chromadb';
-import { encodedOllamaKey } from '../config/ollama-config';
+import { huggingfaceApiKey } from '../config/huggingface-config';
 
 export class LLMService {
-  private ollamaKey: string;
+  private hfKey: string;
   private chromaClient: ChromaClient;
   private socialEventsCollection: Collection | null = null;
-  private embeddingModel = 'text-embedding-3-small';
+  // Use Qwen/Qwen3-Embedding-0.6B as the embedding model
+  private embeddingModel = 'Qwen/Qwen3-Embedding-0.6B';
 
   constructor() {
-    // Decode the Ollama key from base64
-    this.ollamaKey = Buffer.from(encodedOllamaKey, 'base64').toString('utf8');
+    // Set the Hugging Face API key from config
+    this.hfKey = huggingfaceApiKey;
 
-    // Note: Using Ollama instead of OpenAI, so no API key check here.
-    // Initialize ChromaDB client
+    // Using Hugging Face for model inference
     try {
       this.chromaClient = new ChromaClient({
         path: "http://localhost:8001" // Default ChromaDB endpoint
@@ -25,7 +25,6 @@ export class LLMService {
 
   private async initializeCollection() {
     try {
-      // Get or create the social events collection
       this.socialEventsCollection = await this.chromaClient.getOrCreateCollection({
         name: "bangalore_airport_social_events",
         metadata: { description: "Social media events related to Bangalore airport and airlines" }
@@ -40,7 +39,7 @@ export class LLMService {
       const messages = [
         {
           role: "system",
-          content: `You are a sentiment analysis expert for Bangalore airport and airline services. 
+          content: `You are a sentiment analysis expert for Bangalore airport and airline services.
 Analyze the sentiment of the given text and return a JSON response with:
 - overall_sentiment: number between -1 (negative) and 1 (positive)
 - sentiment_score: confidence score between 0 and 1
@@ -61,27 +60,26 @@ Return only valid JSON, no additional text.`
           content: text
         }
       ];
-      const response = await this.callOllamaCompletion("ollama-sentiment-model", messages, 300, 0.1);
-      const result = response.choices[0]?.message?.content;
+      // Use sentiment model: nlptown/bert-base-multilingual-uncased-sentiment
+      const response = await this.callHuggingFaceCompletion("nlptown/bert-base-multilingual-uncased-sentiment", messages, 300, 0.1);
+      const result = response.choices?.[0]?.message?.content;
       if (result) {
         try {
           return JSON.parse(result);
         } catch (parseError) {
-          console.error('Failed to parse Ollama sentiment response:', parseError);
+          console.error('Failed to parse Hugging Face sentiment response:', parseError);
           return this.getPlaceholderSentiment();
         }
       }
     } catch (error) {
-      console.error('Ollama sentiment analysis error:', error);
+      console.error('Hugging Face sentiment analysis error:', error);
     }
     return this.getPlaceholderSentiment();
   }
 
   async generateChatResponse(query: string, context: string[] = []): Promise<string> {
     try {
-      // Search for relevant social events using ChromaDB
       const relevantEvents = await this.searchSimilarEvents(query);
-      
       const contextText = relevantEvents.length > 0 
         ? `Relevant social media data:\n${relevantEvents.join('\n\n')}`
         : 'No specific social media data found for this query.';
@@ -89,7 +87,7 @@ Return only valid JSON, no additional text.`
       const messages = [
         {
           role: "system",
-          content: `You are AeroBot, an AI assistant specialized in Bangalore airport analytics and passenger experience insights. 
+          content: `You are AeroBot, an AI assistant specialized in Bangalore airport analytics and passenger experience insights.
 You have access to real-time social media data about Bangalore airport, IndiGo, SpiceJet, Air India, and Vistara.
 
 Provide helpful, accurate responses about:
@@ -106,10 +104,11 @@ Keep responses concise, helpful, and professional.`
           content: `Context: ${contextText}\n\nQuestion: ${query}`
         }
       ];
-      const response = await this.callOllamaCompletion("ollama-chat-model", messages, 500, 0.7);
-      return response.choices[0]?.message?.content || "I'm unable to generate a response right now. Please try again.";
+      // Use chat model: meta-llama/Llama-2-7b-chat-hf
+      const response = await this.callHuggingFaceCompletion("meta-llama/Llama-2-7b-chat-hf", messages, 500, 0.7);
+      return response.choices?.[0]?.message?.content || "I'm unable to generate a response right now. Please try again.";
     } catch (error) {
-      console.error('Ollama chat response generation error:', error);
+      console.error('Hugging Face chat response generation error:', error);
       return "I'm experiencing technical difficulties. Please try again later.";
     }
   }
@@ -119,7 +118,6 @@ Keep responses concise, helpful, and professional.`
       return;
     }
     try {
-      // Generate embedding for the event text
       const embedding = await this.generateEmbedding(text);
       if (embedding) {
         await this.socialEventsCollection.add({
@@ -136,7 +134,7 @@ Keep responses concise, helpful, and professional.`
 
   private async generateEmbedding(text: string): Promise<number[] | null> {
     try {
-      return await this.callOllamaEmbedding(text);
+      return await this.callHuggingFaceEmbedding(text);
     } catch (error) {
       console.error('Embedding generation error:', error);
       return null;
@@ -148,17 +146,15 @@ Keep responses concise, helpful, and professional.`
       return [];
     }
     try {
-      // Generate embedding for the query
       const queryEmbedding = await this.generateEmbedding(query);
       if (!queryEmbedding) {
         return [];
       }
-      // Search for similar events
       const results = await this.socialEventsCollection.query({
         queryEmbeddings: [queryEmbedding],
         nResults: limit
       });
-      return results.documents[0] || [];
+      return results.documents?.[0] || [];
     } catch (error) {
       console.error('Similarity search error:', error);
       return [];
@@ -182,43 +178,46 @@ Keep responses concise, helpful, and professional.`
     };
   }
 
-  private async callOllamaCompletion(model: string, messages: any[], max_tokens: number, temperature: number): Promise<any> {
+  private async callHuggingFaceCompletion(model: string, messages: any[], max_tokens: number, temperature: number): Promise<any> {
     try {
-      const response = await fetch("http://localhost:11434/api/completions", {
+      // Combine messages to form a prompt
+      const prompt = messages.map(msg => msg.content).join("\n");
+      const response = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${this.ollamaKey}`
+          "Authorization": `Bearer ${this.hfKey}`
         },
-        body: JSON.stringify({ model, messages, max_tokens, temperature })
+        body: JSON.stringify({ inputs: prompt, parameters: { max_new_tokens: max_tokens, temperature } })
       });
       if (!response.ok) {
         throw new Error(`HTTP error: ${response.status}`);
       }
       return await response.json();
     } catch (error) {
-      console.error('Ollama completion call error:', error);
+      console.error('Hugging Face completion call error:', error);
       throw error;
     }
   }
 
-  private async callOllamaEmbedding(text: string): Promise<number[] | null> {
+  private async callHuggingFaceEmbedding(text: string): Promise<number[] | null> {
     try {
-      const response = await fetch("http://localhost:11434/api/embeddings", {
+      const response = await fetch(`https://api-inference.huggingface.co/models/${this.embeddingModel}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${this.ollamaKey}`
+          "Authorization": `Bearer ${this.hfKey}`
         },
-        body: JSON.stringify({ model: this.embeddingModel, input: text })
+        body: JSON.stringify({ inputs: text })
       });
       if (!response.ok) {
         throw new Error(`HTTP error: ${response.status}`);
       }
       const data = await response.json();
-      return data.data[0]?.embedding || null;
+      // Adjust parsing based on the actual Hugging Face embedding API response structure
+      return data?.[0]?.embedding || null;
     } catch (error) {
-      console.error('Ollama embedding generation error:', error);
+      console.error('Hugging Face embedding generation error:', error);
       return null;
     }
   }
