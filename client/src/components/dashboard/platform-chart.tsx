@@ -1,6 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { mockChartData } from "@/lib/mock-data";
+
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0];
+    return (
+      <div className="bg-dark-primary border border-dark-border rounded-lg p-3 shadow-lg">
+        <p className="text-white font-medium">{data.name}</p>
+        <p className="text-blue-400">
+          {data.value}% of total engagement
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
 export default function PlatformChart() {
   return (
@@ -24,6 +39,7 @@ export default function PlatformChart() {
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
+            <Tooltip content={<CustomTooltip />} />
             <Legend 
               wrapperStyle={{ color: '#D1D5DB', fontSize: '12px' }}
               iconType="circle"

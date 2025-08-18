@@ -31,9 +31,10 @@ const mockResponses: Record<string, string> = {
   "default": "I understand you're asking about Bangalore airport experiences. Based on our AI analysis of social media data, I can provide insights about sentiment, airline performance, and passenger feedback across various airport services."
 };
 
-function getResponse(query: string): string {
+async function getResponse(query: string): Promise<string> {
   const lowerQuery = query.toLowerCase();
 
+  // Check for predefined sample responses first
   if (lowerQuery.includes("sentiment") || lowerQuery.includes("indigo")) {
     return mockResponses.sentiment;
   } else if (lowerQuery.includes("luggage") || lowerQuery.includes("baggage")) {
@@ -45,7 +46,15 @@ function getResponse(query: string): string {
   } else if (lowerQuery.includes("check") || lowerQuery.includes("checkin")) {
     return mockResponses.checkin;
   } else {
-    return mockResponses.default;
+    // Route unknown queries to LLM service
+    try {
+      const response = await apiRequest('POST', '/api/aerobot/chat', { query });
+      const data = await response.json();
+      return data.response || mockResponses.default;
+    } catch (error) {
+      console.error('AeroBot API error:', error);
+      return mockResponses.default;
+    }
   }
 }
 
@@ -84,20 +93,22 @@ export default function AeroBot() {
 
     try {
       // Always connect to the llm-services at the backend.
-      const response = await apiRequest("/api/aerobot/chat", "POST", { message: currentQuery });
+      const response = await apiRequest("POST", "/api/aerobot/chat", { message: currentQuery });
+      const data = await response.json();
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: response.response,
+        content: data.response,
         sender: "bot",
         timestamp: new Date()
       };
       setMessages(prev => [...prev, botResponse]);
     } catch (error) {
       console.error("AeroBot API error:", error);
-      // Fallback without showing API Unavailable message.
+      // Fallback to predefined responses or LLM service
+      const fallbackContent = await getResponse(currentQuery);
       const fallbackResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: getResponse(currentQuery),
+        content: fallbackContent,
         sender: "bot",
         timestamp: new Date()
       };
@@ -151,10 +162,10 @@ export default function AeroBot() {
                     <Button
                       key={index}
                       variant="ghost"
-                      className="w-full text-left justify-start text-sm text-gray-300 hover:text-white hover:bg-dark-accent"
+                      className="w-full text-left justify-start text-sm text-gray-300 hover:text-white hover:bg-dark-accent h-auto py-3 px-3 whitespace-normal"
                       onClick={() => handleSampleQuery(query)}
                     >
-                      {query}
+                      <span className="text-left leading-relaxed">{query}</span>
                     </Button>
                   ))}
                 </div>
@@ -189,13 +200,13 @@ export default function AeroBot() {
                           )}
                         </div>
                         <div
-                          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                          className={`max-w-[70%] px-4 py-2 rounded-lg break-words ${
                             message.sender === "user"
                               ? "bg-blue-500 text-white"
                               : "bg-dark-accent text-gray-100"
                           }`}
                         >
-                          <p className="text-sm">{message.content}</p>
+                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                           <p className="text-xs opacity-70 mt-1">
                             {message.timestamp.toLocaleTimeString()}
                           </p>
