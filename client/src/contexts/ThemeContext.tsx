@@ -15,14 +15,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = savedTheme === 'dark' || (!savedTheme && true);
     setIsDarkMode(prefersDark);
-    
-    // Apply theme to document
-    if (prefersDark) {
+    updateTheme(prefersDark);
+  }, []);
+
+  const updateTheme = (isDark: boolean) => {
+    if (isDark) {
       document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
     } else {
       document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
     }
-  }, []);
+  };
 
   const toggleTheme = () => {
     const newTheme = !isDarkMode;
@@ -32,11 +36,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('theme', newTheme ? 'dark' : 'light');
     
     // Apply to document
-    if (newTheme) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    updateTheme(newTheme);
   };
 
   return (

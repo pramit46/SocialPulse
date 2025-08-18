@@ -164,35 +164,28 @@ export default function AeroBot() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sample Queries */}
-          <div className="lg:col-span-1">
-            <Card className="bg-dark-secondary border-dark-border">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold text-white flex items-center">
-                  <Plane className="h-5 w-5 mr-2" />
-                  Quick Queries
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {sampleQueries.map((query, index) => (
-                    <Button
-                      key={index}
-                      variant="ghost"
-                      className="w-full text-left justify-start text-sm text-gray-300 hover:text-white hover:bg-dark-accent h-auto py-3 px-3 whitespace-normal"
-                      onClick={() => handleSampleQuery(query)}
-                    >
-                      <span className="text-left leading-relaxed">{query}</span>
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+        {/* Clean Chat Interface - No Boxes */}
+        <div className="w-full max-w-4xl mx-auto">
+          {/* Sample Queries - Inline buttons */}
+          <div className="mb-6">
+            <p className="text-gray-400 mb-3">Try these sample questions:</p>
+            <div className="flex flex-wrap gap-2">
+              {sampleQueries.map((query, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  className="border-dark-border bg-dark-secondary/50 hover:bg-dark-secondary text-gray-300 hover:text-white text-xs"
+                  onClick={() => handleSampleQuery(query)}
+                >
+                  {query}
+                </Button>
+              ))}
+            </div>
           </div>
 
           {/* Chat Interface */}
-          <div className="lg:col-span-3">
+          <div className="w-full">
             <Card className="bg-dark-secondary border-dark-border h-[600px] flex flex-col">
               <CardHeader className="border-b border-dark-border">
                 <CardTitle className="text-lg font-semibold text-white">Chat with AeroBot</CardTitle>

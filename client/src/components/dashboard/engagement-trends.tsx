@@ -4,47 +4,47 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { TrendingUp, Newspaper } from "lucide-react";
 
-// Mock engagement trends data for each platform
+// Mock viral buzz word trends data for each platform
 const socialMediaTrends = {
   facebook: [
-    { time: '00:00', engagement: 120, likes: 80, shares: 25, comments: 15 },
-    { time: '04:00', engagement: 95, likes: 65, shares: 18, comments: 12 },
-    { time: '08:00', engagement: 310, likes: 200, shares: 75, comments: 35 },
-    { time: '12:00', engagement: 445, likes: 280, shares: 110, comments: 55 },
-    { time: '16:00', engagement: 380, likes: 240, shares: 95, comments: 45 },
-    { time: '20:00', engagement: 520, likes: 340, shares: 125, comments: 55 },
+    { time: '00:00', delay: 15, excellent: 25, comfortable: 12, crowded: 8, efficient: 18 },
+    { time: '04:00', delay: 12, excellent: 20, comfortable: 10, crowded: 6, efficient: 15 },
+    { time: '08:00', delay: 28, excellent: 45, comfortable: 22, crowded: 18, efficient: 35 },
+    { time: '12:00', delay: 35, excellent: 58, comfortable: 28, crowded: 25, efficient: 42 },
+    { time: '16:00', delay: 30, excellent: 48, comfortable: 24, crowded: 20, efficient: 38 },
+    { time: '20:00', delay: 25, excellent: 52, comfortable: 26, crowded: 15, efficient: 40 },
   ],
   twitter: [
-    { time: '00:00', engagement: 85, likes: 60, shares: 15, comments: 10 },
-    { time: '04:00', engagement: 65, likes: 45, shares: 12, comments: 8 },
-    { time: '08:00', engagement: 220, likes: 150, shares: 45, comments: 25 },
-    { time: '12:00', engagement: 380, likes: 250, shares: 85, comments: 45 },
-    { time: '16:00', engagement: 290, likes: 190, shares: 65, comments: 35 },
-    { time: '20:00', engagement: 410, likes: 270, shares: 95, comments: 45 },
+    { time: '00:00', delay: 18, excellent: 22, comfortable: 8, crowded: 12, efficient: 15 },
+    { time: '04:00', delay: 14, excellent: 18, comfortable: 6, crowded: 10, efficient: 12 },
+    { time: '08:00', delay: 32, excellent: 38, comfortable: 18, crowded: 25, efficient: 28 },
+    { time: '12:00', delay: 42, excellent: 48, comfortable: 25, crowded: 32, efficient: 35 },
+    { time: '16:00', delay: 35, excellent: 42, comfortable: 20, crowded: 28, efficient: 30 },
+    { time: '20:00', delay: 28, excellent: 45, comfortable: 22, crowded: 20, efficient: 32 },
   ],
   reddit: [
-    { time: '00:00', engagement: 45, likes: 35, shares: 5, comments: 5 },
-    { time: '04:00', engagement: 30, likes: 22, shares: 4, comments: 4 },
-    { time: '08:00', engagement: 125, likes: 85, shares: 25, comments: 15 },
-    { time: '12:00', engagement: 185, likes: 125, shares: 35, comments: 25 },
-    { time: '16:00', engagement: 155, likes: 105, shares: 30, comments: 20 },
-    { time: '20:00', engagement: 220, likes: 150, shares: 45, comments: 25 },
+    { time: '00:00', delay: 8, excellent: 12, comfortable: 5, crowded: 6, efficient: 8 },
+    { time: '04:00', delay: 6, excellent: 10, comfortable: 4, crowded: 4, efficient: 6 },
+    { time: '08:00', delay: 15, excellent: 22, comfortable: 12, crowded: 15, efficient: 18 },
+    { time: '12:00', delay: 20, excellent: 28, comfortable: 15, crowded: 18, efficient: 22 },
+    { time: '16:00', delay: 18, excellent: 25, comfortable: 13, crowded: 16, efficient: 20 },
+    { time: '20:00', delay: 12, excellent: 30, comfortable: 16, crowded: 10, efficient: 25 },
   ],
   youtube: [
-    { time: '00:00', engagement: 25, likes: 20, shares: 3, comments: 2 },
-    { time: '04:00', engagement: 15, likes: 12, shares: 2, comments: 1 },
-    { time: '08:00', engagement: 65, likes: 50, shares: 10, comments: 5 },
-    { time: '12:00', engagement: 95, likes: 70, shares: 15, comments: 10 },
-    { time: '16:00', engagement: 80, likes: 60, shares: 12, comments: 8 },
-    { time: '20:00', engagement: 110, likes: 85, shares: 15, comments: 10 },
+    { time: '00:00', delay: 4, excellent: 8, comfortable: 3, crowded: 2, efficient: 5 },
+    { time: '04:00', delay: 3, excellent: 6, comfortable: 2, crowded: 1, efficient: 4 },
+    { time: '08:00', delay: 8, excellent: 15, comfortable: 8, crowded: 6, efficient: 12 },
+    { time: '12:00', delay: 12, excellent: 18, comfortable: 10, crowded: 8, efficient: 15 },
+    { time: '16:00', delay: 10, excellent: 16, comfortable: 9, crowded: 7, efficient: 13 },
+    { time: '20:00', delay: 6, excellent: 20, comfortable: 11, crowded: 4, efficient: 16 },
   ],
   instagram: [
-    { time: '00:00', engagement: 55, likes: 45, shares: 6, comments: 4 },
-    { time: '04:00', engagement: 35, likes: 28, shares: 4, comments: 3 },
-    { time: '08:00', engagement: 145, likes: 110, shares: 20, comments: 15 },
-    { time: '12:00', engagement: 210, likes: 160, shares: 30, comments: 20 },
-    { time: '16:00', engagement: 180, likes: 135, shares: 25, comments: 20 },
-    { time: '20:00', engagement: 250, likes: 190, shares: 35, comments: 25 },
+    { time: '00:00', delay: 10, excellent: 15, comfortable: 6, crowded: 8, efficient: 10 },
+    { time: '04:00', delay: 8, excellent: 12, comfortable: 5, crowded: 6, efficient: 8 },
+    { time: '08:00', delay: 18, excellent: 28, comfortable: 15, crowded: 20, efficient: 22 },
+    { time: '12:00', delay: 25, excellent: 35, comfortable: 20, crowded: 25, efficient: 28 },
+    { time: '16:00', delay: 22, excellent: 32, comfortable: 18, crowded: 22, efficient: 25 },
+    { time: '20:00', delay: 15, excellent: 38, comfortable: 22, crowded: 12, efficient: 30 },
   ]
 };
 
@@ -136,63 +136,77 @@ export default function EngagementTrends() {
                         <Legend />
                         <Line 
                           type="monotone" 
-                          dataKey="engagement" 
-                          stroke="#3B82F6" 
-                          strokeWidth={3}
-                          name="Total Engagement"
-                          dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
-                        />
-                        <Line 
-                          type="monotone" 
-                          dataKey="likes" 
+                          dataKey="excellent" 
                           stroke="#10B981" 
-                          strokeWidth={2}
-                          name="Likes"
-                          dot={{ fill: '#10B981', strokeWidth: 2, r: 3 }}
+                          strokeWidth={3}
+                          name="Excellent"
+                          dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
                         />
                         <Line 
                           type="monotone" 
-                          dataKey="shares" 
+                          dataKey="delay" 
+                          stroke="#EF4444" 
+                          strokeWidth={2}
+                          name="Delay"
+                          dot={{ fill: '#EF4444', strokeWidth: 2, r: 3 }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="comfortable" 
+                          stroke="#3B82F6" 
+                          strokeWidth={2}
+                          name="Comfortable"
+                          dot={{ fill: '#3B82F6', strokeWidth: 2, r: 3 }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="crowded" 
                           stroke="#F59E0B" 
                           strokeWidth={2}
-                          name="Shares"
+                          name="Crowded"
                           dot={{ fill: '#F59E0B', strokeWidth: 2, r: 3 }}
                         />
                         <Line 
                           type="monotone" 
-                          dataKey="comments" 
-                          stroke="#EF4444" 
+                          dataKey="efficient" 
+                          stroke="#8B5CF6" 
                           strokeWidth={2}
-                          name="Comments"
-                          dot={{ fill: '#EF4444', strokeWidth: 2, r: 3 }}
+                          name="Efficient"
+                          dot={{ fill: '#8B5CF6', strokeWidth: 2, r: 3 }}
                         />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="mt-4 grid grid-cols-4 gap-4 text-center">
-                    <div className="bg-dark-primary p-3 rounded-lg">
-                      <p className="text-lg font-bold text-blue-400">
-                        {formatNumber(data.reduce((sum, item) => sum + item.engagement, 0))}
-                      </p>
-                      <p className="text-xs text-gray-400">Total Engagement</p>
-                    </div>
+                  <div className="mt-4 grid grid-cols-5 gap-4 text-center">
                     <div className="bg-dark-primary p-3 rounded-lg">
                       <p className="text-lg font-bold text-green-400">
-                        {formatNumber(data.reduce((sum, item) => sum + item.likes, 0))}
+                        {formatNumber(data.reduce((sum, item) => sum + item.excellent, 0))}
                       </p>
-                      <p className="text-xs text-gray-400">Total Likes</p>
-                    </div>
-                    <div className="bg-dark-primary p-3 rounded-lg">
-                      <p className="text-lg font-bold text-yellow-400">
-                        {formatNumber(data.reduce((sum, item) => sum + item.shares, 0))}
-                      </p>
-                      <p className="text-xs text-gray-400">Total Shares</p>
+                      <p className="text-xs text-gray-400">Excellent</p>
                     </div>
                     <div className="bg-dark-primary p-3 rounded-lg">
                       <p className="text-lg font-bold text-red-400">
-                        {formatNumber(data.reduce((sum, item) => sum + item.comments, 0))}
+                        {formatNumber(data.reduce((sum, item) => sum + item.delay, 0))}
                       </p>
-                      <p className="text-xs text-gray-400">Total Comments</p>
+                      <p className="text-xs text-gray-400">Delay</p>
+                    </div>
+                    <div className="bg-dark-primary p-3 rounded-lg">
+                      <p className="text-lg font-bold text-blue-400">
+                        {formatNumber(data.reduce((sum, item) => sum + item.comfortable, 0))}
+                      </p>
+                      <p className="text-xs text-gray-400">Comfortable</p>
+                    </div>
+                    <div className="bg-dark-primary p-3 rounded-lg">
+                      <p className="text-lg font-bold text-yellow-400">
+                        {formatNumber(data.reduce((sum, item) => sum + item.crowded, 0))}
+                      </p>
+                      <p className="text-xs text-gray-400">Crowded</p>
+                    </div>
+                    <div className="bg-dark-primary p-3 rounded-lg">
+                      <p className="text-lg font-bold text-purple-400">
+                        {formatNumber(data.reduce((sum, item) => sum + item.efficient, 0))}
+                      </p>
+                      <p className="text-xs text-gray-400">Efficient</p>
                     </div>
                   </div>
                 </TabsContent>

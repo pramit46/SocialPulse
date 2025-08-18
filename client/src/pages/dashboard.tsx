@@ -1,5 +1,5 @@
 import MetricsCards from "@/components/dashboard/metrics-cards";
-import EngagementChart from "@/components/dashboard/engagement-chart";
+import WordCloud from "@/components/dashboard/word-cloud";
 import PlatformChart from "@/components/dashboard/platform-chart";
 import RecentPosts from "@/components/dashboard/recent-posts";
 import InsightsPanel from "@/components/dashboard/insights-panel";
@@ -25,7 +25,7 @@ export default function Dashboard() {
 
       {/* Charts and Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <EngagementChart />
+        <WordCloud />
         <PlatformChart />
       </div>
 
