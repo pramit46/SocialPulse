@@ -5,6 +5,8 @@ import RecentPosts from "@/components/dashboard/recent-posts";
 import InsightsPanel from "@/components/dashboard/insights-panel";
 import SentimentAnalysis from "@/components/dashboard/sentiment-analysis";
 import EngagementTrends from "@/components/dashboard/engagement-trends";
+import DataMoodVisualization from "@/components/dashboard/data-mood";
+import MoodMeter from "@/components/dashboard/mood-meter";
 
 export default function Dashboard() {
   return (
@@ -23,14 +25,20 @@ export default function Dashboard() {
       {/* Sentiment Analysis */}
       <SentimentAnalysis />
 
+      {/* Data Mood Visualization */}
+      <div className="mb-8">
+        <DataMoodVisualization />
+      </div>
+
       {/* Charts and Analytics */}
       <div className="mb-8">
         <WordCloud />       
       </div>
 
-      {/* Engagement Trends */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-         <PlatformChart/>
+      {/* Mood Meter and Engagement Trends */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <MoodMeter />
+        <PlatformChart />
         <EngagementTrends />
       </div>
 
