@@ -182,17 +182,20 @@ Keep responses concise, helpful, and professional.`,
     }
   }
 
-  private async searchSimilarEvents(
+  async searchSimilarEvents(
     query: string,
     limit: number = 5,
   ): Promise<string[]> {
     if (!this.socialEventsCollection) {
-      return [];
+      console.log("ChromaDB collection not available, searching in-memory storage");
+      // Fallback to searching in-memory storage when ChromaDB is unavailable
+      return this.searchInMemoryEvents(query, limit);
     }
     try {
       const queryEmbedding = await this.generateEmbedding(query);
       if (!queryEmbedding) {
-        return [];
+        console.log("Could not generate embedding, falling back to text search");
+        return this.searchInMemoryEvents(query, limit);
       }
       const results = await this.socialEventsCollection.query({
         queryEmbeddings: [queryEmbedding],
@@ -201,7 +204,7 @@ Keep responses concise, helpful, and professional.`,
       return (results.documents?.[0] || []).filter((doc): doc is string => doc !== null);
     } catch (error) {
       console.error("Similarity search error:", error);
-      return [];
+      return this.searchInMemoryEvents(query, limit);
     }
   }
 
@@ -316,6 +319,88 @@ Keep responses concise, helpful, and professional.`,
       // Normalize to NFC (Canonical Decomposition, followed by Canonical Composition)
       .normalize('NFC')
       .trim();
+  }
+
+  // Fallback text search when vector search is unavailable
+  private async searchInMemoryEvents(query: string, limit: number = 5): Promise<string[]> {
+    try {
+      // Import storage to access in-memory social events
+      const { storage } = await import('./storage');
+      const events = await storage.getSocialEvents();
+      
+      const queryLower = query.toLowerCase();
+      const keywords = queryLower.split(' ').filter(word => word.length > 2);
+      
+      // Score events based on keyword matches
+      const scoredEvents = events.map(event => {
+        const contentLower = event.event_content.toLowerCase();
+        let score = 0;
+        
+        keywords.forEach(keyword => {
+          if (contentLower.includes(keyword)) {
+            score += keyword.length; // Longer keywords get higher weight
+          }
+        });
+        
+        // Boost score for exact phrase matches
+        if (contentLower.includes(queryLower)) {
+          score += 10;
+        }
+        
+        return { event, score };
+      });
+      
+      // Filter and sort by score
+      const relevantEvents = scoredEvents
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit)
+        .map(item => item.event.event_content);
+        
+      console.log(`Found ${relevantEvents.length} relevant events for query: "${query}"`);
+      return relevantEvents;
+    } catch (error) {
+      console.error("In-memory event search error:", error);
+      return [];
+    }
+  }
+
+  // Generate contextual response from found social media data
+  async generateResponseFromData(query: string, relevantEvents: string[]): Promise<string> {
+    if (relevantEvents.length === 0) {
+      return "I couldn't find relevant social media data for your query.";
+    }
+
+    // Analyze the found events to provide insights
+    const eventSample = relevantEvents.slice(0, 3);
+    const totalEvents = relevantEvents.length;
+    
+    // Basic sentiment analysis of the events
+    let positiveCount = 0;
+    let negativeCount = 0;
+    
+    eventSample.forEach(event => {
+      const eventLower = event.toLowerCase();
+      const positiveWords = ['good', 'great', 'excellent', 'amazing', 'smooth', 'efficient', 'quick', 'helpful', 'clean', 'comfortable'];
+      const negativeWords = ['bad', 'terrible', 'awful', 'delay', 'slow', 'crowded', 'dirty', 'rude', 'lost', 'cancelled'];
+      
+      const hasPositive = positiveWords.some(word => eventLower.includes(word));
+      const hasNegative = negativeWords.some(word => eventLower.includes(word));
+      
+      if (hasPositive) positiveCount++;
+      if (hasNegative) negativeCount++;
+    });
+    
+    let sentimentSummary = "";
+    if (positiveCount > negativeCount) {
+      sentimentSummary = "The feedback is generally positive.";
+    } else if (negativeCount > positiveCount) {
+      sentimentSummary = "The feedback shows some concerns.";
+    } else {
+      sentimentSummary = "The feedback is mixed.";
+    }
+    
+    return `Based on ${totalEvents} recent social media posts related to your query, here's what I found:\n\n${sentimentSummary}\n\nRecent passenger experiences:\n• ${eventSample.join('\n• ')}\n\nThis data comes from actual social media posts about Bangalore airport and airline experiences.`;
   }
 }
 

@@ -13,7 +13,7 @@ import { randomUUID } from "crypto";
 // Extend the interface with new methods
 export interface IStorage {
   // Social Events
-  getSocialEvents(): Promise<SocialEvent[]>;
+  getSocialEvents(options?: { limit?: number }): Promise<SocialEvent[]>;
   createSocialEvent(event: InsertSocialEvent): Promise<SocialEvent>;
   
   // Contact Messages
@@ -172,10 +172,14 @@ export class MemStorage implements IStorage {
     this.users.set(pramit.id, pramit);
   }
 
-  async getSocialEvents(): Promise<SocialEvent[]> {
-    return Array.from(this.socialEvents.values()).sort((a, b) => 
+  async getSocialEvents(options: { limit?: number } = {}): Promise<SocialEvent[]> {
+    const events = Array.from(this.socialEvents.values()).sort((a, b) => 
       new Date(b.timestamp_utc || b.created_at || 0).getTime() - new Date(a.timestamp_utc || a.created_at || 0).getTime()
     );
+    if (options.limit) {
+      return events.slice(0, options.limit);
+    }
+    return events;
   }
 
   async createSocialEvent(insertEvent: InsertSocialEvent): Promise<SocialEvent> {

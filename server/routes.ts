@@ -166,7 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AeroBot chatbot endpoint
+  // AeroBot chatbot endpoint - RAG implementation
   app.post("/api/aerobot/chat", async (req, res) => {
     try {
       const { message } = req.body;
@@ -175,19 +175,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Message is required" });
       }
 
-      // For now, disable LLM service due to encoding issues and use fallback responses
-      const trimmedMessage = message.trim().toLowerCase();
-      let response = "I understand you're asking about Bangalore airport experiences. Based on our analytics data, I can provide insights about sentiment, airline performance, and passenger feedback. For specific queries about delays, luggage, lounges, security, or check-in processes, please try those specific topics.";
-
-      // Check for specific known topics
-      if (trimmedMessage.includes("delay")) {
-        response = "Flight delays at Bangalore airport show varying patterns across airlines. IndiGo maintains the best on-time performance at 82%, followed by Vistara at 78%. Air India has improved to 71% on-time, while SpiceJet faces challenges with 65% punctuality. Weather and air traffic are the primary delay factors during monsoon season.";
-      } else if (trimmedMessage.includes("restaurant") || trimmedMessage.includes("food") || trimmedMessage.includes("dining")) {
-        response = "Bangalore airport offers diverse dining options across terminals. Popular choices include Café Coffee Day, McDonald's, Subway, and local South Indian restaurants like MTR. Premium lounges feature buffet dining. Terminal 1 has more budget options, while Terminal 2 offers upscale dining experiences. Food courts are located on Level 3 of both terminals.";
-      } else if (trimmedMessage.includes("shopping") || trimmedMessage.includes("duty free")) {
-        response = "The airport features extensive shopping including duty-free stores, local handicraft shops, electronics retailers, and fashion brands. Popular purchases include Indian spices, silk products, and sandalwood items. Duty-free shopping is available for international travelers with competitive prices on alcohol, perfumes, and chocolates.";
-      } else if (trimmedMessage.includes("transportation") || trimmedMessage.includes("taxi") || trimmedMessage.includes("uber")) {
-        response = "Transportation from Bangalore airport includes pre-paid taxis, Ola/Uber ride-sharing, BMTC Vayu Vajra buses, and private car rentals. The airport is well-connected to the city center via Ballari Road. Travel time to major areas ranges from 45 minutes to 1.5 hours depending on traffic conditions.";
+      // Implement RAG: First search through scraped social media data
+      const query = message.trim();
+      let response;
+      
+      try {
+        // Step 1: Search for relevant social media data using vector similarity
+        const relevantEvents = await llmService.searchSimilarEvents(query);
+        
+        if (relevantEvents.length > 0) {
+          // Step 2: Use the found data to generate a contextual response
+          response = await llmService.generateResponseFromData(query, relevantEvents);
+        } else {
+          // Step 3: If no relevant data found, inform the user honestly
+          response = `I couldn't find specific social media data related to your query about "${query}". The available data in our system covers topics like flight delays, airline experiences, airport facilities, luggage handling, security processes, and passenger feedback for Bangalore airport. You might want to try asking about these specific topics, or check our Dashboard and Social Pulse sections for current analytics.`;
+        }
+      } catch (ragError) {
+        console.error('RAG system error:', ragError);
+        // Fallback to basic topic-based responses if RAG fails
+        response = await getBasicResponse(query.toLowerCase());
       }
       
       res.json({ 
@@ -203,6 +209,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Helper function for basic responses when RAG system is unavailable
+  async function getBasicResponse(query: string): Promise<string> {
+    // Check for specific known topics based on actual scraped data categories
+    if (query.includes("delay") || query.includes("on time") || query.includes("punctual")) {
+      // Try to get actual delay data from storage
+      const events = await storage.getSocialEvents({ limit: 50 });
+      const delayEvents = events.filter(event => 
+        event.event_content.toLowerCase().includes("delay") || 
+        event.event_content.toLowerCase().includes("late") ||
+        event.event_content.toLowerCase().includes("on time")
+      );
+      
+      if (delayEvents.length > 0) {
+        return `Based on recent social media posts, I found ${delayEvents.length} mentions about flight delays. Here's what passengers are saying: ${delayEvents.slice(0, 2).map(e => `"${e.event_content.substring(0, 100)}..."`).join(" | ")}`;
+      }
+    } else if (query.includes("luggage") || query.includes("baggage")) {
+      const events = await storage.getSocialEvents({ limit: 50 });
+      const luggageEvents = events.filter(event => 
+        event.event_content.toLowerCase().includes("luggage") || 
+        event.event_content.toLowerCase().includes("baggage") ||
+        event.event_content.toLowerCase().includes("lost bag")
+      );
+      
+      if (luggageEvents.length > 0) {
+        return `I found ${luggageEvents.length} recent posts about luggage handling. Recent feedback: ${luggageEvents.slice(0, 2).map(e => `"${e.event_content.substring(0, 100)}..."`).join(" | ")}`;
+      }
+    } else if (query.includes("security") || query.includes("screening")) {
+      const events = await storage.getSocialEvents({ limit: 50 });
+      const securityEvents = events.filter(event => 
+        event.event_content.toLowerCase().includes("security") || 
+        event.event_content.toLowerCase().includes("screening") ||
+        event.event_content.toLowerCase().includes("checkpoint")
+      );
+      
+      if (securityEvents.length > 0) {
+        return `Found ${securityEvents.length} mentions about security processes. Recent experiences: ${securityEvents.slice(0, 2).map(e => `"${e.event_content.substring(0, 100)}..."`).join(" | ")}`;
+      }
+    }
+    
+    return "I don't have specific social media data matching your query. Our system tracks passenger experiences about Bangalore airport including delays, luggage handling, security, check-in processes, and airline services. Please try asking about these topics, or visit our Dashboard for current analytics.";
+  }
 
   // General query endpoint for unknown queries to be handled by LLM
   app.post("/api/query", async (req, res) => {
