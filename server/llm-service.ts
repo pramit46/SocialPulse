@@ -1,5 +1,4 @@
 import { ChromaClient, Collection } from "chromadb";
-import { encodedHuggingFaceKey } from "../config/huggingface-config";
 
 export class LLMService {
   private hfKey: string;
@@ -9,8 +8,8 @@ export class LLMService {
   private embeddingModel = "Qwen/Qwen3-Embedding-0.6B";
 
   constructor() {
-    // Decode the Hugging Face API key from base64
-    this.hfKey = Buffer.from(encodedHuggingFaceKey, "base64").toString("utf8");
+    // Use the Hugging Face API key directly from environment variable
+    this.hfKey = process.env.HUGGING_FACE_API_KEY || "";
 
     // Using Hugging Face for model inference
     try {
@@ -232,13 +231,20 @@ Keep responses concise, helpful, and professional.`,
     try {
       // Combine messages to form a prompt and sanitize text
       const prompt = messages.map((msg) => this.sanitizeText(msg.content)).join("\n");
+      
+      // Ensure Authorization header is properly encoded
+      const sanitizedToken = this.hfKey ? this.sanitizeText(this.hfKey.trim()) : "";
+      if (!sanitizedToken) {
+        throw new Error("Missing or invalid Hugging Face API key");
+      }
+      
       const response = await fetch(
         `https://api-inference.huggingface.co/models/${model}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${this.hfKey}`,
+            Authorization: `Bearer ${sanitizedToken}`,
           },
           body: JSON.stringify({
             inputs: prompt,
@@ -247,7 +253,8 @@ Keep responses concise, helpful, and professional.`,
         },
       );
       if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP error: ${response.status} - ${errorText}`);
       }
       return await response.json();
     } catch (error) {
@@ -261,19 +268,30 @@ Keep responses concise, helpful, and professional.`,
   ): Promise<number[] | null> {
     try {
       const sanitizedText = this.sanitizeText(text);
+      if (!sanitizedText) {
+        return null;
+      }
+      
+      // Ensure Authorization header is properly encoded
+      const sanitizedToken = this.hfKey ? this.sanitizeText(this.hfKey.trim()) : "";
+      if (!sanitizedToken) {
+        throw new Error("Missing or invalid Hugging Face API key");
+      }
+      
       const response = await fetch(
         `https://api-inference.huggingface.co/models/${this.embeddingModel}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${this.hfKey}`,
+            Authorization: `Bearer ${sanitizedToken}`,
           },
           body: JSON.stringify({ inputs: sanitizedText }),
         },
       );
       if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP error: ${response.status} - ${errorText}`);
       }
       const data = await response.json();
       // Adjust parsing based on the actual Hugging Face embedding API response structure
@@ -293,10 +311,10 @@ Keep responses concise, helpful, and professional.`,
       .replace(/\uFFFD/g, '') // Unicode replacement character
       .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Control characters
       .replace(/[\uD800-\uDFFF]/g, '') // Surrogate pairs (invalid unicode)
+      // Remove any non-printable characters
+      .replace(/[^\x20-\x7E]/g, '')
       // Normalize to NFC (Canonical Decomposition, followed by Canonical Composition)
       .normalize('NFC')
-      // Ensure we only have valid ASCII and common Unicode characters
-      .replace(/[^\x20-\x7E\u00A0-\u024F\u1E00-\u1EFF]/g, '')
       .trim();
   }
 }
