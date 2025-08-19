@@ -30,7 +30,7 @@ export default function PlatformChart() {
               data={mockChartData.platforms}
               cx="50%"
               cy="45%"
-              outerRadius={100}
+              outerRadius={65}
               fill="#8884d8"
               dataKey="value"
               label={false}
