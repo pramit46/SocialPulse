@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { mongoService } from "./mongodb";
 import { insertContactMessageSchema, insertSocialEventSchema, insertSettingsSchema, dataSourceCredentialsSchema } from "@shared/schema";
 import { z } from "zod";
 import { dataCollectionService } from "./data-collection";
@@ -304,6 +305,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete user" });
+    }
+  });
+
+  // MongoDB Configuration endpoint
+  app.post("/api/mongodb/connect", async (req, res) => {
+    try {
+      const { connectionString, databaseName } = req.body;
+      
+      if (!connectionString) {
+        return res.status(400).json({ error: "MongoDB connection string is required" });
+      }
+      
+      await mongoService.connect(connectionString, databaseName);
+      res.json({ 
+        success: true, 
+        message: "Successfully connected to MongoDB",
+        isConnected: mongoService.isConnectionActive()
+      });
+    } catch (error) {
+      console.error('MongoDB connection error:', error);
+      res.status(500).json({ 
+        error: "Failed to connect to MongoDB",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // MongoDB Status endpoint
+  app.get("/api/mongodb/status", async (req, res) => {
+    try {
+      res.json({
+        isConnected: mongoService.isConnectionActive(),
+        dataSources: mongoService.isConnectionActive() ? await mongoService.getDataSources() : []
+      });
+    } catch (error) {
+      console.error('MongoDB status error:', error);
+      res.status(500).json({ 
+        error: "Failed to get MongoDB status",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Get data sources (collections) endpoint
+  app.get("/api/mongodb/data-sources", async (req, res) => {
+    try {
+      if (!mongoService.isConnectionActive()) {
+        return res.status(400).json({ error: "MongoDB not connected" });
+      }
+      
+      const dataSources = await mongoService.getDataSources();
+      const sourceStats = await Promise.all(
+        dataSources.map(async (source) => {
+          return await mongoService.getCollectionStats(source);
+        })
+      );
+      
+      res.json({ sources: sourceStats });
+    } catch (error) {
+      console.error('Error getting data sources:', error);
+      res.status(500).json({ 
+        error: "Failed to get data sources",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Download data from specific source
+  app.get("/api/mongodb/download/:sourceName", async (req, res) => {
+    try {
+      if (!mongoService.isConnectionActive()) {
+        return res.status(400).json({ error: "MongoDB not connected" });
+      }
+      
+      const { sourceName } = req.params;
+      const { format = 'json', limit = 1000 } = req.query;
+      
+      const data = await mongoService.getDataFromSource(sourceName, parseInt(limit as string));
+      
+      if (format === 'csv') {
+        // Convert to CSV format
+        if (data.length === 0) {
+          return res.status(404).json({ error: "No data found for this source" });
+        }
+        
+        // Get all unique keys from all documents
+        const allKeys = new Set<string>();
+        data.forEach(doc => {
+          Object.keys(doc).forEach(key => allKeys.add(key));
+        });
+        
+        const headers = Array.from(allKeys).filter(key => key !== '_id'); // Exclude MongoDB _id
+        let csvContent = headers.join(',') + '\n';
+        
+        data.forEach(doc => {
+          const row = headers.map(header => {
+            const value = doc[header];
+            if (value === null || value === undefined) return '';
+            if (typeof value === 'object') return JSON.stringify(value);
+            if (typeof value === 'string' && value.includes(',')) return `"${value}"`;
+            return value.toString();
+          });
+          csvContent += row.join(',') + '\n';
+        });
+        
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="${sourceName}_data.csv"`);
+        res.send(csvContent);
+      } else {
+        // Return JSON format
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename="${sourceName}_data.json"`);
+        res.json(data);
+      }
+    } catch (error) {
+      console.error('Error downloading data:', error);
+      res.status(500).json({ 
+        error: "Failed to download data",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 

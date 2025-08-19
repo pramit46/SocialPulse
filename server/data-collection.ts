@@ -3,12 +3,38 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { DataSourceCredentials, InsertSocialEvent } from '@shared/schema';
 import { llmService } from './llm-service';
+import { mongoService } from './mongodb';
+import { storage } from './storage';
 
 export class DataCollectionService {
   private credentials: DataSourceCredentials = {};
 
   setCredentials(credentials: DataSourceCredentials) {
     this.credentials = { ...this.credentials, ...credentials };
+  }
+
+  private async storeCollectedEvents(platform: string, events: InsertSocialEvent[]): Promise<void> {
+    try {
+      // Store in memory storage (existing functionality)
+      for (const eventData of events) {
+        await storage.createSocialEvent(eventData);
+      }
+
+      // Store in MongoDB if connected
+      if (mongoService.isConnectionActive()) {
+        const socialEvents = events.map(event => ({
+          ...event,
+          id: `${platform}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          created_at: new Date()
+        }));
+
+        await mongoService.bulkStoreSocialEvents(platform, socialEvents as any[]);
+        console.log(`Stored ${events.length} events from ${platform} to MongoDB`);
+      }
+    } catch (error) {
+      console.error(`Error storing ${platform} events:`, error);
+      throw error;
+    }
   }
 
   async collectTwitterData(query: string): Promise<InsertSocialEvent[]> {

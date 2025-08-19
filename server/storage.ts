@@ -9,6 +9,7 @@ import {
   type InsertUser
 } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { mongoService } from "./mongodb";
 
 // Extend the interface with new methods
 export interface IStorage {
@@ -202,7 +203,20 @@ export class MemStorage implements IStorage {
       id,
       created_at: new Date()
     };
+    
+    // Store in memory
     this.socialEvents.set(id, event);
+    
+    // Also store in MongoDB if connected, using platform as source name
+    if (mongoService.isConnectionActive() && insertEvent.platform) {
+      try {
+        await mongoService.storeSocialEvent(insertEvent.platform, event);
+      } catch (error) {
+        console.error('Failed to store event in MongoDB:', error);
+        // Continue with in-memory storage even if MongoDB fails
+      }
+    }
+    
     return event;
   }
 

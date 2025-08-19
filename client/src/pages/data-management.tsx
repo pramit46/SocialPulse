@@ -68,8 +68,44 @@ export default function DataManagement() {
   const [isConnectDialogOpen, setIsConnectDialogOpen] = useState(false);
   const [connectedSources, setConnectedSources] = useState<Set<string>>(new Set());
   const [isCollecting, setIsCollecting] = useState<Set<string>>(new Set());
+  const [mongoConnectionString, setMongoConnectionString] = useState('');
+  const [mongoDatabaseName, setMongoDatabaseName] = useState('bangalore_airport_analytics');
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // MongoDB status query
+  const { data: mongoStatus } = useQuery({
+    queryKey: ['/api/mongodb/status'],
+    refetchInterval: 10000 // Check every 10 seconds
+  });
+
+  // MongoDB data sources query
+  const { data: mongoDataSources, refetch: refetchDataSources } = useQuery({
+    queryKey: ['/api/mongodb/data-sources'],
+    enabled: mongoStatus?.isConnected
+  });
+
+  // MongoDB connection mutation
+  const mongoConnectMutation = useMutation({
+    mutationFn: async (data: { connectionString: string; databaseName: string }) => {
+      const response = await apiRequest('POST', '/api/mongodb/connect', data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "MongoDB Connected",
+        description: "Successfully connected to MongoDB database"
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/mongodb/status'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Connection Failed",
+        description: error.message || "Failed to connect to MongoDB",
+        variant: "destructive"
+      });
+    }
+  });
 
   const dataCollectionMutation = useMutation({
     mutationFn: async ({ source, credentials: creds }: { source: string; credentials: DataSourceCredentials }) => {
