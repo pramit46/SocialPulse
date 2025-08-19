@@ -170,6 +170,40 @@ export const mockSocialEvents: SocialEvent[] = [
     location_focus: "bangalore_airport",
     airline_mentioned: null,
     created_at: new Date()
+  },
+  {
+    id: "6",
+    author_id: "vimeo_555",
+    author_name: "vimeo_travel_vlogger",
+    clean_event_text: "Made a comprehensive review of Bangalore airport facilities. Security processes could be faster, but overall amenities are world-class.",
+    engagement_metrics: {
+      comments: 345,
+      likes: 4511,
+      shares: 678
+    },
+    event_content: "Comprehensive review of Bangalore airport facilities in my latest video! Security processes could be faster, but overall amenities are world-class. Check it out! #BangaloreAirport #TravelReview #BLRAirport #KIA",
+    event_id: "vm_776655443348",
+    event_title: "Bangalore Airport Comprehensive Review",
+    event_url: "https://vimeo.com/watch?v=7766554433",
+    parent_event_id: null,
+    platform: "Vimeo",
+    timestamp_utc: "2024-01-16T11:26:00Z",
+    sentiment_analysis: {
+      overall_sentiment: 0.6,
+      sentiment_score: 0.7,
+      categories: {
+        ease_of_booking: null,
+        check_in: null,
+        luggage_handling: null,
+        security: -0.3,
+        lounge: null,
+        amenities: 0.8,
+        communication: null
+      }
+    },
+    location_focus: "bangalore_airport",
+    airline_mentioned: "Vistara",
+    created_at: new Date()
   }
 ];
 
@@ -198,7 +232,8 @@ export const mockChartData = {
     { name: "Reddit", value: 25, color: "#F97316" },
     { name: "Instagram", value: 20, color: "#EC4899" },
     { name: "Facebook", value: 12, color: "#1877F2" },
-    { name: "YouTube", value: 8, color: "#EF4444" }
+    { name: "YouTube", value: 8, color: "#EF4444" },
+    { name: "Vimeo", value: 10, color: "#AB4444" }
   ]
 };
 

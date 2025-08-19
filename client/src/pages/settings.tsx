@@ -23,14 +23,12 @@ interface User {
 }
 
 const roleColors = {
-  super_admin: "bg-red-500/20 text-red-400",
-  admin: "bg-orange-500/20 text-orange-400",
+  admin: "bg-red-500/20 text-red-400",
   editor: "bg-blue-500/20 text-blue-400",
   viewer: "bg-gray-500/20 text-gray-400",
 };
 
 const roleLabels = {
-  super_admin: "Super Admin",
   admin: "Admin",
   editor: "Editor",
   viewer: "Viewer",
@@ -48,7 +46,7 @@ export default function Settings() {
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
-    role: "viewer",
+    role: "editor",
   });
 
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
@@ -73,7 +71,7 @@ export default function Settings() {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/users'] });
       setIsAddUserDialogOpen(false);
-      setNewUser({ name: "", email: "", role: "viewer" });
+      setNewUser({ name: "", email: "", role: "editor" });
     },
     onError: (error) => {
       toast({

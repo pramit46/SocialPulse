@@ -161,12 +161,12 @@ export class MemStorage implements IStorage {
       this.socialEvents.set(event.id, event);
     });
 
-    // Initialize Pramit as super admin
+    // Initialize Pramit as admin
     const pramit: User = {
       id: "user_pramit",
       name: "Pramit",
       email: "pramit@blranalytics.com",
-      role: "super_admin",
+      role: "admin",
       created_at: new Date(),
       updated_at: new Date()
     };
@@ -327,9 +327,9 @@ export class MemStorage implements IStorage {
   }
 
   async deleteUser(id: string): Promise<void> {
-    // Prevent deleting Pramit (super admin)
+    // Prevent deleting Pramit (admin)
     if (id === "user_pramit") {
-      throw new Error("Cannot delete super admin user");
+      throw new Error("Cannot delete admin user");
     }
     this.users.delete(id);
   }

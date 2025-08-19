@@ -125,28 +125,28 @@ export default function MoodMeter() {
 
   return (
     <Card className={`bg-gradient-to-br ${moodData.bgColor} border-purple-500/20`}>
-      <CardHeader>
+      <CardHeader className="py-3">
         <CardTitle className="flex items-center justify-between text-white">
           <div className="flex items-center gap-2">
-            <Heart className="h-5 w-5 text-pink-400" />
-            Passenger Mood Meter
+            <Heart className="h-4 w-4 text-pink-400" />
+            <span className="text-sm font-semibold">Passenger Mood</span>
           </div>
           <Badge 
             variant="secondary" 
-            className="bg-white/10 text-white border-white/20"
+            className="bg-white/10 text-white border-white/20 text-xs"
           >
-            {moodMetrics.totalEvents} voices
+            {moodMetrics.totalEvents}
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 py-2">
         {/* Main Mood Display */}
         <div className="text-center">
-          <div className="flex items-center justify-center mb-4">
-            {moodData.icon}
+          <div className="flex items-center justify-center mb-2">
+            <div className="scale-75">{moodData.icon}</div>
           </div>
-          <h3 className="text-2xl font-bold text-white mb-2">{moodData.label}</h3>
-          <p className="text-gray-300 text-sm mb-4">{moodData.description}</p>
+          <h3 className="text-lg font-bold text-white mb-1">{moodData.label}</h3>
+          <p className="text-gray-300 text-xs mb-3">{moodData.description}</p>
           
           {/* Mood Intensity Bar */}
           <div className="relative">
@@ -164,34 +164,34 @@ export default function MoodMeter() {
           </div>
         </div>
 
-        {/* Emotion Breakdown */}
-        <div className="grid grid-cols-5 gap-2 text-center">
+        {/* Emotion Breakdown - Compact */}
+        <div className="grid grid-cols-5 gap-1 text-center">
           <div>
-            <div className="w-8 h-8 bg-green-500 rounded-full mx-auto mb-1 flex items-center justify-center">
+            <div className="w-6 h-6 bg-green-500 rounded-full mx-auto mb-1 flex items-center justify-center">
               <span className="text-xs font-bold text-white">{moodMetrics.emotions.joy}</span>
             </div>
             <p className="text-xs text-gray-400">Joy</p>
           </div>
           <div>
-            <div className="w-8 h-8 bg-blue-500 rounded-full mx-auto mb-1 flex items-center justify-center">
+            <div className="w-6 h-6 bg-blue-500 rounded-full mx-auto mb-1 flex items-center justify-center">
               <span className="text-xs font-bold text-white">{moodMetrics.emotions.satisfaction}</span>
             </div>
             <p className="text-xs text-gray-400">Happy</p>
           </div>
           <div>
-            <div className="w-8 h-8 bg-yellow-500 rounded-full mx-auto mb-1 flex items-center justify-center">
+            <div className="w-6 h-6 bg-yellow-500 rounded-full mx-auto mb-1 flex items-center justify-center">
               <span className="text-xs font-bold text-white">{moodMetrics.emotions.neutral}</span>
             </div>
             <p className="text-xs text-gray-400">Neutral</p>
           </div>
           <div>
-            <div className="w-8 h-8 bg-orange-500 rounded-full mx-auto mb-1 flex items-center justify-center">
+            <div className="w-6 h-6 bg-orange-500 rounded-full mx-auto mb-1 flex items-center justify-center">
               <span className="text-xs font-bold text-white">{moodMetrics.emotions.frustration}</span>
             </div>
             <p className="text-xs text-gray-400">Upset</p>
           </div>
           <div>
-            <div className="w-8 h-8 bg-red-500 rounded-full mx-auto mb-1 flex items-center justify-center">
+            <div className="w-6 h-6 bg-red-500 rounded-full mx-auto mb-1 flex items-center justify-center">
               <span className="text-xs font-bold text-white">{moodMetrics.emotions.anger}</span>
             </div>
             <p className="text-xs text-gray-400">Angry</p>

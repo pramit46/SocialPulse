@@ -20,17 +20,17 @@ const CustomTooltip = ({ active, payload }: any) => {
 export default function PlatformChart() {
   return (
     <Card className="bg-dark-secondary border-dark-border">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold text-white">Platform Distribution</CardTitle>
+      <CardHeader className="py-3">
+        <CardTitle className="text-sm font-semibold text-white">Platform Distribution</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={500}>
+      <CardContent className="py-2">
+        <ResponsiveContainer width="100%" height={200}>
           <PieChart>
             <Pie
               data={mockChartData.platforms}
               cx="50%"
               cy="45%"
-              outerRadius={140}
+              outerRadius={100}
               fill="#8884d8"
               dataKey="value"
               label={false}

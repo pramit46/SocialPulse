@@ -36,9 +36,13 @@ export default function Dashboard() {
       </div>
 
       {/* Mood Meter and Engagement Trends */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <MoodMeter />
-        <PlatformChart />
+        <PlatformChart />        
+      </div>
+
+      {/* Engagement Trends */}
+      <div className="mb-8">
         <EngagementTrends />
       </div>
 
