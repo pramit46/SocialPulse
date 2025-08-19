@@ -102,7 +102,13 @@ Return only valid JSON, no additional text.`,
     context: string[] = [],
   ): Promise<string> {
     try {
-      const relevantEvents = await this.searchSimilarEvents(query);
+      // Sanitize the input query first
+      const sanitizedQuery = this.sanitizeText(query);
+      if (!sanitizedQuery) {
+        return "I didn't receive a clear message. Could you please try again?";
+      }
+
+      const relevantEvents = await this.searchSimilarEvents(sanitizedQuery);
       const contextText =
         relevantEvents.length > 0
           ? `Relevant social media data:\n${relevantEvents.join("\n\n")}`
@@ -125,7 +131,7 @@ Keep responses concise, helpful, and professional.`,
         },
         {
           role: "user",
-          content: `Context: ${contextText}\n\nQuestion: ${query}`,
+          content: `Context: ${contextText}\n\nQuestion: ${sanitizedQuery}`,
         },
       ];
       // Use chat model: meta-llama/Llama-2-7b-chat-hf
@@ -224,8 +230,8 @@ Keep responses concise, helpful, and professional.`,
     temperature: number,
   ): Promise<any> {
     try {
-      // Combine messages to form a prompt
-      const prompt = messages.map((msg) => msg.content).join("\n");
+      // Combine messages to form a prompt and sanitize text
+      const prompt = messages.map((msg) => this.sanitizeText(msg.content)).join("\n");
       const response = await fetch(
         `https://api-inference.huggingface.co/models/${model}`,
         {
@@ -254,6 +260,7 @@ Keep responses concise, helpful, and professional.`,
     text: string,
   ): Promise<number[] | null> {
     try {
+      const sanitizedText = this.sanitizeText(text);
       const response = await fetch(
         `https://api-inference.huggingface.co/models/${this.embeddingModel}`,
         {
@@ -262,7 +269,7 @@ Keep responses concise, helpful, and professional.`,
             "Content-Type": "application/json",
             Authorization: `Bearer ${this.hfKey}`,
           },
-          body: JSON.stringify({ inputs: text }),
+          body: JSON.stringify({ inputs: sanitizedText }),
         },
       );
       if (!response.ok) {
@@ -275,6 +282,22 @@ Keep responses concise, helpful, and professional.`,
       console.error("Hugging Face embedding generation error:", error);
       return null;
     }
+  }
+
+  // Sanitize text to remove invalid UTF-8 characters and problematic unicode
+  private sanitizeText(text: string): string {
+    if (!text) return "";
+    
+    return text
+      // Remove Unicode replacement characters and other problematic characters
+      .replace(/\uFFFD/g, '') // Unicode replacement character
+      .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Control characters
+      .replace(/[\uD800-\uDFFF]/g, '') // Surrogate pairs (invalid unicode)
+      // Normalize to NFC (Canonical Decomposition, followed by Canonical Composition)
+      .normalize('NFC')
+      // Ensure we only have valid ASCII and common Unicode characters
+      .replace(/[^\x20-\x7E\u00A0-\u024F\u1E00-\u1EFF]/g, '')
+      .trim();
   }
 }
 
