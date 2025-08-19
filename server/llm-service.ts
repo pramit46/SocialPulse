@@ -15,10 +15,14 @@ export class LLMService {
     // Using Hugging Face for model inference
     try {
       this.chromaClient = new ChromaClient({
-        path: "http://localhost:8001", // Default ChromaDB endpoint
+        path: "http://localhost:8000", // Default ChromaDB endpoint
       });
-      this.initializeCollection();
-    } catch (error) {
+      /*const chromaDbPath = process.env.CHROMA_DB_PATH || "./shared/chroma_db";
+      this.chromaClient = new ChromaClient({
+        path: chromaDbPath
+      });*/
+      void this.initializeCollection();
+    } catch (error: unknown) {
       console.warn(
         "ChromaDB not available, using in-memory storage for embeddings",
       );
