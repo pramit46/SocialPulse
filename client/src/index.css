@@ -3,6 +3,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Chat bubble word wrapping */
+.word-wrap {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
 /* Light theme variables */
 :root {
   --background: 0 0% 100%;

@@ -73,6 +73,7 @@ export default function AeroBot() {
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -136,6 +137,10 @@ export default function AeroBot() {
         setMessages(prev => [...prev, fallbackResponse]);
       } finally {
         setIsTyping(false);
+        // Re-focus the input after sending message
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 100);
       }
     }
   };
@@ -190,13 +195,13 @@ export default function AeroBot() {
 
           {/* Chat Interface */}
           <div className="w-full">
-            <Card className="bg-dark-secondary border-dark-border h-[600px] flex flex-col">
-              <CardHeader className="border-b border-dark-border">
+            <Card className="bg-dark-secondary border-dark-border min-h-[600px] max-h-[800px] flex flex-col">
+              <CardHeader className="border-b border-dark-border flex-shrink-0">
                 <CardTitle className="text-lg font-semibold text-white">Chat with AeroBot</CardTitle>
               </CardHeader>
               
-              <CardContent className="flex-1 p-0 flex flex-col">
-                <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+              <CardContent className="flex-1 p-0 flex flex-col overflow-hidden">
+                <ScrollArea className="flex-1 p-4 overflow-y-auto" ref={scrollAreaRef}>
                   <div className="space-y-4">
                     {messages.map((message) => (
                       <div
@@ -205,7 +210,7 @@ export default function AeroBot() {
                           message.sender === "user" ? "flex-row-reverse space-x-reverse" : ""
                         }`}
                       >
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                           message.sender === "user" ? "bg-blue-500" : "bg-gray-600"
                         }`}>
                           {message.sender === "user" ? (
@@ -215,13 +220,13 @@ export default function AeroBot() {
                           )}
                         </div>
                         <div
-                          className={`max-w-[65%] px-3 py-2 rounded-lg break-words overflow-hidden ${
+                          className={`max-w-[70%] px-3 py-2 rounded-lg word-wrap ${
                             message.sender === "user"
                               ? "bg-blue-500 text-white"
                               : "bg-dark-accent text-gray-100"
                           }`}
                         >
-                          <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">{message.content}</p>
+                          <p className="text-sm whitespace-pre-wrap word-wrap">{message.content}</p>
                           <p className="text-xs opacity-70 mt-1">
                             {message.timestamp.toLocaleTimeString()}
                           </p>
@@ -246,15 +251,17 @@ export default function AeroBot() {
                   </div>
                 </ScrollArea>
                 
-                <div className="p-4 border-t border-dark-border">
+                <div className="p-4 border-t border-dark-border flex-shrink-0">
                   <div className="flex space-x-2">
                     <Input
+                      ref={inputRef}
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="Ask about Bangalore airport experiences..."
                       className="flex-1 bg-dark-accent border-dark-border text-white placeholder-gray-500"
                       disabled={isTyping}
+                      autoFocus
                     />
                     <Button
                       onClick={() => handleSendMessage()}

@@ -11,11 +11,13 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes (August 2025)
 
 ### Enhanced Features Implemented:
+- **RAG System Complete**: Built proper Retrieval-Augmented Generation using scraped social media data from ChromaDB and in-memory storage
+- **MongoDB Integration**: Full database service with source-specific collections (twitter, reddit, facebook, cnn, wion, etc.) and automatic data storage
+- **Data Export System**: Download functionality for MongoDB collections in both JSON and CSV formats via Data Management page
+- **Chat UI Improvements**: Fixed chat bubble expansion, added auto-focus input field, improved word wrapping for long messages
+- **Anti-Hallucination Protection**: AVA chatbot searches actual social media posts before responding, clearly states when no relevant data exists
 - **User Management System**: Full RBAC (Role-Based Access Control) with super admin (Pramit), admin, editor, and viewer roles
-- **LLM Query Handling**: Unknown queries automatically routed to Hugging Face-powered LLM service for intelligent responses
-- **Automatic Data Collection**: Collection starts immediately when API credentials are provided for any social media platform
-- **Settings Page Redesign**: Removed Platform Connections section, added comprehensive User Management interface
-- **Data Management Enhancement**: Social media platform boxes now show checkmarks for working connections (Twitter and Reddit active)
+- **Automatic Data Collection**: Collection starts immediately when API credentials are provided, with automatic MongoDB storage
 - **Hugging Face Integration**: Complete migration from OpenAI to Hugging Face API for sentiment analysis and chat responses
 
 ## System Architecture
