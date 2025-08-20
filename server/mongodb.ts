@@ -227,6 +227,36 @@ class MongoDBService {
       return {};
     }
   }
+
+  // Generic method to insert multiple documents into any collection
+  async bulkInsertToCollection(collectionName: string, documents: any[]): Promise<void> {
+    if (documents.length === 0) return;
+
+    try {
+      const collection = this.getCollection(collectionName);
+      const docsWithMetadata = documents.map(doc => ({
+        ...doc,
+        mongodb_inserted_at: new Date()
+      }));
+
+      await collection.insertMany(docsWithMetadata);
+      console.log(`✅ Bulk inserted ${documents.length} documents to ${collectionName} collection`);
+    } catch (error) {
+      console.error(`❌ Error bulk inserting to ${collectionName} collection:`, error);
+      throw error;
+    }
+  }
+
+  // Generic method to get documents from any collection
+  async getFromCollection(collectionName: string, filter: any = {}): Promise<any[]> {
+    try {
+      const collection = this.getCollection(collectionName);
+      return await collection.find(filter).toArray();
+    } catch (error) {
+      console.error(`❌ Error getting data from ${collectionName} collection:`, error);
+      return [];
+    }
+  }
 }
 
 export const mongoService = new MongoDBService();

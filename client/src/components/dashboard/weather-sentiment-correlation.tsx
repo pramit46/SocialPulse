@@ -71,7 +71,11 @@ export default function WeatherSentimentCorrelation() {
 
   // Process weather correlation data from MongoDB
   const weatherCorrelationData = useMemo(() => {
-    if (!weatherCorrelations || weatherCorrelations.length === 0) return [];
+    if (!weatherCorrelations || weatherCorrelations.length === 0) {
+      console.log('No weather correlations data:', weatherCorrelations);
+      return [];
+    }
+    console.log('Weather correlations loaded:', weatherCorrelations.length, weatherCorrelations);
     return weatherCorrelations;
   }, [weatherCorrelations]);
 
@@ -165,36 +169,49 @@ export default function WeatherSentimentCorrelation() {
             </TabsList>
             
             <TabsContent value="correlation" className="mt-6">
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weatherCorrelationData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis 
-                      dataKey="condition" 
-                      stroke="#9CA3AF"
-                      fontSize={12}
-                    />
-                    <YAxis 
-                      stroke="#9CA3AF"
-                      fontSize={12}
-                    />
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: '#1F2937',
-                        border: '1px solid #374151',
-                        borderRadius: '8px',
-                        color: '#FFFFFF'
-                      }}
-                    />
-                    <Bar 
-                      dataKey="delayComplaints" 
-                      fill="#EF4444" 
-                      name="Delay Complaints"
-                      radius={[4, 4, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              {weatherCorrelationData.length === 0 ? (
+                <div className="h-80 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="animate-pulse text-gray-400 mb-2">Loading weather correlation data...</div>
+                    <div className="text-xs text-gray-500">Fetching from MongoDB</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={weatherCorrelationData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis 
+                        dataKey="condition" 
+                        stroke="#9CA3AF"
+                        fontSize={12}
+                      />
+                      <YAxis 
+                        stroke="#9CA3AF"
+                        fontSize={12}
+                      />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: '#1F2937',
+                          border: '1px solid #374151',
+                          borderRadius: '8px',
+                          color: '#FFFFFF'
+                        }}
+                        formatter={(value: any, name: string) => {
+                          if (name === 'Delay Complaints') return [value, 'Delay Complaints'];
+                          return [value, name];
+                        }}
+                      />
+                      <Bar 
+                        dataKey="delayComplaints" 
+                        fill="#EF4444" 
+                        name="Delay Complaints"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
               <div className="mt-4 grid grid-cols-3 gap-4 text-center">
                 <div className="bg-dark-primary p-4 rounded-lg">
                   <div className="flex items-center justify-center mb-2">
