@@ -428,6 +428,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Migration endpoint to transfer existing data to MongoDB
+  app.post("/api/mongodb/migrate-existing-data", async (req, res) => {
+    try {
+      if (!mongoService.isConnectionActive()) {
+        return res.status(400).json({ error: "MongoDB not connected" });
+      }
+
+      // Get all existing social events from memory storage
+      const existingEvents = await storage.getSocialEvents();
+      
+      if (existingEvents.length === 0) {
+        return res.json({ 
+          success: true, 
+          message: "No existing events to migrate",
+          migratedCount: 0 
+        });
+      }
+
+      // Group events by platform for organized storage
+      const eventsByPlatform = existingEvents.reduce((groups: Record<string, typeof existingEvents>, event) => {
+        const platform = event.platform.toLowerCase();
+        if (!groups[platform]) {
+          groups[platform] = [];
+        }
+        groups[platform].push(event);
+        return groups;
+      }, {} as Record<string, typeof existingEvents>);
+
+      let totalMigrated = 0;
+      const migrationResults = [];
+
+      // Migrate each platform's events to MongoDB
+      for (const [platform, events] of Object.entries(eventsByPlatform)) {
+        try {
+          await mongoService.bulkStoreSocialEvents(platform, events as any[]);
+          migrationResults.push({
+            platform,
+            eventCount: events.length,
+            status: 'success'
+          });
+          totalMigrated += events.length;
+        } catch (error) {
+          migrationResults.push({
+            platform,
+            eventCount: events.length,
+            status: 'failed',
+            error: error instanceof Error ? error.message : 'Unknown error'
+          });
+        }
+      }
+
+      res.json({
+        success: true,
+        message: `Successfully migrated ${totalMigrated} events to MongoDB Atlas`,
+        totalEvents: existingEvents.length,
+        migratedCount: totalMigrated,
+        results: migrationResults
+      });
+
+    } catch (error) {
+      console.error('Migration error:', error);
+      res.status(500).json({
+        error: "Failed to migrate data to MongoDB",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
