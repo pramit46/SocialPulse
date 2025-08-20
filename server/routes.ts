@@ -158,19 +158,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let response;
       
       try {
-        // Step 1: Search for relevant social media data using vector similarity
-        const relevantEvents = await llmService.searchSimilarEvents(query);
-        
-        if (relevantEvents.length > 0) {
-          // Step 2: Use the found data to generate a contextual response
-          response = await llmService.generateResponseFromData(query, relevantEvents);
-        } else {
-          // Step 3: If no relevant data found, inform the user honestly
-          response = `I couldn't find specific social media data related to your query about "${query}". The available data in our system covers topics like flight delays, airline experiences, airport facilities, luggage handling, security processes, and passenger feedback for Bangalore airport. You might want to try asking about these specific topics, or check our Dashboard and Social Pulse sections for current analytics.`;
-        }
+        // Use the new agentic reasoning system directly
+        response = await llmService.generateChatResponse(query);
       } catch (ragError) {
-        console.error('RAG system error:', ragError);
-        // Fallback to basic topic-based responses if RAG fails
+        console.error('AVA system error:', ragError);
+        // Fallback to basic topic-based responses if AVA fails
         response = await getBasicResponse(query.toLowerCase());
       }
       

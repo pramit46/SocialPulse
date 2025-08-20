@@ -1,6 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
 const platformIcons = {
   Twitter: "fab fa-twitter",
@@ -19,16 +22,24 @@ const platformColors = {
 };
 
 export default function RecentPosts() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 4; // Show 4 posts per page as requested
+
   // Fetch real social events data from API
   const { data: socialEvents, isLoading } = useQuery({
     queryKey: ['/api/social-events'],
     queryFn: async () => {
-      const response = await fetch('/api/social-events?limit=10');
+      const response = await fetch('/api/social-events?limit=50'); // Fetch more for pagination
       if (!response.ok) throw new Error('Failed to fetch social events');
       return response.json();
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   });
+
+  const allPosts = socialEvents || [];
+  const totalPages = Math.ceil(allPosts.length / postsPerPage);
+  const startIndex = (currentPage - 1) * postsPerPage;
+  const currentPosts = allPosts.slice(startIndex, startIndex + postsPerPage);
 
   if (isLoading) {
     return (
@@ -48,18 +59,43 @@ export default function RecentPosts() {
     );
   }
 
-  const posts = socialEvents || [];
-
   return (
     <Card className="bg-dark-secondary border-dark-border">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-white">
-          Recent Posts ({posts.length} collected)
-        </CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-lg font-semibold text-white">
+            Recent Posts ({allPosts.length} collected)
+          </CardTitle>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="text-gray-400 hover:text-white"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="text-sm text-gray-400">
+                {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="text-gray-400 hover:text-white"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {posts.length === 0 ? (
+          {currentPosts.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-400">No social media posts collected yet.</p>
               <p className="text-sm text-gray-500 mt-2">
@@ -67,7 +103,7 @@ export default function RecentPosts() {
               </p>
             </div>
           ) : (
-            posts.map((post: any) => (
+            currentPosts.map((post: any) => (
               <div key={post.id} className="flex items-start space-x-4 p-4 bg-dark-accent rounded-lg">
                 <div className={`w-10 h-10 ${platformColors[post.platform as keyof typeof platformColors] || 'bg-gray-500'} rounded-lg flex items-center justify-center`}>
                   <i className={`${platformIcons[post.platform as keyof typeof platformIcons] || 'fas fa-globe'} text-white`}></i>

@@ -97,47 +97,104 @@ JSON Response:`;
         return "I didn't receive a clear message. Could you please try again?";
       }
 
-      const relevantEvents = await this.searchSimilarEvents(sanitizedQuery);
-      const contextText =
-        relevantEvents.length > 0
-          ? `Relevant social media data:\n${relevantEvents.join("\n\n")}`
-          : "No specific social media data found for this query.";
+      console.log(`🤖 AVA analyzing query: "${sanitizedQuery}"`);
 
-      const prompt = `You are AeroBot, an AI assistant specialized in Bangalore airport analytics and passenger experience insights.
-You have access to real-time social media data about Bangalore airport, IndiGo, SpiceJet, Air India, and Vistara.
+      // Step 1: Understand the query intent using reasoning
+      const queryIntent = await this.analyzeQueryIntent(sanitizedQuery);
+      console.log(`🧠 Query intent: ${queryIntent.type} | Topic: ${queryIntent.topic}`);
 
-Provide helpful, accurate responses about:
-- Airport facilities and services
-- Airline performance and passenger satisfaction  
-- Travel tips and recommendations
-- Current sentiment trends
-
-Use the provided social media context to give data-driven insights.
-Keep responses concise, helpful, and professional.
-
-Context: ${contextText}
-
-Question: ${sanitizedQuery}
-
-Response:`;
-
-      const response = await this.callOllamaAPI("/api/generate", {
-        model: this.modelName,
-        prompt: prompt,
-        stream: false,
-        options: {
-          temperature: 0.7,
-          top_p: 0.9,
-        }
-      }, {
-        timeout: 180000 // 3 minutes timeout for chat responses
-      });
-
-      return response?.response || "I'm unable to generate a response right now. Please try again.";
+      // Step 2: Handle different intent types appropriately
+      switch (queryIntent.type) {
+        case 'greeting':
+          return "Hello! 👋 I'm AVA, your Bangalore airport analytics assistant. I can help you with information about airport experiences, airline performance, passenger feedback, and current trends. What would you like to know?";
+          
+        case 'general_conversation':
+          return "I'm AVA, specialized in Bangalore airport and airline analytics. I can help you understand passenger experiences, airport services, airline performance, and sentiment trends from real social media data. What specific airport or airline topic would you like to explore?";
+          
+        case 'out_of_scope':
+          return `I focus specifically on Bangalore airport and airline analytics. For questions about "${queryIntent.topic}", I'd recommend checking with a general assistant. However, I can help with airport facilities, airline experiences, flight information, and passenger sentiment analysis. Anything airport-related you'd like to know?`;
+          
+        case 'airport_specific':
+          // For airport queries, use RAG with targeted search
+          const relevantEvents = await this.searchSimilarEvents(sanitizedQuery, queryIntent.topic);
+          
+          if (relevantEvents.length === 0) {
+            return `I don't have specific social media data about "${queryIntent.topic}" at Bangalore airport right now. Our system tracks passenger experiences including delays, luggage handling, security, check-in, lounges, and airline services. Would you like to know about any of these areas instead?`;
+          }
+          
+          // Generate contextual response with found data
+          return await this.generateContextualResponse(sanitizedQuery, relevantEvents, queryIntent);
+          
+        default:
+          // Fallback to general search
+          const events = await this.searchSimilarEvents(sanitizedQuery);
+          return await this.generateContextualResponse(sanitizedQuery, events, queryIntent);
+      }
     } catch (error) {
-      console.error("Ollama chat response generation error:", error);
+      console.error("Chat response generation error:", error);
       return "I'm experiencing technical difficulties. Please try again later.";
     }
+  }
+
+  // New method: Analyze query intent for proper reasoning
+  private async analyzeQueryIntent(query: string): Promise<{type: string, topic: string, confidence: number}> {
+    const queryLower = query.toLowerCase().trim();
+    
+    // Greeting patterns
+    if (/^(hi|hello|hey|good morning|good afternoon|good evening)$/i.test(queryLower)) {
+      return { type: 'greeting', topic: 'greeting', confidence: 1.0 };
+    }
+    
+    // General conversation starters
+    if (/^(how are you|what can you do|who are you|help)$/i.test(queryLower)) {
+      return { type: 'general_conversation', topic: 'capabilities', confidence: 1.0 };
+    }
+    
+    // Airport and airline specific topics
+    const airportTerms = ['airport', 'flight', 'airline', 'terminal', 'baggage', 'luggage', 'security', 'check-in', 'boarding', 'lounge', 'delay', 'punctual', 'gate'];
+    const airlineNames = ['indigo', 'spicejet', 'air india', 'vistara', 'bangalore airport', 'bengaluru airport', 'kempegowda'];
+    
+    const hasAirportTerms = airportTerms.some(term => queryLower.includes(term));
+    const hasAirlineNames = airlineNames.some(airline => queryLower.includes(airline));
+    
+    if (hasAirportTerms || hasAirlineNames) {
+      // Extract specific topic
+      let topic = 'general_airport';
+      if (queryLower.includes('store') || queryLower.includes('shop')) topic = 'stores_shopping';
+      else if (queryLower.includes('food') || queryLower.includes('restaurant')) topic = 'food_dining';
+      else if (queryLower.includes('baggage') || queryLower.includes('luggage')) topic = 'baggage_handling';
+      else if (queryLower.includes('security')) topic = 'security_screening';
+      else if (queryLower.includes('delay')) topic = 'flight_delays';
+      else if (queryLower.includes('lounge')) topic = 'airport_lounges';
+      
+      return { type: 'airport_specific', topic, confidence: 0.9 };
+    }
+    
+    // Out of scope topics (weather, politics, sports, etc.)
+    const outOfScopeTerms = ['weather', 'politics', 'sports', 'movie', 'music', 'cooking', 'recipe'];
+    if (outOfScopeTerms.some(term => queryLower.includes(term))) {
+      const topic = outOfScopeTerms.find(term => queryLower.includes(term)) || 'general';
+      return { type: 'out_of_scope', topic, confidence: 0.8 };
+    }
+    
+    // Default: treat as potential airport query with low confidence
+    return { type: 'airport_specific', topic: 'general_inquiry', confidence: 0.3 };
+  }
+
+  // Enhanced contextual response generation
+  private async generateContextualResponse(query: string, events: string[], intent: any): Promise<string> {
+    if (events.length === 0) {
+      return `I couldn't find specific social media data related to "${intent.topic}". Our system tracks passenger experiences about Bangalore airport including delays, airline services, baggage handling, security processes, and facility feedback. Try asking about these specific topics!`;
+    }
+
+    const contextText = events.slice(0, 3).join('\n\n'); // Limit to top 3 most relevant
+    const eventCount = events.length;
+
+    return `Based on ${eventCount} recent social media post${eventCount > 1 ? 's' : ''} about ${intent.topic}, here's what passengers are saying:
+
+${contextText.split('\n').map(line => line.trim()).filter(line => line.length > 10).slice(0, 3).map(line => `• ${line}`).join('\n')}
+
+This data comes from real social media posts about Bangalore airport and airline experiences.`;
   }
 
   async storeEventEmbedding(
