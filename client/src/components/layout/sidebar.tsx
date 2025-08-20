@@ -80,7 +80,7 @@ export default function Sidebar() {
             <User className="h-4 w-4" />
           </div>
           <div>
-            <p className="text-sm font-medium text-white">John Doe</p>
+            <p className="text-sm font-medium text-white">Pramit</p>
             <p className="text-xs text-gray-400">Admin</p>
           </div>
         </div>
