@@ -8,7 +8,8 @@ export class FacebookAgent extends BaseAgent {
   }
 
   validateCredentials(): boolean {
-    return !!this.credentials.facebook_access_token;
+    const accessToken = this.credentials?.facebook_access_token || process.env.FACEBOOK_ACCESS_TOKEN;
+    return !!accessToken;
   }
 
   async collectData(query: string): Promise<InsertSocialEvent[]> {
@@ -18,11 +19,13 @@ export class FacebookAgent extends BaseAgent {
 
     try {
       // Attempt to search Facebook posts - this may have API limitations
+      const accessToken = this.credentials?.facebook_access_token || process.env.FACEBOOK_ACCESS_TOKEN;
+
       const searchResponse = await axios.get('https://graph.facebook.com/v18.0/search', {
         params: {
           q: query,
           type: 'post',
-          access_token: this.credentials.facebook_access_token,
+          access_token: accessToken,
           limit: 20,
         },
       });

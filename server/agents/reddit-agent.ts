@@ -8,7 +8,10 @@ export class RedditAgent extends BaseAgent {
   }
 
   validateCredentials(): boolean {
-    return !!(this.credentials.reddit_client_id && this.credentials.reddit_client_secret);
+    // Check both passed credentials and environment variables
+    const clientId = this.credentials?.reddit_client_id || process.env.REDDIT_CLIENT_ID;
+    const clientSecret = this.credentials?.reddit_client_secret || process.env.REDDIT_CLIENT_SECRET;
+    return !!(clientId && clientSecret);
   }
 
   async collectData(query: string): Promise<InsertSocialEvent[]> {
@@ -22,10 +25,13 @@ export class RedditAgent extends BaseAgent {
         grant_type: 'client_credentials',
       });
 
+      const clientId = this.credentials?.reddit_client_id || process.env.REDDIT_CLIENT_ID;
+      const clientSecret = this.credentials?.reddit_client_secret || process.env.REDDIT_CLIENT_SECRET;
+
       const authResponse = await axios.post('https://www.reddit.com/api/v1/access_token', authData, {
         auth: {
-          username: this.credentials.reddit_client_id,
-          password: this.credentials.reddit_client_secret,
+          username: clientId,
+          password: clientSecret,
         },
         headers: {
           'User-Agent': 'BLRAnalytics/1.0',

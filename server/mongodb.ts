@@ -24,17 +24,6 @@ export class MongoDBService {
       } catch (error) {
         console.log('Failed to auto-connect to MongoDB:', error);
       }
-    } else {
-      // Try to use hardcoded connection details for development
-      const devConnectionString = 'mongodb+srv://pramitbasu84:o8SsygTIaTuZBDnq@mycluster.mozzifv.mongodb.net/?retryWrites=true&w=majority&appName=MyCluster';
-      const devDatabaseName = 'bangalore_airport_analytics';
-      
-      try {
-        await this.connect(devConnectionString, devDatabaseName);
-        console.log('Auto-connected to MongoDB using hardcoded development credentials');
-      } catch (error) {
-        console.log('Failed to auto-connect to MongoDB with development credentials:', error);
-      }
     }
   }
 

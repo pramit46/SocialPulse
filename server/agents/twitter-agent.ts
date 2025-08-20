@@ -8,7 +8,8 @@ export class TwitterAgent extends BaseAgent {
   }
 
   validateCredentials(): boolean {
-    return !!this.credentials.twitter_bearer_token;
+    const bearerToken = this.credentials?.twitter_bearer_token || process.env.TWITTER_BEARER_TOKEN;
+    return !!bearerToken;
   }
 
   async collectData(query: string): Promise<InsertSocialEvent[]> {
@@ -17,7 +18,8 @@ export class TwitterAgent extends BaseAgent {
     }
 
     try {
-      const client = new TwitterApi(this.credentials.twitter_bearer_token);
+      const bearerToken = this.credentials?.twitter_bearer_token || process.env.TWITTER_BEARER_TOKEN;
+      const client = new TwitterApi(bearerToken);
       const tweets = await client.v2.search(query, {
         max_results: 20,
         'tweet.fields': ['public_metrics', 'created_at', 'author_id'],
