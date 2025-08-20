@@ -5,8 +5,8 @@ export class OllamaLLMService {
   private ollamaBaseUrl: string;
   private chromaClient: ChromaClient | null = null;
   private socialEventsCollection: Collection | null = null;
-  // Use tinyllama:latest as the primary model for all tasks
-  private modelName = "tinyllama:latest";
+  // Use deepseek-r1:8b as the primary model for all tasks
+  private modelName = "deepseek-r1:8b";
 
   constructor() {
     // Get Ollama base URL from environment (no token needed)
@@ -219,6 +219,7 @@ Response:`;
         method: 'POST',
         headers,
         body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(120000), // 2 minute timeout
       });
 
       if (!response.ok) {
