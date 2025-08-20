@@ -7,6 +7,8 @@ import SentimentAnalysis from "@/components/dashboard/sentiment-analysis";
 import EngagementTrends from "@/components/dashboard/engagement-trends";
 import DataMoodVisualization from "@/components/dashboard/data-mood";
 import MoodMeter from "@/components/dashboard/mood-meter";
+import WeatherSentimentCorrelation from "@/components/dashboard/weather-sentiment-correlation";
+import WeatherAlerts from "@/components/dashboard/weather-alerts";
 
 export default function Dashboard() {
   return (
@@ -24,6 +26,15 @@ export default function Dashboard() {
 
       {/* Sentiment Analysis */}
       <SentimentAnalysis />
+
+      {/* Weather Correlation Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold text-white mb-4">☁️ Weather Impact Analysis</h2>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          <WeatherSentimentCorrelation />
+          <WeatherAlerts />
+        </div>
+      </div>
 
       {/* Data Mood Visualization */}
       <div className="mb-8">

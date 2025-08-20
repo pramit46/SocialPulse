@@ -1,34 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Cloud } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 
-// Mock word cloud data with sentiment-based colors
-const wordCloudData = [
-  { word: "excellent", count: 145, sentiment: 0.9, size: 48 },
-  { word: "delay", count: 89, sentiment: -0.7, size: 36 },
-  { word: "comfortable", count: 78, sentiment: 0.8, size: 32 },
-  { word: "efficient", count: 67, sentiment: 0.7, size: 28 },
-  { word: "crowded", count: 56, sentiment: -0.5, size: 24 },
-  { word: "clean", count: 54, sentiment: 0.6, size: 24 },
-  { word: "staff", count: 49, sentiment: 0.3, size: 22 },
-  { word: "waiting", count: 45, sentiment: -0.3, size: 20 },
-  { word: "smooth", count: 43, sentiment: 0.7, size: 20 },
-  { word: "security", count: 41, sentiment: 0.1, size: 18 },
-  { word: "lounge", count: 38, sentiment: 0.8, size: 18 },
-  { word: "terminal", count: 36, sentiment: 0.2, size: 16 },
-  { word: "baggage", count: 34, sentiment: -0.4, size: 16 },
-  { word: "boarding", count: 32, sentiment: 0.4, size: 16 },
-  { word: "food", count: 30, sentiment: 0.5, size: 14 },
-  { word: "wifi", count: 28, sentiment: 0.6, size: 14 },
-  { word: "quick", count: 26, sentiment: 0.7, size: 14 },
-  { word: "helpful", count: 24, sentiment: 0.8, size: 12 },
-  { word: "expensive", count: 22, sentiment: -0.6, size: 12 },
-  { word: "modern", count: 20, sentiment: 0.6, size: 12 },
-  { word: "spacious", count: 18, sentiment: 0.7, size: 10 },
-  { word: "organized", count: 16, sentiment: 0.6, size: 10 },
-  { word: "confusing", count: 14, sentiment: -0.5, size: 10 },
-  { word: "punctual", count: 12, sentiment: 0.8, size: 8 },
-  { word: "rude", count: 10, sentiment: -0.8, size: 8 }
-];
+type SocialEvent = {
+  id: string;
+  event_content?: string;
+  clean_event_text?: string;
+  sentiment_analysis?: {
+    overall_sentiment?: number;
+    emotion?: string;
+  };
+};
 
 const getSentimentColor = (sentiment: number) => {
   if (sentiment >= 0.6) return "text-green-400";
@@ -49,6 +32,73 @@ const getSentimentBg = (sentiment: number) => {
 };
 
 export default function WordCloud() {
+  // Fetch real social events data
+  const { data: socialEvents, isLoading } = useQuery<SocialEvent[]>({
+    queryKey: ['/api/social-events'],
+    queryFn: async () => {
+      const response = await fetch('/api/social-events?limit=100');
+      if (!response.ok) throw new Error('Failed to fetch social events');
+      return response.json();
+    },
+    refetchInterval: 30000,
+  });
+
+  // Generate word cloud data from real social events
+  const wordCloudData = useMemo(() => {
+    if (!socialEvents || socialEvents.length === 0) return [];
+    
+    const wordCount: Record<string, { count: number; sentiments: number[] }> = {};
+    
+    socialEvents.forEach(event => {
+      const text = (event.clean_event_text || event.event_content || '').toLowerCase();
+      const sentiment = event.sentiment_analysis?.overall_sentiment || 0;
+      
+      // Extract meaningful words (filter common words)
+      const words = text.split(/\s+/)
+        .filter(word => word.length > 3)
+        .filter(word => !['this', 'that', 'with', 'from', 'they', 'have', 'been', 'were', 'said', 'what', 'when', 'where', 'will', 'there', 'their', 'would', 'could', 'should', 'about', 'after', 'before', 'during', 'while', 'under', 'over', 'through'].includes(word))
+        .filter(word => word.match(/^[a-zA-Z]+$/)); // Only alphabetic words
+      
+      words.forEach(word => {
+        if (!wordCount[word]) {
+          wordCount[word] = { count: 0, sentiments: [] };
+        }
+        wordCount[word].count++;
+        wordCount[word].sentiments.push(sentiment);
+      });
+    });
+    
+    // Convert to word cloud format and sort by frequency
+    return Object.entries(wordCount)
+      .map(([word, data]) => ({
+        word,
+        count: data.count,
+        sentiment: data.sentiments.reduce((sum, s) => sum + s, 0) / data.sentiments.length,
+        size: Math.min(48, Math.max(8, data.count * 4)) // Scale size based on frequency
+      }))
+      .filter(item => item.count >= 2) // Only show words mentioned at least twice
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 25); // Top 25 words
+  }, [socialEvents]);
+
+  if (isLoading) {
+    return (
+      <Card className="bg-dark-secondary border-dark-border">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+            <Cloud className="h-5 w-5 text-blue-400" />
+            Buzz Words Cloud
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center min-h-[180px]">
+            <div className="animate-pulse text-gray-400">Analyzing social media buzz...</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="bg-dark-secondary border-dark-border">
       <CardHeader>
@@ -62,7 +112,13 @@ export default function WordCloud() {
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-2 items-center justify-center min-h-[180px] p-3">
-          {wordCloudData.map((item, index) => (
+          {wordCloudData.length === 0 ? (
+            <div className="text-gray-400 text-center">
+              <p>No word data available</p>
+              <p className="text-sm mt-2">Collect social media data to see trending words</p>
+            </div>
+          ) : (
+            wordCloudData.map((item, index) => (
             <div
               key={index}
               className={`
@@ -80,7 +136,7 @@ export default function WordCloud() {
             >
               {item.word}
             </div>
-          ))}
+          )))}
         </div>
         
         {/* Legend */}

@@ -1,8 +1,21 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
-import { mockSentimentData } from "@/lib/mock-data";
+import { useQuery } from "@tanstack/react-query";
+
+type SocialEvent = {
+  id: string;
+  platform?: string;
+  event_content?: string;
+  clean_event_text?: string;
+  sentiment_analysis?: {
+    overall_sentiment?: number;
+    emotion?: string;
+  };
+  airline_mentions?: string[];
+  location_tags?: string[];
+};
 
 const getSentimentColor = (value: number) => {
   if (value >= 0.5) return "text-green-400";
@@ -24,6 +37,98 @@ const formatSentimentValue = (value: number) => {
 
 export default function SentimentAnalysis() {
   const [isVisible, setIsVisible] = useState(true);
+  
+  // Fetch real social events data
+  const { data: socialEvents, isLoading } = useQuery<SocialEvent[]>({
+    queryKey: ['/api/social-events'],
+    queryFn: async () => {
+      const response = await fetch('/api/social-events?limit=200');
+      if (!response.ok) throw new Error('Failed to fetch social events');
+      return response.json();
+    },
+    refetchInterval: 30000,
+  });
+
+  // Calculate real sentiment data from MongoDB
+  const sentimentData = useMemo(() => {
+    if (!socialEvents || socialEvents.length === 0) {
+      return {
+        bangalore_airport: { overall_sentiment: 0, categories: {} },
+        airlines: {}
+      };
+    }
+    
+    // Airport sentiment analysis
+    const airportEvents = socialEvents.filter(event => {
+      const text = (event.clean_event_text || event.event_content || '').toLowerCase();
+      return text.includes('bangalore') || text.includes('bengaluru') || 
+             text.includes('kempegowda') || 
+             (event.location_tags && event.location_tags.some(tag => 
+               tag.toLowerCase().includes('bangalore') || tag.toLowerCase().includes('bengaluru')));
+    });
+    
+    const airportSentiments = airportEvents
+      .map(event => event.sentiment_analysis?.overall_sentiment || 0)
+      .filter(s => s !== 0);
+    
+    const avgAirportSentiment = airportSentiments.length > 0 
+      ? airportSentiments.reduce((sum, s) => sum + s, 0) / airportSentiments.length 
+      : 0;
+    
+    // Category-based sentiment for airport
+    const categories: Record<string, number> = {
+      security: 0,
+      baggage: 0,
+      staff: 0,
+      facilities: 0,
+      food: 0
+    };
+    
+    Object.keys(categories).forEach(category => {
+      const categoryEvents = airportEvents.filter(event => {
+        const text = (event.clean_event_text || event.event_content || '').toLowerCase();
+        return text.includes(category);
+      });
+      const sentiments = categoryEvents
+        .map(event => event.sentiment_analysis?.overall_sentiment || 0)
+        .filter(s => s !== 0);
+      categories[category] = sentiments.length > 0 
+        ? sentiments.reduce((sum, s) => sum + s, 0) / sentiments.length 
+        : 0;
+    });
+    
+    // Airline sentiment analysis
+    const airlines = ['indigo', 'spicejet', 'air_india', 'vistara'];
+    const airlineData: Record<string, { sentiment: number; mentions: number }> = {};
+    
+    airlines.forEach(airline => {
+      const airlineEvents = socialEvents.filter(event => {
+        const text = (event.clean_event_text || event.event_content || '').toLowerCase();
+        return text.includes(airline.replace('_', ' ')) || 
+               (event.airline_mentions && event.airline_mentions.some(mention => 
+                 mention.toLowerCase().includes(airline.replace('_', ' '))));
+      });
+      
+      const sentiments = airlineEvents
+        .map(event => event.sentiment_analysis?.overall_sentiment || 0)
+        .filter(s => s !== 0);
+      
+      airlineData[airline] = {
+        sentiment: sentiments.length > 0 
+          ? sentiments.reduce((sum, s) => sum + s, 0) / sentiments.length 
+          : 0,
+        mentions: airlineEvents.length
+      };
+    });
+    
+    return {
+      bangalore_airport: {
+        overall_sentiment: avgAirportSentiment,
+        categories
+      },
+      airlines: airlineData
+    };
+  }, [socialEvents]);
 
   if (!isVisible) {
     return (
@@ -65,16 +170,16 @@ export default function SentimentAnalysis() {
           </CardHeader>
           <CardContent>
             <div className="text-center mb-6">
-              <div className={`text-4xl font-bold mb-2 ${getSentimentColor(mockSentimentData.bangalore_airport.overall_sentiment)}`}>
-                {formatSentimentValue(mockSentimentData.bangalore_airport.overall_sentiment)}
+              <div className={`text-4xl font-bold mb-2 ${getSentimentColor(sentimentData.bangalore_airport.overall_sentiment)}`}>
+                {formatSentimentValue(sentimentData.bangalore_airport.overall_sentiment)}
               </div>
               <div className="text-gray-400">
-                {getSentimentLabel(mockSentimentData.bangalore_airport.overall_sentiment)}
+                {getSentimentLabel(sentimentData.bangalore_airport.overall_sentiment)}
               </div>
             </div>
             
             <div className="space-y-3">
-              {Object.entries(mockSentimentData.bangalore_airport.categories).map(([category, value]) => (
+              {Object.entries(sentimentData.bangalore_airport.categories).map(([category, value]) => (
                 <div key={category} className="flex justify-between items-center">
                   <span className="text-gray-300 capitalize">
                     {category.replace(/_/g, ' ')}
@@ -106,7 +211,7 @@ export default function SentimentAnalysis() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {Object.entries(mockSentimentData.airlines).map(([airline, data]) => (
+              {Object.entries(sentimentData.airlines).map(([airline, data]) => (
                 <div key={airline} className="flex justify-between items-center p-3 bg-dark-accent rounded-lg">
                   <div>
                     <div className="font-medium text-white capitalize">
@@ -128,14 +233,23 @@ export default function SentimentAnalysis() {
               ))}
             </div>
 
-            <div className="mt-6 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-              <div className="text-sm text-blue-400 font-medium mb-1">
-                AI Insight
+            {isLoading ? (
+              <div className="animate-pulse text-gray-400 text-center py-4">
+                Loading sentiment analysis...
               </div>
-              <div className="text-xs text-gray-300">
-                Vistara maintains highest satisfaction scores. SpiceJet requires immediate attention for baggage handling issues.
+            ) : (
+              <div className="mt-6 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                <div className="text-sm text-blue-400 font-medium mb-1">
+                  AI Insight
+                </div>
+                <div className="text-xs text-gray-300">
+                  {Object.values(sentimentData.airlines).some(a => a.mentions > 0) 
+                    ? `Analysis based on ${Object.values(sentimentData.airlines).reduce((sum, a) => sum + a.mentions, 0)} real social media mentions` 
+                    : 'No airline mentions found in recent data. Collect more social media data for insights.'
+                  }
+                </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>
