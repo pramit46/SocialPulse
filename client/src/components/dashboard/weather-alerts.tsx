@@ -52,6 +52,26 @@ export default function WeatherAlerts() {
 
   const isLoading = conditionsLoading || alertsLoading;
 
+  // Helper functions for alert icons and colors
+  const getAlertIcon = (condition: string) => {
+    switch (condition.toLowerCase()) {
+      case 'high winds': case 'strong winds': return <Wind className="h-4 w-4" />;
+      case 'extreme heat': case 'high temperature': return <Thermometer className="h-4 w-4" />;
+      case 'low visibility': case 'fog': return <CloudRain className="h-4 w-4" />;
+      case 'favorable conditions': return <Sun className="h-4 w-4" />;
+      default: return <AlertTriangle className="h-4 w-4" />;
+    }
+  };
+
+  const getAlertColor = (type: string) => {
+    switch (type) {
+      case 'warning': return 'red';
+      case 'success': return 'green';
+      case 'info': return 'blue';
+      default: return 'yellow';
+    }
+  };
+
   // Get current weather from latest conditions
   const currentWeather = useMemo(() => {
     if (!weatherConditions || weatherConditions.length === 0) {
@@ -165,26 +185,6 @@ export default function WeatherAlerts() {
     
     return alerts;
   }, [storedAlerts, currentWeather]);
-
-  // Helper functions for alert icons and colors
-  const getAlertIcon = (condition: string) => {
-    switch (condition.toLowerCase()) {
-      case 'high winds': case 'strong winds': return <Wind className="h-4 w-4" />;
-      case 'extreme heat': case 'high temperature': return <Thermometer className="h-4 w-4" />;
-      case 'low visibility': case 'fog': return <CloudRain className="h-4 w-4" />;
-      case 'favorable conditions': return <Sun className="h-4 w-4" />;
-      default: return <AlertTriangle className="h-4 w-4" />;
-    }
-  };
-
-  const getAlertColor = (type: string) => {
-    switch (type) {
-      case 'warning': return 'red';
-      case 'success': return 'green';
-      case 'info': return 'blue';
-      default: return 'yellow';
-    }
-  };
 
   if (isLoading) {
     return (
