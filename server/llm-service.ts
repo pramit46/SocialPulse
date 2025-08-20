@@ -71,17 +71,22 @@ Return only valid JSON, no additional text.`,
           content: text,
         },
       ];
-      // Use sentiment model: nlptown/bert-base-multilingual-uncased-sentiment
+      // Use chat model for sentiment analysis: meta-llama/Llama-2-7b-chat-hf
       const response = await this.callHuggingFaceCompletion(
-        "nlptown/bert-base-multilingual-uncased-sentiment",
+        "meta-llama/Llama-2-7b-chat-hf",
         messages,
         300,
         0.1,
       );
-      const result = response.choices?.[0]?.message?.content;
+      // Hugging Face API returns an array with generated_text property
+      const result = response[0]?.generated_text || response.generated_text;
       if (result) {
         try {
-          return JSON.parse(result);
+          // Extract JSON from the response (remove any prompt text)
+          const jsonMatch = result.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
+          }
         } catch (parseError) {
           console.error(
             "Failed to parse Hugging Face sentiment response:",
