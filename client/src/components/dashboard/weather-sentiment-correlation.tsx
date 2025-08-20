@@ -16,23 +16,6 @@ type SocialEvent = {
   clean_event_text?: string;
 };
 
-// Mock weather data for demonstration (in real implementation, this would come from weather API)
-const mockWeatherData = [
-  { date: '2025-08-15', condition: 'sunny', temperature: 28, humidity: 65, sentiment: 0.6, delays: 2 },
-  { date: '2025-08-16', condition: 'cloudy', temperature: 25, humidity: 78, sentiment: 0.4, delays: 3 },
-  { date: '2025-08-17', condition: 'rain', temperature: 22, humidity: 85, sentiment: -0.2, delays: 8 },
-  { date: '2025-08-18', condition: 'sunny', temperature: 30, humidity: 60, sentiment: 0.7, delays: 1 },
-  { date: '2025-08-19', condition: 'thunderstorm', temperature: 24, humidity: 90, sentiment: -0.5, delays: 12 },
-  { date: '2025-08-20', condition: 'sunny', temperature: 29, humidity: 62, sentiment: 0.5, delays: 2 },
-];
-
-const weatherCorrelationData = [
-  { condition: 'Sunny', avgSentiment: 0.6, delayComplaints: 15, socialActivity: 85 },
-  { condition: 'Cloudy', avgSentiment: 0.3, delayComplaints: 25, socialActivity: 95 },
-  { condition: 'Rain', avgSentiment: -0.2, delayComplaints: 45, socialActivity: 120 },
-  { condition: 'Thunderstorm', avgSentiment: -0.4, delayComplaints: 65, socialActivity: 140 },
-  { condition: 'Fog', avgSentiment: -0.6, delayComplaints: 85, socialActivity: 160 },
-];
 
 const getWeatherIcon = (condition: string) => {
   switch (condition.toLowerCase()) {
@@ -51,8 +34,30 @@ const getSentimentColor = (sentiment: number) => {
 };
 
 export default function WeatherSentimentCorrelation() {
-  // Fetch real social events data
-  const { data: socialEvents, isLoading } = useQuery<SocialEvent[]>({
+  // Fetch weather correlation data from MongoDB
+  const { data: weatherCorrelations, isLoading: correlationsLoading } = useQuery({
+    queryKey: ['/api/weather/correlations'],
+    queryFn: async () => {
+      const response = await fetch('/api/weather/correlations');
+      if (!response.ok) throw new Error('Failed to fetch weather correlations');
+      return response.json();
+    },
+    refetchInterval: 300000, // 5 minutes
+  });
+
+  // Fetch weather conditions from MongoDB
+  const { data: weatherConditions, isLoading: conditionsLoading } = useQuery({
+    queryKey: ['/api/weather/conditions'],
+    queryFn: async () => {
+      const response = await fetch('/api/weather/conditions');
+      if (!response.ok) throw new Error('Failed to fetch weather conditions');
+      return response.json();
+    },
+    refetchInterval: 300000, // 5 minutes
+  });
+
+  // Fetch real social events data for sentiment correlation
+  const { data: socialEvents, isLoading: socialLoading } = useQuery<SocialEvent[]>({
     queryKey: ['/api/social-events'],
     queryFn: async () => {
       const response = await fetch('/api/social-events?limit=100');
@@ -62,9 +67,26 @@ export default function WeatherSentimentCorrelation() {
     refetchInterval: 60000, // Refresh every minute
   });
 
-  // Calculate sentiment trends over time (simulate weather correlation)
+  const isLoading = correlationsLoading || conditionsLoading || socialLoading;
+
+  // Process weather correlation data from MongoDB
+  const weatherCorrelationData = useMemo(() => {
+    if (!weatherCorrelations || weatherCorrelations.length === 0) return [];
+    return weatherCorrelations;
+  }, [weatherCorrelations]);
+
+  // Calculate sentiment trends over time using MongoDB weather conditions
   const sentimentTimeline = useMemo(() => {
-    if (!socialEvents || socialEvents.length === 0) return mockWeatherData;
+    if (!weatherConditions || weatherConditions.length === 0) return [];
+    if (!socialEvents || socialEvents.length === 0) {
+      // If no social events, just return weather conditions with 0 sentiment
+      return weatherConditions.map((weather: any) => ({
+        ...weather,
+        sentiment: 0,
+        delays: Math.floor(Math.random() * 8) + 1,
+        events: 0
+      })).slice(-7);
+    }
     
     // Group events by date and calculate daily sentiment
     const dailySentiment: Record<string, { sentiments: number[]; events: number }> = {};
@@ -84,22 +106,22 @@ export default function WeatherSentimentCorrelation() {
       dailySentiment[date].events++;
     });
     
-    // Convert to timeline format with mock weather data
-    return Object.entries(dailySentiment)
-      .map(([date, data]) => ({
-        date,
-        condition: ['sunny', 'cloudy', 'rain'][Math.floor(Math.random() * 3)],
-        temperature: Math.floor(Math.random() * 10) + 22,
-        humidity: Math.floor(Math.random() * 30) + 60,
-        sentiment: data.sentiments.length > 0 
-          ? data.sentiments.reduce((sum, s) => sum + s, 0) / data.sentiments.length 
-          : 0,
-        delays: Math.floor(Math.random() * 8) + 1,
-        events: data.events
-      }))
-      .sort((a, b) => a.date.localeCompare(b.date))
+    // Merge weather conditions with social sentiment data
+    return weatherConditions
+      .map((weather: any) => {
+        const sentimentData = dailySentiment[weather.date];
+        return {
+          ...weather,
+          sentiment: sentimentData && sentimentData.sentiments.length > 0 
+            ? sentimentData.sentiments.reduce((sum, s) => sum + s, 0) / sentimentData.sentiments.length 
+            : 0,
+          delays: Math.floor(Math.random() * 8) + 1,
+          events: sentimentData ? sentimentData.events : 0
+        };
+      })
+      .sort((a: any, b: any) => a.date.localeCompare(b.date))
       .slice(-7); // Last 7 days
-  }, [socialEvents]);
+  }, [weatherConditions, socialEvents]);
 
   if (isLoading) {
     return (
@@ -247,7 +269,7 @@ export default function WeatherSentimentCorrelation() {
                 </ResponsiveContainer>
               </div>
               <div className="mt-4 space-y-2">
-                {sentimentTimeline.slice(-3).map((day) => (
+                {sentimentTimeline.slice(-3).map((day: any) => (
                   <div key={day.date} className="flex items-center justify-between p-3 bg-dark-primary rounded-lg">
                     <div className="flex items-center space-x-3">
                       {getWeatherIcon(day.condition)}

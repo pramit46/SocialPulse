@@ -140,13 +140,21 @@ JSON Response:`;
   private async analyzeQueryIntent(query: string): Promise<{type: string, topic: string, confidence: number}> {
     const queryLower = query.toLowerCase().trim();
     
-    // Greeting patterns
-    if (/^(hi|hello|hey|good morning|good afternoon|good evening)$/i.test(queryLower)) {
+    // Remove punctuation for better matching
+    const cleanQuery = queryLower.replace(/[^\w\s]/g, '').trim();
+    
+    // Greeting patterns (more flexible)
+    if (/^(hi|hello|hey|good morning|good afternoon|good evening)$/i.test(cleanQuery)) {
       return { type: 'greeting', topic: 'greeting', confidence: 1.0 };
     }
     
-    // General conversation starters
-    if (/^(how are you|what can you do|who are you|help)$/i.test(queryLower)) {
+    // General conversation starters (more flexible to handle punctuation)
+    const conversationStarters = [
+      'how are you', 'how are you doing', 'what can you do', 'who are you', 
+      'help', 'whats up', 'how do you do', 'what are you', 'tell me about yourself'
+    ];
+    
+    if (conversationStarters.some(starter => cleanQuery === starter || cleanQuery.includes(starter))) {
       return { type: 'general_conversation', topic: 'capabilities', confidence: 1.0 };
     }
     
@@ -175,6 +183,11 @@ JSON Response:`;
     if (outOfScopeTerms.some(term => queryLower.includes(term))) {
       const topic = outOfScopeTerms.find(term => queryLower.includes(term)) || 'general';
       return { type: 'out_of_scope', topic, confidence: 0.8 };
+    }
+    
+    // If query is very short and doesn't contain airport terms, treat as general conversation
+    if (cleanQuery.length < 20 && !hasAirportTerms && !hasAirlineNames) {
+      return { type: 'general_conversation', topic: 'capabilities', confidence: 0.5 };
     }
     
     // Default: treat as potential airport query with low confidence

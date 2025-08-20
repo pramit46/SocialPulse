@@ -397,6 +397,208 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Weather API endpoints for MongoDB collections
+
+  // Get weather conditions
+  app.get("/api/weather/conditions", async (req, res) => {
+    try {
+      const conditions = await mongoService.getFromCollection('weather_conditions', {});
+      res.json(conditions);
+    } catch (error) {
+      console.error('Weather conditions fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch weather conditions" });
+    }
+  });
+
+  // Get weather alerts
+  app.get("/api/weather/alerts", async (req, res) => {
+    try {
+      const alerts = await mongoService.getFromCollection('weather_alerts', {});
+      res.json(alerts);
+    } catch (error) {
+      console.error('Weather alerts fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch weather alerts" });
+    }
+  });
+
+  // Get weather correlation data
+  app.get("/api/weather/correlations", async (req, res) => {
+    try {
+      const correlations = await mongoService.getFromCollection('weather_correlations', {});
+      res.json(correlations);
+    } catch (error) {
+      console.error('Weather correlations fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch weather correlations" });
+    }
+  });
+
+  // Seed weather data endpoint
+  app.post("/api/weather/seed", async (req, res) => {
+    try {
+      if (!mongoService.isConnectionActive()) {
+        return res.status(400).json({ error: "MongoDB not connected" });
+      }
+
+      // Weather conditions data (current and historical)
+      const weatherConditions = [
+        {
+          date: '2025-08-20',
+          time: '14:00',
+          temperature: 28,
+          condition: 'partly_cloudy',
+          humidity: 72,
+          windSpeed: 15,
+          visibility: 8,
+          pressure: 1013,
+          uvIndex: 6,
+          description: 'Partly cloudy with moderate humidity'
+        },
+        {
+          date: '2025-08-19',
+          time: '14:00',
+          temperature: 24,
+          condition: 'thunderstorm',
+          humidity: 90,
+          windSpeed: 25,
+          visibility: 4,
+          pressure: 1005,
+          uvIndex: 2,
+          description: 'Thunderstorm with heavy rain and strong winds'
+        },
+        {
+          date: '2025-08-18',
+          time: '14:00',
+          temperature: 30,
+          condition: 'sunny',
+          humidity: 60,
+          windSpeed: 10,
+          visibility: 10,
+          pressure: 1018,
+          uvIndex: 8,
+          description: 'Clear sunny weather with excellent visibility'
+        },
+        {
+          date: '2025-08-17',
+          time: '14:00',
+          temperature: 22,
+          condition: 'rain',
+          humidity: 85,
+          windSpeed: 18,
+          visibility: 5,
+          pressure: 1008,
+          uvIndex: 3,
+          description: 'Light to moderate rain with overcast skies'
+        }
+      ];
+
+      // Weather correlation data
+      const weatherCorrelations = [
+        {
+          condition: 'Sunny',
+          avgSentiment: 0.6,
+          delayComplaints: 15,
+          socialActivity: 85,
+          passengerComfort: 'high',
+          operationalImpact: 'minimal'
+        },
+        {
+          condition: 'Cloudy', 
+          avgSentiment: 0.3,
+          delayComplaints: 25,
+          socialActivity: 95,
+          passengerComfort: 'moderate',
+          operationalImpact: 'low'
+        },
+        {
+          condition: 'Rain',
+          avgSentiment: -0.2,
+          delayComplaints: 45,
+          socialActivity: 120,
+          passengerComfort: 'low',
+          operationalImpact: 'moderate'
+        },
+        {
+          condition: 'Thunderstorm',
+          avgSentiment: -0.4,
+          delayComplaints: 65,
+          socialActivity: 140,
+          passengerComfort: 'very_low',
+          operationalImpact: 'high'
+        },
+        {
+          condition: 'Fog',
+          avgSentiment: -0.6,
+          delayComplaints: 85,
+          socialActivity: 160,
+          passengerComfort: 'very_low',
+          operationalImpact: 'very_high'
+        }
+      ];
+
+      // Weather alerts data
+      const weatherAlerts = [
+        {
+          id: 'alert-001',
+          type: 'warning',
+          condition: 'High Winds',
+          severity: 'moderate',
+          message: 'Strong winds may affect airport operations',
+          impact: 'Possible ground delays and passenger safety concerns',
+          isActive: true,
+          startTime: new Date('2025-08-20T10:00:00Z'),
+          expectedEndTime: new Date('2025-08-20T18:00:00Z'),
+          affectedOperations: ['ground_ops', 'boarding']
+        },
+        {
+          id: 'alert-002',
+          type: 'info',
+          condition: 'High Humidity',
+          severity: 'low',
+          message: 'High humidity levels detected',
+          impact: 'May affect passenger comfort in outdoor areas',
+          isActive: true,
+          startTime: new Date('2025-08-20T08:00:00Z'),
+          expectedEndTime: new Date('2025-08-20T20:00:00Z'),
+          affectedOperations: ['passenger_comfort']
+        },
+        {
+          id: 'alert-003',
+          type: 'success',
+          condition: 'Favorable Conditions',
+          severity: 'none',
+          message: 'Excellent weather for airport operations',
+          impact: 'Expect positive passenger sentiment and smooth operations',
+          isActive: true,
+          startTime: new Date('2025-08-18T06:00:00Z'),
+          expectedEndTime: new Date('2025-08-18T20:00:00Z'),
+          affectedOperations: []
+        }
+      ];
+
+      // Insert data into MongoDB collections
+      await mongoService.bulkInsertToCollection('weather_conditions', weatherConditions);
+      await mongoService.bulkInsertToCollection('weather_correlations', weatherCorrelations);  
+      await mongoService.bulkInsertToCollection('weather_alerts', weatherAlerts);
+
+      res.json({
+        success: true,
+        message: 'Weather data seeded successfully',
+        collections: {
+          weather_conditions: weatherConditions.length,
+          weather_correlations: weatherCorrelations.length,
+          weather_alerts: weatherAlerts.length
+        }
+      });
+
+    } catch (error) {
+      console.error('Weather seed error:', error);
+      res.status(500).json({
+        error: "Failed to seed weather data",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Migration endpoint to transfer existing data to MongoDB
   app.post("/api/mongodb/migrate-existing-data", async (req, res) => {
     try {

@@ -15,18 +15,30 @@ type WeatherAlert = {
   color: string;
 };
 
-// Mock current weather data (in real implementation, this would come from weather API)
-const currentWeather = {
-  temperature: 28,
-  condition: 'partly_cloudy',
-  humidity: 72,
-  windSpeed: 15,
-  visibility: 8,
-  pressure: 1013,
-  uvIndex: 6
-};
 
 export default function WeatherAlerts() {
+  // Fetch weather conditions from MongoDB
+  const { data: weatherConditions, isLoading: conditionsLoading } = useQuery({
+    queryKey: ['/api/weather/conditions'],
+    queryFn: async () => {
+      const response = await fetch('/api/weather/conditions');
+      if (!response.ok) throw new Error('Failed to fetch weather conditions');
+      return response.json();
+    },
+    refetchInterval: 300000, // 5 minutes
+  });
+
+  // Fetch weather alerts from MongoDB
+  const { data: storedAlerts, isLoading: alertsLoading } = useQuery({
+    queryKey: ['/api/weather/alerts'],
+    queryFn: async () => {
+      const response = await fetch('/api/weather/alerts');
+      if (!response.ok) throw new Error('Failed to fetch weather alerts');
+      return response.json();
+    },
+    refetchInterval: 300000, // 5 minutes
+  });
+
   // Fetch social events to correlate with weather
   const { data: socialEvents } = useQuery({
     queryKey: ['/api/social-events'],
@@ -38,11 +50,44 @@ export default function WeatherAlerts() {
     refetchInterval: 300000, // Refresh every 5 minutes
   });
 
-  // Generate weather alerts based on conditions and social media sentiment
+  const isLoading = conditionsLoading || alertsLoading;
+
+  // Get current weather from latest conditions
+  const currentWeather = useMemo(() => {
+    if (!weatherConditions || weatherConditions.length === 0) {
+      return {
+        temperature: 28,
+        condition: 'partly_cloudy',
+        humidity: 72,
+        windSpeed: 15,
+        visibility: 8,
+        pressure: 1013,
+        uvIndex: 6
+      };
+    }
+    // Get the most recent weather condition
+    const latest = weatherConditions.sort((a, b) => b.date.localeCompare(a.date))[0];
+    return latest;
+  }, [weatherConditions]);
+
+  // Process weather alerts from MongoDB and generate dynamic alerts
   const weatherAlerts: WeatherAlert[] = useMemo(() => {
-    const alerts: WeatherAlert[] = [];
+    if (!storedAlerts || storedAlerts.length === 0) return [];
     
-    // Temperature-based alerts
+    // Convert stored alerts to display format
+    const alerts: WeatherAlert[] = storedAlerts
+      .filter((alert: any) => alert.isActive)
+      .map((alert: any) => ({
+        id: alert.id,
+        type: alert.type,
+        condition: alert.condition,
+        message: alert.message,
+        impact: alert.impact,
+        icon: getAlertIcon(alert.condition),
+        color: getAlertColor(alert.type)
+      }));
+    
+    // Add dynamic alerts based on current weather
     if (currentWeather.temperature > 35) {
       alerts.push({
         id: 'temp-high',
@@ -119,7 +164,47 @@ export default function WeatherAlerts() {
     }
     
     return alerts;
-  }, []);
+  }, [storedAlerts, currentWeather]);
+
+  // Helper functions for alert icons and colors
+  const getAlertIcon = (condition: string) => {
+    switch (condition.toLowerCase()) {
+      case 'high winds': case 'strong winds': return <Wind className="h-4 w-4" />;
+      case 'extreme heat': case 'high temperature': return <Thermometer className="h-4 w-4" />;
+      case 'low visibility': case 'fog': return <CloudRain className="h-4 w-4" />;
+      case 'favorable conditions': return <Sun className="h-4 w-4" />;
+      default: return <AlertTriangle className="h-4 w-4" />;
+    }
+  };
+
+  const getAlertColor = (type: string) => {
+    switch (type) {
+      case 'warning': return 'red';
+      case 'success': return 'green';
+      case 'info': return 'blue';
+      default: return 'yellow';
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <Card className="bg-dark-secondary border-dark-border">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-yellow-400" />
+              Weather Alerts & Impact
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-center h-[200px]">
+              <div className="animate-pulse text-gray-400">Loading weather alerts...</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const getAlertVariant = (type: string) => {
     switch (type) {
