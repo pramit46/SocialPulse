@@ -257,6 +257,23 @@ class MongoDBService {
       return [];
     }
   }
+
+  // Get data sources (social media platforms)
+  async getDataSources(): Promise<string[]> {
+    if (!this.db) return [];
+    
+    try {
+      const collections = await this.db.listCollections().toArray();
+      const socialCollections = collections
+        .filter(col => ['reddit', 'twitter', 'facebook', 'instagram', 'cnn', 'inshorts', 'wion', 'zee', 'ndtv'].includes(col.name))
+        .map(col => col.name);
+      
+      return socialCollections;
+    } catch (error) {
+      console.error('Error getting data sources:', error);
+      return [];
+    }
+  }
 }
 
 export const mongoService = new MongoDBService();

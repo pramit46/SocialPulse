@@ -71,11 +71,7 @@ export default function WeatherSentimentCorrelation() {
 
   // Process weather correlation data from MongoDB
   const weatherCorrelationData = useMemo(() => {
-    if (!weatherCorrelations || weatherCorrelations.length === 0) {
-      console.log('No weather correlations data:', weatherCorrelations);
-      return [];
-    }
-    console.log('Weather correlations loaded:', weatherCorrelations.length, weatherCorrelations);
+    if (!weatherCorrelations || weatherCorrelations.length === 0) return [];
     return weatherCorrelations;
   }, [weatherCorrelations]);
 
