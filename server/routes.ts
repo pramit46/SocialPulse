@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { mongoService } from "./mongodb";
 import { insertContactMessageSchema, insertSocialEventSchema, insertSettingsSchema, dataSourceCredentialsSchema } from "@shared/schema";
 import { z } from "zod";
-import { dataCollectionService } from "./data-collection";
+import { agentManager } from "./agents/agent-manager";
 import { llmService } from "./llm-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -102,61 +102,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Source is required" });
       }
 
-      // Set credentials for the data collection service
-      dataCollectionService.setCredentials(credentials);
+      // Set credentials for the specific agent
+      agentManager.setCredentials(source, credentials || {});
       
       let events: any[] = [];
       const query = "bangalore airport OR bengaluru airport OR kempegowda airport OR indigo OR spicejet OR air india OR vistara";
       
-      // Collect data based on source type
-      switch (source) {
-        case 'twitter':
-          events = await dataCollectionService.collectTwitterData(query);
-          break;
-        case 'reddit':
-          events = await dataCollectionService.collectRedditData(query);
-          break;
-        case 'facebook':
-          events = await dataCollectionService.collectFacebookData(query);
-          break;
-        case 'youtube':
-          events = await dataCollectionService.collectYouTubeData(query);
-          break;
-        case 'instagram':
-          events = await dataCollectionService.collectInstagramData(query);
-          break;
-        case 'vimeo':
-          events = await dataCollectionService.collectVimeoData(query);
-          break;
-        case 'tiktok':
-          events = await dataCollectionService.collectTikTokData(query);
-          break;
-        case 'tumblr':
-          events = await dataCollectionService.collectTumblrData(query);
-          break;
-        case 'aajtak':
-        case 'wion':
-        case 'zee_news':
-        case 'ndtv':
-        case 'cnn':
-          events = await dataCollectionService.collectNewsData(source, credentials[`${source}_rss_url`] || credentials[`${source}_api_key`]);
-          break;
-        default:
-          return res.status(400).json({ error: `Data collection for ${source} not implemented yet` });
+      // Check if agent exists and credentials are valid
+      if (!agentManager.validateCredentials(source)) {
+        return res.status(400).json({ 
+          error: `Invalid or missing credentials for ${source}` 
+        });
       }
 
-      // Store collected events
-      const storedEvents = [];
-      for (const eventData of events) {
-        const event = await storage.createSocialEvent(eventData);
-        storedEvents.push(event);
+      // Collect data using the appropriate agent
+      events = await agentManager.collectData(source, query);
+
+      if (events.length === 0) {
+        return res.json({ 
+          success: true, 
+          source,
+          eventsCollected: 0,
+          message: `No new events found for ${source}`
+        });
       }
 
       res.json({ 
         success: true, 
         source,
-        eventsCollected: storedEvents.length,
-        events: storedEvents
+        eventsCollected: events.length,
+        events: events
       });
     } catch (error) {
       console.error('Data collection error:', error);

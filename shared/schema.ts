@@ -110,6 +110,7 @@ export const dataSourceCredentialsSchema = z.object({
   wion_rss_url: z.string().optional(),
   zee_news_rss_url: z.string().optional(),
   ndtv_rss_url: z.string().optional(),
+  inshorts_api_key: z.string().optional(),
 });
 
 export type DataSourceCredentials = z.infer<typeof dataSourceCredentialsSchema>;
@@ -151,5 +152,6 @@ export const dataSources = {
     { name: 'WION', key: 'wion', icon: 'news', credentialFields: ['wion_rss_url'] },
     { name: 'Zee News', key: 'zee_news', icon: 'news', credentialFields: ['zee_news_rss_url'] },
     { name: 'NDTV', key: 'ndtv', icon: 'news', credentialFields: ['ndtv_rss_url'] },
+    { name: 'Inshorts', key: 'inshorts', icon: 'news', credentialFields: ['inshorts_api_key'] },
   ]
 };
