@@ -145,9 +145,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AeroBot chatbot endpoint - RAG implementation
   app.post("/api/aerobot/chat", async (req, res) => {
     try {
+      console.log('📨 Received chat request body:', req.body);
       const { message } = req.body;
       
       if (!message?.trim()) {
+        console.log('❌ Invalid message field:', { message, body: req.body });
         return res.status(400).json({ error: "Message is required" });
       }
 

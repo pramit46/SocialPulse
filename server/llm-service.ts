@@ -64,6 +64,8 @@ JSON Response:`;
           temperature: 0.1,
           top_p: 0.9,
         }
+      }, {
+        timeout: 180000 // 3 minutes timeout for sentiment analysis
       });
 
       if (response?.response) {
@@ -127,6 +129,8 @@ Response:`;
           temperature: 0.7,
           top_p: 0.9,
         }
+      }, {
+        timeout: 180000 // 3 minutes timeout for chat responses
       });
 
       return response?.response || "I'm unable to generate a response right now. Please try again.";

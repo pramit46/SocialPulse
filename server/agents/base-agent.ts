@@ -51,6 +51,7 @@ export abstract class BaseAgent {
 
   protected async analyzeSentiment(text: string): Promise<any> {
     try {
+      console.log(`🧠 [${this.constructor.name}] Analyzing sentiment using tinyllama:latest for: "${text.substring(0, 100)}..."`);
       return await llmService.analyzeSentiment(text);
     } catch (error) {
       console.error('Sentiment analysis error:', error);
