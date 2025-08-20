@@ -62,6 +62,70 @@ export class MongoDBService {
     };
   }
 
+  // Methods required by storage layer
+  isConnectionActive(): boolean {
+    return this.isConnected;
+  }
+
+  async getAllSocialEvents(): Promise<any[]> {
+    if (!this.db) {
+      return [];
+    }
+
+    try {
+      const collections = await this.db.listCollections().toArray();
+      const socialCollections = collections.filter(col => 
+        ['reddit', 'twitter', 'facebook', 'instagram', 'cnn', 'inshorts'].includes(col.name)
+      );
+
+      let allEvents: any[] = [];
+      
+      for (const collectionInfo of socialCollections) {
+        const collection = this.db.collection(collectionInfo.name);
+        const events = await collection.find({}).toArray();
+        allEvents = allEvents.concat(events);
+      }
+
+      return allEvents.sort((a, b) => 
+        new Date(b.timestamp_utc || b.created_at || 0).getTime() - 
+        new Date(a.timestamp_utc || a.created_at || 0).getTime()
+      );
+    } catch (error) {
+      console.error('Failed to get social events from MongoDB:', error);
+      return [];
+    }
+  }
+
+  async storeSocialEvent(platform: string, event: any): Promise<void> {
+    if (!this.db) {
+      throw new Error('MongoDB not connected');
+    }
+
+    try {
+      const collection = this.db.collection(platform.toLowerCase());
+      await collection.insertOne(event);
+      console.log(`✅ Stored event in ${platform} collection`);
+    } catch (error) {
+      console.error(`❌ Failed to store event in ${platform}:`, error);
+      throw error;
+    }
+  }
+
+  async bulkStoreSocialEvents(platform: string, events: any[]): Promise<void> {
+    if (!this.db || events.length === 0) {
+      return;
+    }
+
+    try {
+      const collection = this.db.collection(platform.toLowerCase());
+      await collection.insertMany(events);
+      console.log(`✅ Bulk stored ${events.length} events in ${platform} collection`);
+    } catch (error) {
+      console.error(`❌ Failed to bulk store events in ${platform}:`, error);
+      throw error;
+    }
+  }
+
   async disconnect() {
     if (this.client) {
       await this.client.close();

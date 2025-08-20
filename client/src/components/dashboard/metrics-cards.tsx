@@ -1,39 +1,49 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Eye, Heart, Share, MessageCircle } from "lucide-react";
-import { mockMetrics } from "@/lib/mock-data";
-
-const metrics = [
-  {
-    title: "Total Views",
-    value: mockMetrics.totalViews,
-    growth: mockMetrics.viewsGrowth,
-    icon: Eye,
-    color: "bg-blue-500/20 text-blue-400",
-  },
-  {
-    title: "Total Likes",
-    value: mockMetrics.totalLikes,
-    growth: mockMetrics.likesGrowth,
-    icon: Heart,
-    color: "bg-green-500/20 text-green-400",
-  },
-  {
-    title: "Total Shares",
-    value: mockMetrics.totalShares,
-    growth: mockMetrics.sharesGrowth,
-    icon: Share,
-    color: "bg-yellow-500/20 text-yellow-400",
-  },
-  {
-    title: "Total Comments",
-    value: mockMetrics.totalComments,
-    growth: mockMetrics.commentsGrowth,
-    icon: MessageCircle,
-    color: "bg-purple-500/20 text-purple-400",
-  },
-];
+import { useQuery } from "@tanstack/react-query";
 
 export default function MetricsCards() {
+  // Fetch real analytics data from API
+  const { data: analyticsData, isLoading } = useQuery({
+    queryKey: ['/api/analytics/metrics'],
+    queryFn: async () => {
+      const response = await fetch('/api/analytics/metrics');
+      if (!response.ok) throw new Error('Failed to fetch analytics');
+      return response.json();
+    },
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  const metrics = [
+    {
+      title: "Total Views",
+      value: isLoading ? "..." : (analyticsData?.totalViews?.toLocaleString() || "0"),
+      growth: isLoading ? "..." : (analyticsData?.viewsGrowth || "+0%"),
+      icon: Eye,
+      color: "bg-blue-500/20 text-blue-400",
+    },
+    {
+      title: "Total Likes",
+      value: isLoading ? "..." : (analyticsData?.totalLikes?.toLocaleString() || "0"),
+      growth: isLoading ? "..." : (analyticsData?.likesGrowth || "+0%"),
+      icon: Heart,
+      color: "bg-green-500/20 text-green-400",
+    },
+    {
+      title: "Total Shares",
+      value: isLoading ? "..." : (analyticsData?.totalShares?.toLocaleString() || "0"),
+      growth: isLoading ? "..." : (analyticsData?.sharesGrowth || "+0%"),
+      icon: Share,
+      color: "bg-yellow-500/20 text-yellow-400",
+    },
+    {
+      title: "Total Comments",
+      value: isLoading ? "..." : (analyticsData?.totalComments?.toLocaleString() || "0"),
+      growth: isLoading ? "..." : (analyticsData?.commentsGrowth || "+0%"),
+      icon: MessageCircle,
+      color: "bg-purple-500/20 text-purple-400",
+    },
+  ];
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {metrics.map((metric) => (

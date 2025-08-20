@@ -6,24 +6,16 @@ export class OllamaLLMService {
   private chromaClient: ChromaClient | null = null;
   private socialEventsCollection: Collection | null = null;
   // Use deepseek-r1:8b as the primary model for all tasks
-  private modelName = "deepseek-r1:8b";
+  //private modelName = "deepseek-r1:8b";
+  private modelName = "tinyllama:latest";
 
   constructor() {
     // Get Ollama base URL from environment (no token needed)
     this.ollamaToken = ""; // Not needed for local Ollama
     this.ollamaBaseUrl = process.env.OLLAMA_API_BASE_URL || "http://localhost:11434";
 
-    // Initialize ChromaDB for vector storage
-    try {
-      this.chromaClient = new ChromaClient({
-        path: "http://localhost:8000", // Default ChromaDB endpoint
-      });
-      void this.initializeCollection();
-    } catch (error: unknown) {
-      console.warn(
-        "ChromaDB not available, using in-memory storage for embeddings",
-      );
-    }
+    // Initialize ChromaDB for vector storage - Use in-memory approach for now
+    console.log("🔧 Using in-memory vector storage for embeddings (ChromaDB alternative)");
   }
 
   private async initializeCollection() {
@@ -267,41 +259,73 @@ Response:`;
   // Fallback text search when vector search is unavailable
   private async searchInMemoryEvents(query: string, limit: number = 5): Promise<string[]> {
     try {
-      const { storage } = await import('./storage');
-      const events = await storage.getSocialEvents();
-      
+      // Get social events from MongoDB instead of storage (which has mock data)
+      const { mongoService } = await import('./mongodb');
+      if (!mongoService.isConnectionActive()) {
+        console.log("📊 MongoDB not connected - no search data available");
+        return [];
+      }
+
+      const events = await mongoService.getAllSocialEvents();
+      console.log(`🔍 Searching through ${events.length} social media events for: "${query}"`);
+
+      if (events.length === 0) {
+        return [];
+      }
+
+      // Simple text matching for now (will replace with proper embeddings later)
       const queryLower = query.toLowerCase();
-      const keywords = queryLower.split(' ').filter(word => word.length > 2);
-      
-      const scoredEvents = events.map(event => {
-        const contentLower = event.event_content.toLowerCase();
-        let score = 0;
-        
-        keywords.forEach(keyword => {
-          if (contentLower.includes(keyword)) {
-            score += keyword.length;
-          }
-        });
-        
-        if (contentLower.includes(queryLower)) {
-          score += 10;
-        }
-        
-        return { event, score };
-      });
-      
-      const relevantEvents = scoredEvents
-        .filter(item => item.score > 0)
+      const scoredEvents = events
+        .filter(event => {
+          const content = (event.event_content || event.clean_event_text || '').toLowerCase();
+          return content.includes(queryLower) || 
+                 content.includes('airport') || 
+                 content.includes('airline') ||
+                 content.includes('flight');
+        })
+        .map(event => ({
+          content: event.event_content || event.clean_event_text || '',
+          score: this.calculateTextRelevance(event.event_content || event.clean_event_text || '', queryLower)
+        }))
         .sort((a, b) => b.score - a.score)
         .slice(0, limit)
-        .map(item => item.event.event_content);
-        
-      console.log(`Found ${relevantEvents.length} relevant events for query: "${query}"`);
-      return relevantEvents;
+        .map(event => event.content);
+
+      console.log(`📈 Found ${scoredEvents.length} relevant events for context`);
+      return scoredEvents;
+
     } catch (error) {
-      console.error("In-memory event search error:", error);
+      console.error('Error searching in-memory events:', error);
       return [];
     }
+  }
+
+  private calculateTextRelevance(text: string, query: string): number {
+    const textLower = text.toLowerCase();
+    let score = 0;
+    
+    // Exact query match gets high score
+    if (textLower.includes(query)) score += 10;
+    
+    // Key airport terms
+    const airportTerms = ['bangalore airport', 'bengaluru airport', 'kempegowda', 'blr'];
+    airportTerms.forEach(term => {
+      if (textLower.includes(term)) score += 5;
+    });
+    
+    // Airline mentions
+    const airlines = ['indigo', 'spicejet', 'air india', 'vistara'];
+    airlines.forEach(airline => {
+      if (textLower.includes(airline)) score += 3;
+    });
+    
+    // Service terms
+    const services = ['security', 'luggage', 'baggage', 'lounge', 'check-in', 'boarding'];
+    services.forEach(service => {
+      if (textLower.includes(service)) score += 2;
+    });
+    
+    return score;
   }
 
   // Generate contextual response from found social media data

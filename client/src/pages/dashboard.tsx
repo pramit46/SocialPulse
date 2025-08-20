@@ -18,9 +18,9 @@ export default function Dashboard() {
       </div>
 
       {/* Key Metrics Cards */}
-      <div className="mb-8">
+      {/* <div className="mb-8">
         <MetricsCards />
-      </div>
+      </div> */}
 
       {/* Sentiment Analysis */}
       <SentimentAnalysis />
