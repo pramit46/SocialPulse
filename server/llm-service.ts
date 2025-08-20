@@ -5,12 +5,12 @@ export class OllamaLLMService {
   private ollamaBaseUrl: string;
   private chromaClient: ChromaClient | null = null;
   private socialEventsCollection: Collection | null = null;
-  // Use tinyllama as the primary model for all tasks
-  private modelName = "tinyllama";
+  // Use tinyllama:latest as the primary model for all tasks
+  private modelName = "tinyllama:latest";
 
   constructor() {
-    // Get Ollama credentials from environment
-    this.ollamaToken = process.env.OLLAMA_ACCESS_TOKEN || "";
+    // Get Ollama base URL from environment (no token needed)
+    this.ollamaToken = ""; // Not needed for local Ollama
     this.ollamaBaseUrl = process.env.OLLAMA_API_BASE_URL || "http://localhost:11434";
 
     // Initialize ChromaDB for vector storage
@@ -213,10 +213,7 @@ Response:`;
         'Content-Type': 'application/json',
       };
 
-      // Add authorization if token is provided
-      if (this.ollamaToken) {
-        headers['Authorization'] = `Bearer ${this.ollamaToken}`;
-      }
+      // No authorization needed for local Ollama
 
       const response = await fetch(url, {
         method: 'POST',
@@ -237,18 +234,18 @@ Response:`;
   }
 
   private getPlaceholderSentiment(): any {
-    const score = Math.random() * 2 - 1;
+    // Return null instead of mock data when Ollama fails
     return {
-      overall_sentiment: score,
-      sentiment_score: Math.abs(score),
+      overall_sentiment: 0,
+      sentiment_score: 0,
       categories: {
-        ease_of_booking: Math.random() > 0.5 ? Math.random() * 2 - 1 : null,
-        check_in: Math.random() > 0.5 ? Math.random() * 2 - 1 : null,
-        luggage_handling: Math.random() > 0.5 ? Math.random() * 2 - 1 : null,
-        security: Math.random() > 0.5 ? Math.random() * 2 - 1 : null,
-        lounge: Math.random() > 0.5 ? Math.random() * 2 - 1 : null,
-        amenities: Math.random() > 0.5 ? Math.random() * 2 - 1 : null,
-        communication: Math.random() > 0.5 ? Math.random() * 2 - 1 : null,
+        ease_of_booking: null,
+        check_in: null,
+        luggage_handling: null,
+        security: null,
+        lounge: null,
+        amenities: null,
+        communication: null,
       },
     };
   }
