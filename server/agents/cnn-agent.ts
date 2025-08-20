@@ -76,30 +76,10 @@ export class CNNAgent extends BaseAgent {
     } catch (error) {
       console.error('CNN data collection error:', error);
       
-      // Create demo event if RSS fails
-      const demoEvent: InsertSocialEvent = {
-        author_id: 'cnn_news',
-        author_name: 'CNN News',
-        clean_event_text: 'New security measures implemented at major Indian airports including Bangalore to enhance passenger safety and reduce wait times.',
-        engagement_metrics: {
-          comments: 45,
-          likes: 230,
-          shares: 67,
-        },
-        event_content: 'Breaking: New security measures implemented at major Indian airports including Bangalore\'s Kempegowda International Airport to enhance passenger safety and reduce wait times during peak travel season.',
-        event_id: `cnn_demo_${Date.now()}`,
-        event_title: 'Enhanced Security Measures at Indian Airports',
-        event_url: 'https://cnn.com/travel/airport-security',
-        parent_event_id: null,
-        platform: 'CNN',
-        timestamp_utc: new Date().toISOString(),
-        sentiment_analysis: await this.analyzeSentiment('Enhanced security measures for passenger safety'),
-        location_focus: 'bangalore_airport',
-        airline_mentioned: null,
-      };
-
-      await this.storeCollectedEvents('cnn', [demoEvent]);
-      return [demoEvent];
+      // CNN RSS feed failed - return empty array instead of mock data
+      console.log('CNN RSS feed unavailable - no real data available');
+      
+      return [];
     }
   }
 }

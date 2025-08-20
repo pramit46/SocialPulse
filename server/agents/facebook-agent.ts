@@ -61,37 +61,10 @@ export class FacebookAgent extends BaseAgent {
     } catch (error) {
       console.error('Facebook data collection error:', error);
       
-      // Facebook API access may be limited, create demonstration event
-      const demoEvent: InsertSocialEvent = {
-        author_id: 'fb_demo_user',
-        author_name: 'Bangalore Traveler',
-        clean_event_text: 'Had an excellent experience at Bangalore airport today. IndiGo flight departed on time and security process was very smooth!',
-        engagement_metrics: {
-          comments: 23,
-          likes: 156,
-          shares: 18,
-        },
-        event_content: 'Just had an excellent experience at #BangaloreAirport today! ✈️ My @IndiGo6E flight departed right on time and the security process was surprisingly smooth. The new terminal facilities are impressive! Kudos to the airport staff! 👏 #Travel #IndiGo #BLRAirport',
-        event_id: 'fb_demo_001',
-        event_title: null,
-        event_url: 'https://facebook.com/demo_post',
-        parent_event_id: null,
-        platform: 'Facebook',
-        timestamp_utc: new Date().toISOString(),
-        sentiment_analysis: {
-          overall_sentiment: 0.8,
-          sentiment_score: 0.85,
-        },
-        location_focus: 'bangalore_airport',
-        airline_mentioned: 'indigo',
-      };
-
-      console.log('Facebook API access limited - created demonstration event with realistic passenger feedback');
+      // Facebook API access is limited - return empty array instead of mock data
+      console.log('Facebook API access limited - no real data available');
       
-      // Store the demo event
-      await this.storeCollectedEvents('facebook', [demoEvent]);
-      
-      return [demoEvent];
+      return [];
     }
   }
 }
