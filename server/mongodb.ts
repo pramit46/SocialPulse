@@ -5,9 +5,26 @@ export class MongoDBService {
   private client: MongoClient | null = null;
   private db: Db | null = null;
   private isConnected: boolean = false;
+  private connectionString: string | null = null;
+  private databaseName: string = 'bangalore_airport_analytics';
 
   constructor() {
-    // MongoDB will be initialized when credentials are provided
+    // Try to auto-connect using environment variables if available
+    this.autoConnect();
+  }
+
+  private async autoConnect() {
+    const mongoUri = process.env.MONGODB_CONNECTION_STRING;
+    const dbName = process.env.MONGODB_DATABASE_NAME || 'bangalore_airport_analytics';
+    
+    if (mongoUri) {
+      try {
+        await this.connect(mongoUri, dbName);
+        console.log('Auto-connected to MongoDB using environment variables');
+      } catch (error) {
+        console.log('Failed to auto-connect to MongoDB:', error);
+      }
+    }
   }
 
   async connect(connectionString: string, databaseName: string = 'bangalore_airport_analytics') {
@@ -21,11 +38,24 @@ export class MongoDBService {
       await this.client.connect();
       this.db = this.client.db(databaseName);
       this.isConnected = true;
+      
+      // Store connection details for reconnection after restart
+      this.connectionString = connectionString;
+      this.databaseName = databaseName;
+      
       console.log('Successfully connected to MongoDB');
     } catch (error) {
       console.error('MongoDB connection error:', error);
       throw error;
     }
+  }
+
+  // Method to get current connection details
+  getConnectionDetails(): { connectionString: string | null; databaseName: string } {
+    return {
+      connectionString: this.connectionString,
+      databaseName: this.databaseName
+    };
   }
 
   async disconnect() {
