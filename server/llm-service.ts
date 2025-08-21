@@ -127,7 +127,9 @@ JSON Response:`;
           const relevantEvents = await this.searchSimilarEvents(sanitizedQuery, 5);
           
           if (relevantEvents.length === 0) {
-            return `I don't have specific social media data about "${queryIntent.topic}" at Bangalore airport right now. Our system tracks passenger experiences including delays, luggage handling, security, check-in, lounges, and airline services. Would you like to know about any of these areas instead?`;
+            return `I don't have specific social media data about "${queryIntent.topic}" at Bangalore airport right now. Our system tracks passenger experiences including delays, luggage handling, security, check-in, lounges, and airline services. 
+
+Would you like me to search the internet for current information about "${queryIntent.topic}" at Bangalore airport? Please reply with "yes" if you'd like me to look for this information online.`;
           }
           
           // Generate contextual response with found data
@@ -355,26 +357,43 @@ This data comes from real social media posts about Bangalore airport and airline
         return [];
       }
 
-      // Simple text matching for now (will replace with proper embeddings later)
+      // Enhanced text matching with better relevance scoring
       const queryLower = query.toLowerCase();
+      const queryTerms = queryLower.split(' ').filter(term => term.length > 2);
+      
       const scoredEvents = events
         .filter(event => {
           const content = (event.event_content || event.clean_event_text || '').toLowerCase();
-          return content.includes(queryLower) || 
-                 content.includes('airport') || 
+          // Filter for airport/airline related content
+          return content.includes('airport') || 
                  content.includes('airline') ||
-                 content.includes('flight');
+                 content.includes('flight') ||
+                 content.includes('bangalore') ||
+                 content.includes('bengaluru') ||
+                 queryTerms.some(term => content.includes(term));
         })
-        .map(event => ({
-          content: event.event_content || event.clean_event_text || '',
-          score: this.calculateTextRelevance(event.event_content || event.clean_event_text || '', queryLower)
-        }))
+        .map(event => {
+          const content = event.event_content || event.clean_event_text || '';
+          const score = this.calculateTextRelevance(content, queryLower);
+          return { content, score, event };
+        })
         .sort((a, b) => b.score - a.score)
-        .slice(0, limit)
-        .map(event => event.content);
+        .slice(0, limit);
+
+      // For amenities queries, prioritize relevant content
+      if (queryLower.includes('amenities') || queryLower.includes('facilities')) {
+        const amenityKeywords = ['lounge', 'wifi', 'food', 'restaurant', 'shop', 'toilet', 'charging', 'seating'];
+        const amenityEvents = scoredEvents.filter(item => 
+          amenityKeywords.some(keyword => item.content.toLowerCase().includes(keyword))
+        );
+        if (amenityEvents.length > 0) {
+          console.log(`📈 Found ${amenityEvents.length} amenity-specific events`);
+          return amenityEvents.map(item => item.content);
+        }
+      }
 
       console.log(`📈 Found ${scoredEvents.length} relevant events for context`);
-      return scoredEvents;
+      return scoredEvents.map(item => item.content);
 
     } catch (error) {
       console.error('Error searching in-memory events:', error);

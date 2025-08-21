@@ -274,6 +274,53 @@ class MongoDBService {
       return [];
     }
   }
+  // Dashboard Analytics Methods
+  async getChartData(): Promise<any> {
+    if (!this.db) throw new Error('Database not connected');
+    const collection = this.db.collection('chart_data');
+    const data = await collection.findOne({ type: 'dashboard_charts' });
+    return data?.data || { engagement: [], platforms: [] };
+  }
+
+  async storeChartData(data: any): Promise<void> {
+    if (!this.db) throw new Error('Database not connected');
+    const collection = this.db.collection('chart_data');
+    await collection.replaceOne(
+      { type: 'dashboard_charts' },
+      { type: 'dashboard_charts', data, updatedAt: new Date() },
+      { upsert: true }
+    );
+  }
+
+  async getInsights(): Promise<any[]> {
+    if (!this.db) throw new Error('Database not connected');
+    const collection = this.db.collection('insights');
+    return await collection.find({}).toArray();
+  }
+
+  async storeInsights(insights: any[]): Promise<void> {
+    if (!this.db) throw new Error('Database not connected');
+    const collection = this.db.collection('insights');
+    await collection.deleteMany({});
+    await collection.insertMany(insights);
+  }
+
+  async getSentimentData(): Promise<any> {
+    if (!this.db) throw new Error('Database not connected');
+    const collection = this.db.collection('sentiment_data');
+    const data = await collection.findOne({ type: 'airport_sentiment' });
+    return data?.data || { bangalore_airport: null, airlines: {} };
+  }
+
+  async storeSentimentData(data: any): Promise<void> {
+    if (!this.db) throw new Error('Database not connected');
+    const collection = this.db.collection('sentiment_data');
+    await collection.replaceOne(
+      { type: 'airport_sentiment' },
+      { type: 'airport_sentiment', data, updatedAt: new Date() },
+      { upsert: true }
+    );
+  }
 }
 
 export const mongoService = new MongoDBService();

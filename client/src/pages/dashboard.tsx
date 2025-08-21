@@ -1,4 +1,3 @@
-import MetricsCards from "@/components/dashboard/metrics-cards";
 import WordCloud from "@/components/dashboard/word-cloud";
 import PlatformChart from "@/components/dashboard/platform-chart";
 import RecentPosts from "@/components/dashboard/recent-posts";
@@ -18,11 +17,6 @@ export default function Dashboard() {
         <h1 className="text-3xl font-bold text-white mb-2">Social Pulse</h1>
         <p className="text-gray-400">Monitor and analyze social media performance across all platforms</p>
       </div>
-
-      {/* Key Metrics Cards */}
-      {/* <div className="mb-8">
-        <MetricsCards />
-      </div> */}
 
       {/* Sentiment Analysis */}
       <SentimentAnalysis />

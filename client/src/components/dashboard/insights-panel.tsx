@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Lightbulb, TrendingUp, Users } from "lucide-react";
-import { mockInsights } from "@/lib/mock-data";
+import { useQuery } from "@tanstack/react-query";
 
 const iconMap = {
   optimization: Lightbulb,
@@ -13,15 +13,43 @@ const colorMap = {
   blue: "bg-blue-500/10 border-blue-500/20 text-blue-400",
   green: "bg-green-500/10 border-green-500/20 text-green-400",
   yellow: "bg-yellow-500/10 border-yellow-500/20 text-yellow-400",
+  red: "bg-red-500/10 border-red-500/20 text-red-400",
 };
 
 const buttonColorMap = {
   blue: "text-blue-400 hover:text-blue-300",
   green: "text-green-400 hover:text-green-300",
   yellow: "text-yellow-400 hover:text-yellow-300",
+  red: "text-red-400 hover:text-red-300",
 };
 
 export default function InsightsPanel() {
+  // Fetch insights from MongoDB
+  const { data: insights, isLoading } = useQuery({
+    queryKey: ['/api/insights'],
+    queryFn: async () => {
+      const response = await fetch('/api/insights');
+      if (!response.ok) throw new Error('Failed to fetch insights');
+      return response.json();
+    },
+    refetchInterval: 300000, // 5 minutes
+  });
+
+  if (isLoading) {
+    return (
+      <Card className="bg-dark-secondary border-dark-border">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-white">Actionable Insights</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-32">
+            <div className="animate-pulse text-gray-400">Loading insights...</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="bg-dark-secondary border-dark-border">
       <CardHeader>
@@ -29,7 +57,7 @@ export default function InsightsPanel() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {mockInsights.map((insight) => {
+          {(insights || []).map((insight: any) => {
             const Icon = iconMap[insight.type as keyof typeof iconMap];
             const colorClass = colorMap[insight.color as keyof typeof colorMap];
             const buttonColorClass = buttonColorMap[insight.color as keyof typeof buttonColorMap];

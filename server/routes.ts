@@ -86,10 +86,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/analytics/charts", async (req, res) => {
     try {
-      const chartData = await storage.getChartData();
+      const chartData = await mongoService.getChartData();
       res.json(chartData);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch chart data" });
+    }
+  });
+
+  app.get("/api/insights", async (req, res) => {
+    try {
+      const insights = await mongoService.getInsights();
+      res.json(insights);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch insights" });
+    }
+  });
+
+  // Populate ChromaDB with embeddings from existing MongoDB social events
+  app.post("/api/chromadb/populate-embeddings", async (req, res) => {
+    try {
+      if (!mongoService.isConnectionActive()) {
+        return res.status(400).json({ error: "MongoDB not connected" });
+      }
+
+      const socialEvents = await mongoService.getAllSocialEvents();
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const event of socialEvents) {
+        try {
+          const textContent = event.event_content || event.clean_event_text || '';
+          if (textContent.trim()) {
+            await llmService.storeEventEmbedding(
+              event._id?.toString() || event.id || `event_${Date.now()}`,
+              textContent,
+              {
+                platform: event.platform,
+                timestamp: event.timestamp_utc || event.created_at,
+                sentiment: event.sentiment_analysis?.overall_sentiment || 0,
+                airline: event.airline_mentioned,
+                location: event.location_focus
+              }
+            );
+            successCount++;
+          }
+        } catch (error) {
+          errorCount++;
+          console.error(`Error storing embedding for event ${event.id}:`, error);
+        }
+      }
+
+      res.json({
+        success: true,
+        message: `ChromaDB population completed`,
+        totalEvents: socialEvents.length,
+        successfulEmbeddings: successCount,
+        errors: errorCount
+      });
+    } catch (error) {
+      console.error('ChromaDB population error:', error);
+      res.status(500).json({ error: "Failed to populate ChromaDB embeddings" });
+    }
+  });
+
+  // Migrate all mock data to MongoDB
+  app.post("/api/migrate-mock-data", async (req, res) => {
+    try {
+      const { mockChartData, mockInsights, mockSentimentData } = await import('./mock-data-import');
+      
+      // Store chart data
+      await mongoService.storeChartData(mockChartData);
+      
+      // Store insights
+      await mongoService.storeInsights(mockInsights);
+      
+      // Store sentiment data
+      await mongoService.storeSentimentData(mockSentimentData);
+      
+      res.json({ 
+        success: true, 
+        message: "All mock data migrated to MongoDB collections successfully",
+        collections: ['chart_data', 'insights', 'sentiment_data']
+      });
+    } catch (error) {
+      console.error('Migration error:', error);
+      res.status(500).json({ error: "Failed to migrate mock data" });
     }
   });
 
@@ -327,7 +408,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const dataSources = await mongoService.getDataSources();
       const sourceStats = await Promise.all(
         dataSources.map(async (source) => {
-          return await mongoService.getCollectionStats(source);
+          const stats = await mongoService.getFromCollection(source);
+          return { name: source, count: stats.length };
         })
       );
       
@@ -351,7 +433,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { sourceName } = req.params;
       const { format = 'json', limit = 1000 } = req.query;
       
-      const data = await mongoService.getDataFromSource(sourceName, parseInt(limit as string));
+      const data = await mongoService.getFromCollection(sourceName);
       
       if (format === 'csv') {
         // Convert to CSV format
