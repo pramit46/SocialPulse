@@ -323,15 +323,16 @@ class MongoDBService {
   }
 
   // AVA Context Management - Collection: 'ava_conversations'
-  async storeAvaContext(sessionId: string, context: any): Promise<void> {
+  async storeAvaContext(sessionId: string, context: any, userId: string = 'Pramit'): Promise<void> {
     if (!this.db) throw new Error('Database not connected');
     const collection = this.db.collection('ava_conversations');
-    console.log(`📝 [MongoDB] Storing AVA context for session: ${sessionId}`);
+    console.log(`📝 [MongoDB] Storing AVA context for session: ${sessionId} | User: ${userId}`);
     
     await collection.replaceOne(
       { sessionId },
       { 
-        sessionId, 
+        sessionId,
+        userId, // Added user_id field with default 'Pramit'
         context, 
         lastUpdated: new Date(),
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours

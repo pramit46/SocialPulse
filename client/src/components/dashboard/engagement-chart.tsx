@@ -1,8 +1,28 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from "recharts";
-import { mockChartData } from "@/lib/mock-data";
+import { useQuery } from "@tanstack/react-query";
 
 export default function EngagementChart() {
+  const { data: chartData, isLoading } = useQuery({
+    queryKey: ['/api/analytics/charts'],
+    select: (data: any) => data?.engagement || []
+  });
+
+  if (isLoading) {
+    return (
+      <Card className="bg-dark-secondary border-dark-border">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-white">Engagement Trends</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[280px] flex items-center justify-center">
+            <div className="text-gray-400">Loading engagement data...</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="bg-dark-secondary border-dark-border">
       <CardHeader>
@@ -10,7 +30,7 @@ export default function EngagementChart() {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={280}>
-          <LineChart data={mockChartData.engagement} margin={{ top: 5, right: 5, left: 5, bottom: 45 }}>
+          <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 45 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
             <XAxis 
               dataKey="month" 
