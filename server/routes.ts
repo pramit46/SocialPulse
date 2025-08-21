@@ -236,8 +236,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Implement RAG: First search through scraped social media data
       const query = message.trim();
-      const userSessionId = sessionId || 'default';
-      // Use Pramit as the consistent user ID for all queries
+      // Always use 'default' session and 'Pramit' user for consistent context tracking
+      const userSessionId = 'default';
       const userId = 'Pramit';
       let response;
       
