@@ -25,10 +25,10 @@ export default function Dashboard() {
       {/* Weather Correlation Section */}
       <div className="mb-8">
         <h2 className="text-xl font-semibold text-white mb-4">☁️ Weather Impact Analysis</h2>
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           <WeatherSentimentCorrelation />
           <WeatherAlerts />
-          <WeatherForecastPanel />
+          {/* <WeatherForecastPanel /> */}
         </div>
       </div>
 
