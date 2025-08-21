@@ -51,7 +51,8 @@ async function getResponse(query: string): Promise<string> {
   } else {
     // Route unknown queries to LLM service
     try {
-      const response = await apiRequest('POST', '/api/aerobot/chat', { query });
+      const sessionId = 'user_' + Math.random().toString(36).substr(2, 9);
+      const response = await apiRequest('POST', '/api/aerobot/chat', { message: query, sessionId });
       const data = await response.json();
       return data.response || mockResponses.default;
     } catch (error) {
@@ -117,7 +118,8 @@ export default function AeroBot() {
     } else {
       // Route unknown queries to LLM service
       try {
-        const response = await apiRequest("POST", "/api/aerobot/chat", { message: currentQuery });
+        const sessionId = 'user_' + Math.random().toString(36).substr(2, 9);
+        const response = await apiRequest("POST", "/api/aerobot/chat", { message: currentQuery, sessionId });
         const data = await response.json();
         const botResponse: Message = {
           id: (Date.now() + 1).toString(),

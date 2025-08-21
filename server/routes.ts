@@ -227,7 +227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/aerobot/chat", async (req, res) => {
     try {
       console.log('📨 Received chat request body:', req.body);
-      const { message } = req.body;
+      const { message, sessionId } = req.body;
       
       if (!message?.trim()) {
         console.log('❌ Invalid message field:', { message, body: req.body });
@@ -236,11 +236,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Implement RAG: First search through scraped social media data
       const query = message.trim();
+      const userSessionId = sessionId || 'default';
       let response;
       
       try {
-        // Use the new agentic reasoning system directly
-        response = await llmService.generateChatResponse(query);
+        // Use the new agentic reasoning system directly with session
+        response = await llmService.generateChatResponse(query, [], userSessionId);
       } catch (ragError) {
         console.error('AVA system error:', ragError);
         // Fallback to basic topic-based responses if AVA fails
@@ -511,6 +512,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Weather correlations fetch error:', error);
       res.status(500).json({ error: "Failed to fetch weather correlations" });
+    }
+  });
+
+  // Get weather forecast data
+  app.get("/api/weather/forecast", async (req, res) => {
+    try {
+      const forecasts = await mongoService.getFromCollection('weather_forecast', {});
+      res.json(forecasts);
+    } catch (error) {
+      console.error('Weather forecast fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch weather forecasts" });
+    }
+  });
+
+  // Verify user_id field exists in ava_conversations
+  app.get("/api/ava/verify-user-field", async (req, res) => {
+    try {
+      // Get a sample document to check structure
+      const sample = await mongoService.getFromCollection('ava_conversations', {}, { limit: 1 });
+      const hasUserIdField = sample.length > 0 && 'user_id' in sample[0];
+      
+      res.json({
+        success: true,
+        hasUserIdField,
+        sampleDocument: sample[0] || null,
+        totalDocuments: sample.length
+      });
+    } catch (error) {
+      console.error('AVA user_id verification error:', error);
+      res.status(500).json({ error: "Failed to verify user_id field" });
     }
   });
 

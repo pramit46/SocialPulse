@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Database, Cloud, RotateCw, Download, Settings, Play, CheckCircle, AlertCircle } from "lucide-react";
-import { mockSocialEvents } from "@/lib/mock-data";
+// Removed mockSocialEvents import - using real data from MongoDB
 import { Badge } from "@/components/ui/badge";
 import { dataSources, DataSourceCredentials } from "@shared/schema";
 import { useState } from "react";
@@ -82,7 +82,7 @@ export default function DataManagement() {
   // MongoDB data sources query
   const { data: mongoDataSources, refetch: refetchDataSources } = useQuery({
     queryKey: ['/api/mongodb/data-sources'],
-    enabled: mongoStatus?.isConnected
+    enabled: (mongoStatus as any)?.connected || false
   });
 
   // MongoDB connection mutation
@@ -575,7 +575,7 @@ export default function DataManagement() {
                   </tr>
                 </thead>
                 <tbody>
-                  {mockSocialEvents.map((record) => (
+                  {((mongoDataSources as any)?.social_events || []).slice(0, 10).map((record: any) => (
                     <tr key={record.id} className="border-b border-dark-border/50">
                       <td className="py-3 text-gray-300">{record.event_id}</td>
                       <td className="py-3">
