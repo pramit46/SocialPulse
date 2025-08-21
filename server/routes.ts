@@ -237,11 +237,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Implement RAG: First search through scraped social media data
       const query = message.trim();
       const userSessionId = sessionId || 'default';
+      // Extract user ID from sessionId or generate one
+      const userId = sessionId ? sessionId.split('_')[1] || sessionId : 'anonymous_' + Date.now();
       let response;
       
       try {
-        // Use the new agentic reasoning system directly with session
-        response = await llmService.generateChatResponse(query, [], userSessionId);
+        // Use the new agentic reasoning system directly with session and user ID
+        response = await llmService.generateChatResponse(query, [], userSessionId, userId);
       } catch (ragError) {
         console.error('AVA system error:', ragError);
         // Fallback to basic topic-based responses if AVA fails
@@ -530,7 +532,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/ava/verify-user-field", async (req, res) => {
     try {
       // Get a sample document to check structure
-      const sample = await mongoService.getFromCollection('ava_conversations', {}, { limit: 1 });
+      const sample = await mongoService.getFromCollection('ava_conversations', {});
       const hasUserIdField = sample.length > 0 && 'user_id' in sample[0];
       
       res.json({

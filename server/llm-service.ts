@@ -97,7 +97,8 @@ JSON Response:`;
   async generateChatResponse(
     query: string,
     context: string[] = [],
-    sessionId: string = 'default'
+    sessionId: string = 'default',
+    userId: string = 'anonymous'
   ): Promise<string> {
     try {
       // Sanitize the input query first
@@ -111,7 +112,7 @@ JSON Response:`;
       // Get previous context from MongoDB
       const { mongoService } = await import('./mongodb');
       const previousContext = await mongoService.getAvaContext(sessionId);
-      console.log(`🧠 [AVA] Previous context: ${previousContext ? JSON.stringify(previousContext) : 'None'}`);
+      console.log(`🧠 [AVA] Previous context: ${previousContext ? JSON.stringify(previousContext) : 'None'} | User: ${userId}`);
 
       // Check if this is a response to a previous internet search request
       if (previousContext?.waitingForInternetConsent) {
@@ -122,12 +123,12 @@ JSON Response:`;
         
         if (isPositive) {
           // Clear the context and perform internet search
-          await mongoService.storeAvaContext(sessionId, { waitingForInternetConsent: false });
+          await mongoService.storeAvaContext(sessionId, { waitingForInternetConsent: false }, userId);
           console.log(`🌐 [AVA] Performing internet search for: "${previousContext.originalQuery}"`);
           return `I would search the internet for information about "${previousContext.originalQuery}" at Bangalore airport, but this feature is currently being developed. In the meantime, I can help you with passenger experiences, airline performance, and sentiment analysis from our existing social media data. What specific aspect would you like to explore?`;
         } else {
           // Clear the context and provide alternative
-          await mongoService.storeAvaContext(sessionId, { waitingForInternetConsent: false });
+          await mongoService.storeAvaContext(sessionId, { waitingForInternetConsent: false }, userId);
           console.log(`❌ [AVA] Internet search declined by user`);
           return `No problem! I can help with other aspects of Bangalore airport like passenger experiences, airline services, security processes, or flight information. What would you like to know?`;
         }
@@ -158,7 +159,7 @@ JSON Response:`;
               waitingForInternetConsent: true,
               originalQuery: sanitizedQuery,
               queryIntent: queryIntent
-            });
+            }, userId);
             console.log(`📝 [AVA] Stored context for internet search consent | Session: ${sessionId}`);
             
             return `I don't have specific social media data about "${queryIntent.topic}" at Bangalore airport right now. Our system tracks passenger experiences including delays, luggage handling, security, check-in, lounges, and airline services. 
