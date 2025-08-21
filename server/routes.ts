@@ -533,7 +533,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Get a sample document to check structure
       const sample = await mongoService.getFromCollection('ava_conversations', {});
-      const hasUserIdField = sample.length > 0 && 'user_id' in sample[0];
+      const hasUserIdField = sample.length > 0 && 'userId' in sample[0];
       
       res.json({
         success: true,

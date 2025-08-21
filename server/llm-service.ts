@@ -137,6 +137,13 @@ JSON Response:`;
       // Step 1: Understand the query intent using reasoning
       const queryIntent = await this.analyzeQueryIntent(sanitizedQuery);
       console.log(`🧠 [AVA] Query intent: ${queryIntent.type} | Topic: ${queryIntent.topic}`);
+      
+      // Always store/update user context for every conversation
+      await mongoService.storeAvaContext(sessionId, { 
+        lastQuery: sanitizedQuery,
+        lastIntent: queryIntent,
+        waitingForInternetConsent: false 
+      }, userId);
 
       // Step 2: Handle different intent types appropriately
       switch (queryIntent.type) {
