@@ -268,35 +268,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Try to get actual delay data from storage
       const events = await storage.getSocialEvents({ limit: 50 });
       const delayEvents = events.filter(event => 
-        event.event_content.toLowerCase().includes("delay") || 
-        event.event_content.toLowerCase().includes("late") ||
-        event.event_content.toLowerCase().includes("on time")
+        event.event_content?.toLowerCase().includes("delay") || 
+        event.event_content?.toLowerCase().includes("late") ||
+        event.event_content?.toLowerCase().includes("on time")
       );
       
       if (delayEvents.length > 0) {
-        return `Based on recent social media posts, I found ${delayEvents.length} mentions about flight delays. Here's what passengers are saying: ${delayEvents.slice(0, 2).map(e => `"${e.event_content.substring(0, 100)}..."`).join(" | ")}`;
+        return `Based on recent social media posts, I found ${delayEvents.length} mentions about flight delays. Here's what passengers are saying: ${delayEvents.slice(0, 2).map(e => `"${e.event_content?.substring(0, 100)}..."`).join(" | ")}`;
       }
     } else if (query.includes("luggage") || query.includes("baggage")) {
       const events = await storage.getSocialEvents({ limit: 50 });
       const luggageEvents = events.filter(event => 
-        event.event_content.toLowerCase().includes("luggage") || 
-        event.event_content.toLowerCase().includes("baggage") ||
-        event.event_content.toLowerCase().includes("lost bag")
+        event.event_content?.toLowerCase().includes("luggage") || 
+        event.event_content?.toLowerCase().includes("baggage") ||
+        event.event_content?.toLowerCase().includes("lost bag")
       );
       
       if (luggageEvents.length > 0) {
-        return `I found ${luggageEvents.length} recent posts about luggage handling. Recent feedback: ${luggageEvents.slice(0, 2).map(e => `"${e.event_content.substring(0, 100)}..."`).join(" | ")}`;
+        return `I found ${luggageEvents.length} recent posts about luggage handling. Recent feedback: ${luggageEvents.slice(0, 2).map(e => `"${e.event_content?.substring(0, 100)}..."`).join(" | ")}`;
       }
     } else if (query.includes("security") || query.includes("screening")) {
       const events = await storage.getSocialEvents({ limit: 50 });
       const securityEvents = events.filter(event => 
-        event.event_content.toLowerCase().includes("security") || 
-        event.event_content.toLowerCase().includes("screening") ||
-        event.event_content.toLowerCase().includes("checkpoint")
+        event.event_content?.toLowerCase().includes("security") || 
+        event.event_content?.toLowerCase().includes("screening") ||
+        event.event_content?.toLowerCase().includes("checkpoint")
       );
       
       if (securityEvents.length > 0) {
-        return `Found ${securityEvents.length} mentions about security processes. Recent experiences: ${securityEvents.slice(0, 2).map(e => `"${e.event_content.substring(0, 100)}..."`).join(" | ")}`;
+        return `Found ${securityEvents.length} mentions about security processes. Recent experiences: ${securityEvents.slice(0, 2).map(e => `"${e.event_content?.substring(0, 100)}..."`).join(" | ")}`;
       }
     }
     
@@ -701,7 +701,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Group events by platform for organized storage
       const eventsByPlatform = existingEvents.reduce((groups: Record<string, typeof existingEvents>, event) => {
-        const platform = event.platform.toLowerCase();
+        const platform = event.platform?.toLowerCase() || 'unknown';
         if (!groups[platform]) {
           groups[platform] = [];
         }
