@@ -12,10 +12,20 @@ export class OllamaLLMService {
   constructor() {
     // Get Ollama base URL from environment (no token needed)
     this.ollamaToken = ""; // Not needed for local Ollama
-    this.ollamaBaseUrl = process.env.OLLAMA_API_BASE_URL || "http://localhost:11434";
+    this.ollamaBaseUrl = process.env.OLLAMA_API_BASE_URL || "https://968a2b5e264b.ngrok-free.app";
 
-    // Initialize ChromaDB for vector storage - Use in-memory approach for now
-    console.log("🔧 Using in-memory vector storage for embeddings (ChromaDB alternative)");
+    // Initialize ChromaDB for vector storage
+    try {
+      this.chromaClient = new ChromaClient({
+        path: "http://localhost:8000", // ChromaDB endpoint
+      });
+      void this.initializeCollection();
+      console.log("✅ ChromaDB connected at port 8000");
+    } catch (error: unknown) {
+      console.warn(
+        "⚠️ ChromaDB not available at port 8000, using in-memory storage for embeddings",
+      );
+    }
   }
 
   private async initializeCollection() {
@@ -64,8 +74,6 @@ JSON Response:`;
           temperature: 0.1,
           top_p: 0.9,
         }
-      }, {
-        timeout: 180000 // 3 minutes timeout for sentiment analysis
       });
 
       if (response?.response) {
@@ -116,7 +124,7 @@ JSON Response:`;
           
         case 'airport_specific':
           // For airport queries, use RAG with targeted search
-          const relevantEvents = await this.searchSimilarEvents(sanitizedQuery, queryIntent.topic);
+          const relevantEvents = await this.searchSimilarEvents(sanitizedQuery, 5);
           
           if (relevantEvents.length === 0) {
             return `I don't have specific social media data about "${queryIntent.topic}" at Bangalore airport right now. Our system tracks passenger experiences including delays, luggage handling, security, check-in, lounges, and airline services. Would you like to know about any of these areas instead?`;
