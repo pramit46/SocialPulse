@@ -17,7 +17,7 @@ export class OllamaLLMService {
     // Initialize ChromaDB for vector storage
     try {
       this.chromaClient = new ChromaClient({
-        path: "http://localhost:8000", // ChromaDB endpoint
+        path: "http://localhost:8000", // ChromaDB endpoint  
       });
       void this.initializeCollection();
       console.log("✅ ChromaDB connected at port 8000");
