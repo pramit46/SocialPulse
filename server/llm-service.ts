@@ -97,6 +97,7 @@ JSON Response:`;
   async generateChatResponse(
     query: string,
     context: string[] = [],
+    sessionId: string = 'default'
   ): Promise<string> {
     try {
       // Sanitize the input query first
@@ -105,11 +106,36 @@ JSON Response:`;
         return "I didn't receive a clear message. Could you please try again?";
       }
 
-      console.log(`🤖 AVA analyzing query: "${sanitizedQuery}"`);
+      console.log(`🤖 [AVA] Analyzing query: "${sanitizedQuery}" | Session: ${sessionId}`);
+
+      // Get previous context from MongoDB
+      const { mongoService } = await import('./mongodb');
+      const previousContext = await mongoService.getAvaContext(sessionId);
+      console.log(`🧠 [AVA] Previous context: ${previousContext ? JSON.stringify(previousContext) : 'None'}`);
+
+      // Check if this is a response to a previous internet search request
+      if (previousContext?.waitingForInternetConsent) {
+        const normalized = sanitizedQuery.toLowerCase().trim();
+        const positiveResponses = ['yes', 'y', 'yeah', 'yep', 'sure', 'ok', 'okay', 'fine', 'go ahead', 'proceed', 'continue'];
+        const isPositive = positiveResponses.some(positive => normalized.includes(positive));
+        console.log(`🔄 [AVA] User response to internet search consent: ${isPositive ? 'APPROVED' : 'DENIED'} | Response: "${normalized}"`);
+        
+        if (isPositive) {
+          // Clear the context and perform internet search
+          await mongoService.storeAvaContext(sessionId, { waitingForInternetConsent: false });
+          console.log(`🌐 [AVA] Performing internet search for: "${previousContext.originalQuery}"`);
+          return `I would search the internet for information about "${previousContext.originalQuery}" at Bangalore airport, but this feature is currently being developed. In the meantime, I can help you with passenger experiences, airline performance, and sentiment analysis from our existing social media data. What specific aspect would you like to explore?`;
+        } else {
+          // Clear the context and provide alternative
+          await mongoService.storeAvaContext(sessionId, { waitingForInternetConsent: false });
+          console.log(`❌ [AVA] Internet search declined by user`);
+          return `No problem! I can help with other aspects of Bangalore airport like passenger experiences, airline services, security processes, or flight information. What would you like to know?`;
+        }
+      }
 
       // Step 1: Understand the query intent using reasoning
       const queryIntent = await this.analyzeQueryIntent(sanitizedQuery);
-      console.log(`🧠 Query intent: ${queryIntent.type} | Topic: ${queryIntent.topic}`);
+      console.log(`🧠 [AVA] Query intent: ${queryIntent.type} | Topic: ${queryIntent.topic}`);
 
       // Step 2: Handle different intent types appropriately
       switch (queryIntent.type) {
@@ -127,6 +153,14 @@ JSON Response:`;
           const relevantEvents = await this.searchSimilarEvents(sanitizedQuery, 5);
           
           if (relevantEvents.length === 0) {
+            // Store context for internet search consent
+            await mongoService.storeAvaContext(sessionId, {
+              waitingForInternetConsent: true,
+              originalQuery: sanitizedQuery,
+              queryIntent: queryIntent
+            });
+            console.log(`📝 [AVA] Stored context for internet search consent | Session: ${sessionId}`);
+            
             return `I don't have specific social media data about "${queryIntent.topic}" at Bangalore airport right now. Our system tracks passenger experiences including delays, luggage handling, security, check-in, lounges, and airline services. 
 
 Would you like me to search the internet for current information about "${queryIntent.topic}" at Bangalore airport? Please reply with "yes" if you'd like me to look for this information online.`;
@@ -463,6 +497,23 @@ This data comes from real social media posts about Bangalore airport and airline
     }
     
     return `Based on ${totalEvents} recent social media posts related to your query, here's what I found:\n\n${sentimentSummary}\n\nRecent passenger experiences:\n• ${eventSample.join('\n• ')}\n\nThis data comes from actual social media posts about Bangalore airport and airline experiences.`;
+  }
+
+  // Helper method to detect positive responses for internet search consent
+  private isPositiveResponse(response: string): boolean {
+    const normalized = response.toLowerCase().trim();
+    const positiveResponses = ['yes', 'y', 'yeah', 'yep', 'sure', 'ok', 'okay', 'fine', 'go ahead', 'proceed', 'continue'];
+    console.log(`🔍 [AVA-CONSENT] Checking if "${normalized}" is positive response`);
+    const isPositive = positiveResponses.some(positive => normalized.includes(positive));
+    console.log(`✅ [AVA-CONSENT] Result: ${isPositive ? 'POSITIVE' : 'NEGATIVE'}`);
+    return isPositive;
+  }
+
+  // Internet search method (placeholder for now)
+  private async performInternetSearch(query: string): Promise<string> {
+    console.log(`🌐 [AVA-INTERNET] Performing internet search for: "${query}"`);
+    // For now, return a placeholder response
+    return `I would search the internet for information about "${query}" at Bangalore airport, but this feature is currently being developed. In the meantime, I can help you with passenger experiences, airline performance, and sentiment analysis from our existing social media data. What specific aspect would you like to explore?`;
   }
 }
 

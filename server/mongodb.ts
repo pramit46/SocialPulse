@@ -321,6 +321,46 @@ class MongoDBService {
       { upsert: true }
     );
   }
+
+  // AVA Context Management - Collection: 'ava_conversations'
+  async storeAvaContext(sessionId: string, context: any): Promise<void> {
+    if (!this.db) throw new Error('Database not connected');
+    const collection = this.db.collection('ava_conversations');
+    console.log(`📝 [MongoDB] Storing AVA context for session: ${sessionId}`);
+    
+    await collection.replaceOne(
+      { sessionId },
+      { 
+        sessionId, 
+        context, 
+        lastUpdated: new Date(),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+      },
+      { upsert: true }
+    );
+  }
+
+  async getAvaContext(sessionId: string): Promise<any> {
+    if (!this.db) throw new Error('Database not connected');
+    const collection = this.db.collection('ava_conversations');
+    console.log(`🔍 [MongoDB] Retrieving AVA context for session: ${sessionId}`);
+    
+    const result = await collection.findOne({ sessionId });
+    if (result && result.expiresAt > new Date()) {
+      console.log(`✅ [MongoDB] Found valid context for session: ${sessionId}`);
+      return result.context;
+    }
+    
+    console.log(`❌ [MongoDB] No valid context found for session: ${sessionId}`);
+    return null;
+  }
+
+  async clearExpiredAvaContexts(): Promise<void> {
+    if (!this.db) throw new Error('Database not connected');
+    const collection = this.db.collection('ava_conversations');
+    const result = await collection.deleteMany({ expiresAt: { $lt: new Date() } });
+    console.log(`🧹 [MongoDB] Cleared ${result.deletedCount} expired AVA contexts`);
+  }
 }
 
 export const mongoService = new MongoDBService();
