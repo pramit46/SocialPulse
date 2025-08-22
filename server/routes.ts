@@ -114,7 +114,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const { AgenticInsightSystem } = await import('./services/insight-generator.js');
         const aiSystem = new AgenticInsightSystem();
         const result = await aiSystem.generateActionableInsights();
-        res.json(result.insights);
+        
+        // Ensure insights is a proper array
+        const insights = Array.isArray(result.insights) ? result.insights : Object.values(result.insights || {});
+        
+        res.json(insights);
         return;
       } catch (aiError: any) {
         console.warn('AI insight generation failed, using stored insights:', aiError?.message || 'Unknown error');

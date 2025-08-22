@@ -181,8 +181,12 @@ class AgenticInsightSystem {
     });
 
     // Add strategic insights based on overall trends
-    const strategicInsight = this.createStrategicInsight(dataAnalysis, patterns);
-    if (strategicInsight) insights.push(strategicInsight);
+    const strategicInsights = this.createStrategicInsight(dataAnalysis, patterns);
+    if (Array.isArray(strategicInsights)) {
+      insights.push(...strategicInsights);
+    } else if (strategicInsights) {
+      insights.push(strategicInsights);
+    }
 
     return insights;
   }
@@ -192,7 +196,13 @@ class AgenticInsightSystem {
   async prioritizeInsights(insights) {
     console.log('⚖️ Priority Scorer Agent: Calculating business impact scores...');
     
-    return insights.map(insight => {
+    // Ensure insights is always an array
+    if (!Array.isArray(insights)) {
+      console.warn('⚠️ Insights is not an array, converting...');
+      insights = Object.values(insights);
+    }
+    
+    const prioritizedInsights = insights.map(insight => {
       const priority = this.calculatePriorityScore(insight);
       return {
         ...insight,
@@ -201,6 +211,9 @@ class AgenticInsightSystem {
         urgency: this.assessUrgency(insight)
       };
     }).sort((a, b) => b.priority - a.priority);
+    
+    console.log(`✅ Successfully prioritized ${prioritizedInsights.length} insights`);
+    return prioritizedInsights;
   }
 
   // === INSIGHT CREATION METHODS ===
@@ -606,8 +619,13 @@ class AgenticInsightSystem {
       
       console.log(`\n✅ Generated ${prioritizedInsights.length} actionable insights`);
       
+      // Ensure we return a proper array, not an object
+      const finalInsights = Array.isArray(prioritizedInsights) 
+        ? prioritizedInsights.slice(0, 5) 
+        : Object.values(prioritizedInsights).slice(0, 5);
+      
       return {
-        insights: prioritizedInsights.slice(0, 5), // Top 5 insights
+        insights: finalInsights,
         metadata: {
           totalEventsAnalyzed: dataAnalysis.totalEvents,
           recentEvents: dataAnalysis.recentEvents,
