@@ -95,6 +95,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/insights", async (req, res) => {
     try {
+      // Try AI-generated insights first
+      try {
+        const { AgenticInsightSystem } = await import('./services/insight-generator.js');
+        const aiSystem = new AgenticInsightSystem();
+        const result = await aiSystem.generateActionableInsights();
+        res.json(result.insights);
+        return;
+      } catch (aiError: any) {
+        console.warn('AI insight generation failed, using stored insights:', aiError?.message || 'Unknown error');
+      }
+      
+      // Fallback to stored insights
       const insights = await mongoService.getInsights();
       res.json(insights);
     } catch (error) {
