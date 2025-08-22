@@ -299,13 +299,11 @@ class AgenticInsightSystem {
       });
     }
     
-    // Add airport-specific operational insights if no critical issues found
-    if (patterns.criticalIssues.length === 0) {
-      const operationalInsights = this.generateOperationalInsights(dataAnalysis);
-      insights.push(...operationalInsights);
-    }
+    // Always add airport-specific operational insights
+    const operationalInsights = this.generateOperationalInsights(dataAnalysis);
+    insights.push(...operationalInsights);
     
-    return insights.length > 0 ? insights[0] : null; // Return first insight
+    return insights; // Return all insights
   }
 
   // === ANALYSIS HELPER METHODS ===
@@ -550,7 +548,20 @@ class AgenticInsightSystem {
       urgency: 'Low'
     };
     
-    insights.push(luggageInsight, promotionalInsight);
+    // Process optimization insight
+    const processInsight = {
+      id: (this.currentId++).toString(),
+      type: 'optimization',
+      title: 'Security Checkpoint Efficiency Review',
+      description: 'Optimize security screening processes during non-peak hours. Consider implementing fast-track lanes and advanced screening technology to reduce wait times.',
+      actionText: 'Review Process',
+      color: 'yellow',
+      priority: 155,
+      businessImpact: 'Medium',
+      urgency: 'Medium'
+    };
+
+    insights.push(luggageInsight, promotionalInsight, processInsight);
     return insights;
   }
 

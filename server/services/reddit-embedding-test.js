@@ -161,23 +161,26 @@ class RedditEmbeddingTest {
   // Generate embeddings using DeepSeek model
   async generateEmbedding(text) {
     try {
-      // Using Hugging Face API (DeepSeek model equivalent)
-      const response = await fetch('https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2', {
+      // Using local Ollama DeepSeek model for embeddings
+      const ollamaBaseUrl = process.env.OLLAMA_API_BASE_URL || 'https://968a2b5e264b.ngrok-free.app';
+      
+      const response = await fetch(`${ollamaBaseUrl}/api/embeddings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          inputs: text.substring(0, 500) // Limit text length
+          model: 'deepseek-r1:8b',
+          prompt: text.substring(0, 500) // Limit text length
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Embedding API error: ${response.status}`);
+        throw new Error(`Ollama embedding API error: ${response.status}`);
       }
 
-      const embedding = await response.json();
-      return Array.isArray(embedding) ? embedding : embedding[0];
+      const result = await response.json();
+      return result.embedding || null;
       
     } catch (error) {
       console.warn('⚠️ Failed to generate embedding:', error.message);

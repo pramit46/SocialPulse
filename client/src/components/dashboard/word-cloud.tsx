@@ -111,7 +111,7 @@ export default function WordCloud() {
         </p>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-wrap gap-2 items-center justify-center min-h-[180px] p-3">
+        <div className="flex flex-wrap gap-1 items-center justify-center min-h-[120px] p-2">
           {wordCloudData.length === 0 ? (
             <div className="text-gray-400 text-center">
               <p>No word data available</p>
@@ -122,7 +122,7 @@ export default function WordCloud() {
             <div
               key={index}
               className={`
-                inline-block px-3 py-1 rounded-lg cursor-pointer transition-all duration-200
+                inline-block px-2 py-0.5 rounded cursor-pointer transition-all duration-200
                 ${getSentimentColor(item.sentiment)} 
                 ${getSentimentBg(item.sentiment)}
                 hover:scale-110 hover:shadow-lg
@@ -140,8 +140,8 @@ export default function WordCloud() {
         </div>
         
         {/* Legend */}
-        <div className="mt-4 pt-3 border-t border-dark-border">
-          <div className="flex flex-wrap gap-3 justify-center text-xs">
+        <div className="mt-3 pt-2 border-t border-dark-border">
+          <div className="flex flex-wrap gap-2 justify-center text-xs">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-green-400 rounded"></div>
               <span className="text-gray-400">Very Positive</span>

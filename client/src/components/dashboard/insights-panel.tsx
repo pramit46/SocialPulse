@@ -7,7 +7,7 @@ const iconMap = {
   optimization: Lightbulb,
   strategy: TrendingUp,
   engagement: Users,
-};
+} as const;
 
 const colorMap = {
   blue: "bg-blue-500/10 border-blue-500/20 text-blue-400",
@@ -66,7 +66,7 @@ export default function InsightsPanel() {
               <div key={insight.id} className={`p-4 border rounded-lg ${colorClass}`}>
                 <div className="flex items-start space-x-3">
                   <div className={`w-6 h-6 bg-${insight.color}-500 rounded-full flex items-center justify-center mt-0.5`}>
-                    <Icon className="h-3 w-3 text-white" />
+                    {Icon && <Icon className="h-3 w-3 text-white" />}
                   </div>
                   <div className="flex-1">
                     <h4 className="font-medium text-white mb-1">{insight.title}</h4>
