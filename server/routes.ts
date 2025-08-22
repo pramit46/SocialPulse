@@ -6,8 +6,22 @@ import { insertContactMessageSchema, insertSocialEventSchema, insertSettingsSche
 import { z } from "zod";
 import { agentManager } from "./agents/agent-manager";
 import { llmService } from "./llm-service";
+import chromaStartup from "./services/chroma-startup.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize ChromaDB on startup
+  console.log('🚀 Initializing ChromaDB service...');
+  try {
+    const chromaStarted = await chromaStartup.start();
+    if (chromaStarted) {
+      console.log('✅ ChromaDB service initialized successfully');
+    } else {
+      console.warn('⚠️ ChromaDB service failed to start, continuing without it');
+    }
+  } catch (error) {
+    console.error('❌ ChromaDB initialization error:', error.message);
+  }
+
   // Contact form endpoint
   app.post("/api/contact", async (req, res) => {
     try {
@@ -790,6 +804,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         error: "Failed to migrate data to MongoDB",
         details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Reddit embedding test endpoint
+  app.post("/api/test/reddit-embeddings", async (req, res) => {
+    try {
+      console.log('🎯 Starting Reddit embedding test via API...');
+      const { RedditEmbeddingTest } = await import('./services/reddit-embedding-test.js');
+      const test = new RedditEmbeddingTest();
+      await test.runEmbeddingTest();
+      
+      res.json({ 
+        success: true, 
+        message: 'Reddit embedding test completed successfully',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error('❌ Reddit embedding test failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Reddit embedding test failed',
+        details: error?.message || 'Unknown error'
       });
     }
   });

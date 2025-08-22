@@ -206,29 +206,29 @@ class AgenticInsightSystem {
   // === INSIGHT CREATION METHODS ===
   
   createCriticalIssueInsight(issue, dataAnalysis) {
-    const insightTemplates = {
+    const airportSpecificTemplates = {
       'sentiment_drop': {
         type: 'optimization',
         color: 'red',
-        title: 'Address Overall Sentiment Decline',
+        title: 'Urgent: Address Passenger Experience Decline',
         actionText: 'Investigate Now'
       },
       'category_issue': {
         type: 'optimization', 
         color: issue.severity === 'high' ? 'red' : 'yellow',
-        title: `Improve ${this.formatCategory(issue.category)}`,
-        actionText: 'View Details'
+        title: `Optimize ${this.formatCategory(issue.category)} Operations`,
+        actionText: 'Review Process'
       }
     };
 
-    const template = insightTemplates[issue.type];
+    const template = airportSpecificTemplates[issue.type];
     if (!template) return null;
 
     return {
       id: (this.currentId++).toString(),
       type: template.type,
       title: template.title,
-      description: this.generateDescription(issue, dataAnalysis),
+      description: this.generateAirportSpecificDescription(issue, dataAnalysis),
       actionText: template.actionText,
       color: template.color,
       rawData: issue
@@ -236,12 +236,32 @@ class AgenticInsightSystem {
   }
 
   createOpportunityInsight(opportunity, dataAnalysis) {
+    const promotionalInsights = {
+      lounge: {
+        title: 'Promote Premium Lounge Services',
+        description: `Lounge services receiving exceptional positive feedback (+${(opportunity.sentiment * 100).toFixed(0)}%). Recommend increasing marketing visibility and offering lounge upgrade promotions to boost revenue.`,
+        actionText: 'Launch Promotion'
+      },
+      security: {
+        title: 'Highlight Security Efficiency',
+        description: `Security process praised by passengers (+${(opportunity.sentiment * 100).toFixed(0)}%). Use this as competitive advantage in marketing and operational excellence showcases.`,
+        actionText: 'Showcase Excellence'
+      },
+      default: {
+        title: `Leverage ${this.formatCategory(opportunity.category)} Excellence`,
+        description: `${this.formatCategory(opportunity.category)} receiving ${opportunity.sentiment > 0.7 ? 'exceptional' : 'strong'} positive feedback (+${(opportunity.sentiment * 100).toFixed(0)}%). Consider highlighting this service in marketing campaigns and passenger communications.`,
+        actionText: 'Implement Strategy'
+      }
+    };
+
+    const insight = promotionalInsights[opportunity.category] || promotionalInsights.default;
+    
     return {
       id: (this.currentId++).toString(),
       type: 'strategy',
-      title: `Leverage ${this.formatCategory(opportunity.category)} Excellence`,
-      description: `${this.formatCategory(opportunity.category)} receiving ${opportunity.sentiment > 0.7 ? 'exceptional' : 'strong'} positive feedback (+${(opportunity.sentiment * 100).toFixed(0)}%). Consider highlighting this service in marketing campaigns and passenger communications.`,
-      actionText: 'Implement Strategy',
+      title: insight.title,
+      description: insight.description,
+      actionText: insight.actionText,
       color: 'green',
       rawData: opportunity
     };
@@ -261,12 +281,14 @@ class AgenticInsightSystem {
   }
 
   createStrategicInsight(dataAnalysis, patterns) {
+    const insights = [];
+    
     // Analyze overall engagement trends
     const totalEngagement = Object.values(dataAnalysis.platformEngagement).reduce((sum, platform) => sum + platform.totalEngagement, 0);
     const avgEngagement = totalEngagement / Object.keys(dataAnalysis.platformEngagement).length;
 
     if (avgEngagement > 100) {
-      return {
+      insights.push({
         id: (this.currentId++).toString(),
         type: 'engagement',
         title: 'Capitalize on High Social Engagement',
@@ -274,10 +296,16 @@ class AgenticInsightSystem {
         actionText: 'Optimize Strategy',
         color: 'blue',
         rawData: { totalEngagement, avgEngagement }
-      };
+      });
     }
     
-    return null;
+    // Add airport-specific operational insights if no critical issues found
+    if (patterns.criticalIssues.length === 0) {
+      const operationalInsights = this.generateOperationalInsights(dataAnalysis);
+      insights.push(...operationalInsights);
+    }
+    
+    return insights.length > 0 ? insights[0] : null; // Return first insight
   }
 
   // === ANALYSIS HELPER METHODS ===
@@ -461,18 +489,89 @@ class AgenticInsightSystem {
     return airlineNames[airline] || airline;
   }
 
-  generateDescription(issue, dataAnalysis) {
-    switch (issue.type) {
-      case 'sentiment_drop':
-        return `Overall passenger sentiment has declined by ${Math.abs(issue.change * 100).toFixed(1)}% in recent days. This requires immediate attention to identify root causes and implement corrective measures.`;
-      
-      case 'category_issue':
-        const categoryName = this.formatCategory(issue.category);
-        return `${categoryName} showing negative sentiment (-${Math.abs(issue.sentiment * 100).toFixed(0)}%) across ${issue.mentions} recent mentions. Immediate service quality review and improvement initiatives recommended.`;
-      
-      default:
-        return issue.description;
+  // Generate proactive operational insights for airports
+  generateOperationalInsights(dataAnalysis) {
+    const insights = [];
+    const currentHour = new Date().getHours();
+    
+    // Peak hour operational insights
+    if (currentHour >= 6 && currentHour <= 10) {
+      insights.push({
+        id: (this.currentId++).toString(),
+        type: 'optimization',
+        title: 'Morning Peak Hour: Optimize Check-in Operations',
+        description: 'Morning peak hours (6-10 AM) detected. Ensure adequate check-in counter staffing, expedite security processes, and monitor baggage handling efficiency to prevent delays.',
+        actionText: 'Review Staffing',
+        color: 'yellow',
+        priority: 180,
+        businessImpact: 'Medium',
+        urgency: 'High'
+      });
     }
+    
+    // Evening peak operational insight  
+    if (currentHour >= 18 && currentHour <= 22) {
+      insights.push({
+        id: (this.currentId++).toString(),
+        type: 'optimization',
+        title: 'Evening Rush: Enhance Passenger Flow Management',
+        description: 'Evening departure peak detected. Activate all security lanes, ensure lounge capacity management, and prepare for increased amenity usage.',
+        actionText: 'Activate Protocols',
+        color: 'yellow',
+        priority: 175,
+        businessImpact: 'Medium',
+        urgency: 'Medium'
+      });
+    }
+    
+    // Proactive luggage handling insight
+    const luggageInsight = {
+      id: (this.currentId++).toString(),
+      type: 'optimization',
+      title: 'Proactive Baggage Handling Review',
+      description: 'Implement daily baggage handling quality checks, staff training programs, and damage prevention protocols. Monitor claim wait times and passenger satisfaction metrics.',
+      actionText: 'Schedule Review',
+      color: 'blue',
+      priority: 160,
+      businessImpact: 'Medium', 
+      urgency: 'Low'
+    };
+    
+    // Promotional opportunity
+    const promotionalInsight = {
+      id: (this.currentId++).toString(),
+      type: 'strategy',
+      title: 'Launch Premium Service Promotions',
+      description: 'Capitalize on positive passenger sentiment by promoting lounge upgrades, fast-track security, and premium amenities. Target frequent flyers with personalized offers.',
+      actionText: 'Launch Campaign',
+      color: 'green',
+      priority: 140,
+      businessImpact: 'Low',
+      urgency: 'Low'
+    };
+    
+    insights.push(luggageInsight, promotionalInsight);
+    return insights;
+  }
+
+  generateAirportSpecificDescription(issue, dataAnalysis) {
+    const airportOperationalDescriptions = {
+      'sentiment_drop': `Overall passenger sentiment has declined by ${Math.abs(issue.change * 100).toFixed(1)}% in recent days. Recommend immediate review of ground operations, staff training, and service delivery standards.`,
+      'category_issue': {
+        'luggage_handling': `Baggage handling operations showing negative feedback (-${Math.abs(issue.sentiment * 100).toFixed(0)}%) across ${issue.mentions} mentions. Critical review of baggage claim systems, staff training, and damage prevention protocols required.`,
+        'security': `Security checkpoint efficiency concerns (-${Math.abs(issue.sentiment * 100).toFixed(0)}%) reported by ${issue.mentions} passengers. Evaluate queue management, staffing levels, and process optimization opportunities.`,
+        'check_in': `Check-in process issues (-${Math.abs(issue.sentiment * 100).toFixed(0)}%) affecting passenger experience. Review counter operations, kiosk functionality, and staff deployment strategies.`,
+        'amenities': `Airport amenities receiving criticism (-${Math.abs(issue.sentiment * 100).toFixed(0)}%). Assess food court operations, retail services, WiFi infrastructure, and facility cleanliness standards.`,
+        'communication': `Communication and information services underperforming (-${Math.abs(issue.sentiment * 100).toFixed(0)}%). Review announcement systems, signage clarity, and staff customer service training.`,
+        'default': `${this.formatCategory(issue.category)} operations showing negative sentiment (-${Math.abs(issue.sentiment * 100).toFixed(0)}%) across ${issue.mentions} recent mentions. Immediate operational review and service improvement initiatives recommended.`
+      }
+    };
+
+    if (issue.type === 'category_issue') {
+      return airportOperationalDescriptions.category_issue[issue.category] || airportOperationalDescriptions.category_issue.default;
+    }
+    
+    return airportOperationalDescriptions[issue.type] || issue.description;
   }
 
   // === MAIN ORCHESTRATION METHOD ===
