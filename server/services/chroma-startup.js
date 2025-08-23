@@ -80,14 +80,25 @@ class ChromaDBStartup {
     }
   }
 
-  async waitForStart(timeout = 10000) {
+  async waitForStart(timeout = 8000) {
     return new Promise((resolve) => {
       const startTime = Date.now();
       
-      const checkStatus = () => {
-        if (this.isRunning) {
-          resolve(true);
-          return;
+      const checkStatus = async () => {
+        // Check if ChromaDB is actually responding
+        try {
+          const response = await fetch('http://localhost:8000/api/v1/heartbeat', { 
+            signal: AbortSignal.timeout(2000) 
+          });
+          if (response.status === 200 || response.status === 404) { // Server is running
+            console.log('✅ ChromaDB server confirmed running on port 8000');
+            this.isRunning = true;
+            this.isStarting = false;
+            resolve(true);
+            return;
+          }
+        } catch (error) {
+          // Server not ready yet, continue checking
         }
         
         if (Date.now() - startTime > timeout) {

@@ -15,10 +15,16 @@ const platformIcons = {
 
 const platformColors = {
   Twitter: "bg-blue-500",
-  Reddit: "bg-orange-500",
+  Reddit: "bg-orange-500", 
   Instagram: "bg-pink-500",
   Facebook: "bg-blue-600",
   YouTube: "bg-red-500",
+};
+
+const getSentimentLabel = (sentiment: number) => {
+  if (sentiment > 0.1) return { label: "Positive", color: "text-green-400", bg: "bg-green-500/20" };
+  if (sentiment < -0.1) return { label: "Negative", color: "text-red-400", bg: "bg-red-500/20" };
+  return { label: "Neutral", color: "text-gray-400", bg: "bg-gray-500/20" };
 };
 
 export default function RecentPosts() {
@@ -121,16 +127,22 @@ export default function RecentPosts() {
                       <span>{post.engagement_metrics.comments} comments</span>
                     )}
                     <span>{formatDistanceToNow(new Date(post.timestamp_utc || post.created_at || Date.now()))} ago</span>
-                    {post.sentiment_analysis?.overall_sentiment && (
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        post.sentiment_analysis.overall_sentiment > 0.1 ? 'bg-green-500/20 text-green-400' :
-                        post.sentiment_analysis.overall_sentiment < -0.1 ? 'bg-red-500/20 text-red-400' :
-                        'bg-yellow-500/20 text-yellow-400'
-                      }`}>
-                        {post.sentiment_analysis.overall_sentiment > 0.1 ? '😊 Positive' :
-                         post.sentiment_analysis.overall_sentiment < -0.1 ? '😞 Negative' : '😐 Neutral'}
-                      </span>
-                    )}
+                    {(() => {
+                      const sentiment = post.sentiment_analysis?.overall_sentiment ?? null;
+                      if (sentiment === null) {
+                        return (
+                          <span className="px-2 py-1 rounded text-xs bg-gray-500/20 text-gray-400">
+                            ⏳ Analyzing...
+                          </span>
+                        );
+                      }
+                      const sentimentInfo = getSentimentLabel(sentiment);
+                      return (
+                        <span className={`px-2 py-1 rounded text-xs ${sentimentInfo.bg} ${sentimentInfo.color}`}>
+                          {sentiment > 0.1 ? '😊' : sentiment < -0.1 ? '😞' : '😐'} {sentimentInfo.label}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

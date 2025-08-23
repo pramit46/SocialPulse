@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Lightbulb, TrendingUp, Users } from "lucide-react";
+import { Lightbulb, TrendingUp, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 const iconMap = {
   optimization: Lightbulb,
@@ -24,6 +25,9 @@ const buttonColorMap = {
 };
 
 export default function InsightsPanel() {
+  const [currentPage, setCurrentPage] = useState(0);
+  const ITEMS_PER_PAGE = 2;
+  
   // Fetch insights from MongoDB
   const { data: insights, isLoading } = useQuery({
     queryKey: ['/api/insights'],
@@ -34,6 +38,10 @@ export default function InsightsPanel() {
     },
     refetchInterval: 300000, // 5 minutes
   });
+
+  const totalPages = Math.ceil((insights?.length || 0) / ITEMS_PER_PAGE);
+  const startIndex = currentPage * ITEMS_PER_PAGE;
+  const paginatedInsights = insights?.slice(startIndex, startIndex + ITEMS_PER_PAGE) || [];
 
   if (isLoading) {
     return (
@@ -53,11 +61,18 @@ export default function InsightsPanel() {
   return (
     <Card className="bg-dark-secondary border-dark-border">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-white">Actionable Insights</CardTitle>
+        <CardTitle className="text-lg font-semibold text-white flex items-center justify-between">
+          <span>Actionable Insights</span>
+          {totalPages > 1 && (
+            <span className="text-sm text-gray-400 font-normal">
+              {currentPage + 1} of {totalPages}
+            </span>
+          )}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {(insights || []).map((insight: any) => {
+          {paginatedInsights.map((insight: any) => {
             const Icon = iconMap[insight.type as keyof typeof iconMap];
             const colorClass = colorMap[insight.color as keyof typeof colorMap];
             const buttonColorClass = buttonColorMap[insight.color as keyof typeof buttonColorMap];
@@ -84,6 +99,49 @@ export default function InsightsPanel() {
             );
           })}
         </div>
+        
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-dark-border">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+              disabled={currentPage === 0}
+              className="text-gray-400 hover:text-white disabled:opacity-50"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }, (_, index) => (
+                <Button
+                  key={index}
+                  variant={currentPage === index ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setCurrentPage(index)}
+                  className={`w-8 h-8 ${
+                    currentPage === index 
+                      ? "bg-blue-600 text-white" 
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  {index + 1}
+                </Button>
+              ))}
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+              disabled={currentPage === totalPages - 1}
+              className="text-gray-400 hover:text-white disabled:opacity-50"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

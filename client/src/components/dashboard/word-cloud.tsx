@@ -23,12 +23,12 @@ const getSentimentColor = (sentiment: number) => {
 };
 
 const getSentimentBg = (sentiment: number) => {
-  if (sentiment >= 0.6) return "bg-green-400/10 hover:bg-green-400/20";
-  if (sentiment >= 0.3) return "bg-green-300/10 hover:bg-green-300/20";
-  if (sentiment >= 0) return "bg-gray-300/10 hover:bg-gray-300/20";
-  if (sentiment >= -0.3) return "bg-yellow-400/10 hover:bg-yellow-400/20";
-  if (sentiment >= -0.6) return "bg-orange-400/10 hover:bg-orange-400/20";
-  return "bg-red-400/10 hover:bg-red-400/20";
+  if (sentiment >= 0.6) return "bg-green-400/5 hover:bg-green-400/10";
+  if (sentiment >= 0.3) return "bg-green-300/5 hover:bg-green-300/10";
+  if (sentiment >= 0) return "bg-gray-300/5 hover:bg-gray-300/10";
+  if (sentiment >= -0.3) return "bg-yellow-400/5 hover:bg-yellow-400/10";
+  if (sentiment >= -0.6) return "bg-orange-400/5 hover:bg-orange-400/10";
+  return "bg-red-400/5 hover:bg-red-400/10";
 };
 
 export default function WordCloud() {
@@ -128,9 +128,9 @@ export default function WordCloud() {
                 hover:scale-110 hover:shadow-lg
               `}
               style={{
-                fontSize: `${item.size}px`,
+                fontSize: `${Math.max(10, item.size * 0.7)}px`,
                 lineHeight: '1.2',
-                fontWeight: item.size > 20 ? '600' : '500'
+                fontWeight: item.size > 20 ? '500' : '400'
               }}
               title={`"${item.word}" - ${item.count} mentions - Sentiment: ${(item.sentiment * 100).toFixed(0)}%`}
             >
