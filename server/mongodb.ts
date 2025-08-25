@@ -6,7 +6,7 @@ class MongoDBService {
   private client: MongoClient | null = null;
   private db: Db | null = null;
   private connectionString: string | null = null;
-  private databaseName: string = "social_analytics";
+  private databaseName: string = "bangalore_airport_analytics";
   private isConnected: boolean = false;
 
   constructor() {
@@ -16,7 +16,7 @@ class MongoDBService {
   // Auto-connect using environment variables
   private async autoConnect() {
     const connectionString = process.env.MONGODB_CONNECTION_STRING;
-    const databaseName = process.env.MONGODB_DATABASE_NAME || "social_analytics";
+    const databaseName = process.env.MONGODB_DATABASE_NAME || "bangalore_airport_analytics";
 
     if (connectionString) {
       try {
@@ -28,7 +28,7 @@ class MongoDBService {
     }
   }
 
-  async connect(connectionString: string, databaseName: string = "social_analytics"): Promise<void> {
+  async connect(connectionString: string, databaseName: string = "bangalore_airport_analytics"): Promise<void> {
     try {
       if (this.client) {
         await this.client.close();
