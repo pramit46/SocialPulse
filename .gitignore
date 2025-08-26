@@ -8,3 +8,4 @@ config/*
 attached_assets/*
 .env
 lib/Assets/*
+logs/*

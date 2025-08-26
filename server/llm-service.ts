@@ -1,4 +1,7 @@
 import { ChromaClient, Collection } from "chromadb";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export class OllamaLLMService {
   private ollamaToken: string;

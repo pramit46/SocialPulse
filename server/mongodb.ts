@@ -1,6 +1,9 @@
 import { MongoClient, Db, Collection } from "mongodb";
 import type { SocialEvent } from "@shared/schema";
 import * as fs from 'fs';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 class MongoDBService {
   private client: MongoClient | null = null;
