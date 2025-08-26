@@ -40,7 +40,7 @@ export default function WordCloud() {
       } catch (error) {
         console.error('Failed to fetch allowed words:', error);
         // Fallback to basic airport-related words
-        setAllowedWords(['airport', 'flight', 'delay', 'security', 'luggage', 'service', 'staff', 'queue', 'food', 'lounge']);
+        setAllowedWords(['airport','security','security-check','frisk','frisking','kia','kempegowda','check-in','checkin','lounge','lounges','baggage','handling','baggage-handling','luggage-handling','stores','amenities','duty-free','cab','bus','vajra','Vayu','Vayu-Vajra','World-class','worst','terrible','terrific','bad','good','nice','awesome','pleasant','great','best','worse','better','good-to-have','weather','city','far','close','near','road','communication','transport','highway','decoration','decor','terminal','terminals','T1','T2','airlines','Vistara','AirIndia','Air-India','Air-India Express','Express','Indigo','Spicejet','International','Domestic','Gate','Gates','first','last','late','delayed','delay','early','very','night','day','Business','Economy','flight','luggage','experience','service','staff','queue','waiting','time','food','wifi','clean','dirty','fast','slow','excellent','satisfied','disappointed','recommend','avoid','comfortable','uncomfortable','efficient','inefficient','helpful','rude']);
       }
     };
     fetchAllowedWords();
@@ -94,12 +94,15 @@ export default function WordCloud() {
       .sort((a, b) => b.count - a.count);
 
     // Add rotation and positioning for professional word cloud effect
-    return sortedWords.map((item, index) => ({
-      ...item,
-      rotation: index % 4 === 0 ? 90 : index % 3 === 0 ? -45 : index % 5 === 0 ? 45 : 0, // Mixed orientations
-      opacity: Math.max(0.7, 1 - (index * 0.02)), // Fade effect for lower frequency words
-      priority: item.count > 5 ? 'high' : item.count > 3 ? 'medium' : 'low'
-    })); // Show all relevant words
+    return sortedWords
+      .map((item, index) => ({
+        ...item,
+        rotation: Math.random() > 0.6 ? 90 : 0, // Only 90° and 0° rotations, random distribution
+        opacity: Math.max(0.85, 1 - (index * 0.01)), // Subtle fade effect
+        priority: item.count > 5 ? 'high' : item.count > 3 ? 'medium' : 'low',
+        randomOrder: Math.random() // For shuffling big and small words
+      }))
+      .sort(() => Math.random() - 0.5); // Randomly mix word positions
   }, [socialEvents, allowedWords]);
 
   if (isLoading) {
@@ -128,11 +131,11 @@ export default function WordCloud() {
           Buzz Words Cloud
         </CardTitle>
         <p className="text-sm text-gray-400">
-          Professional word cloud with rotated text • Size = frequency • Colors = sentiment • All filtered words displayed
+          Compact word cloud layout • Only 90° & 0° rotations • Size = frequency • Colors = sentiment
         </p>
       </CardHeader>
       <CardContent>
-        <div className="relative min-h-[300px] p-4 overflow-hidden">
+        <div className="relative min-h-[280px] p-3 overflow-hidden">
           {wordCloudData.length === 0 ? (
             <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-center">
               <div>
@@ -141,26 +144,26 @@ export default function WordCloud() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-wrap items-center justify-center gap-1 leading-relaxed">
+            <div className="flex flex-wrap items-center justify-center gap-0.5 leading-tight">
               {wordCloudData.map((item, index) => (
                 <span
                   key={index}
                   className={`
-                    inline-block cursor-pointer transition-all duration-300 hover:scale-110
+                    inline-block cursor-pointer transition-all duration-200 hover:scale-105
                     ${getSentimentColor(item.sentiment)}
-                    ${item.priority === 'high' ? 'mx-3 my-2' : item.priority === 'medium' ? 'mx-2 my-1' : 'mx-1'}
                   `}
                   style={{
                     fontSize: `${item.size}px`,
-                    lineHeight: '0.9',
-                    fontWeight: item.count > 10 ? '800' : item.count > 6 ? '700' : item.count > 3 ? '600' : '500',
+                    lineHeight: '1.0',
+                    fontWeight: item.count > 8 ? '700' : item.count > 4 ? '600' : '500',
                     fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
                     transform: `rotate(${item.rotation}deg)`,
                     opacity: item.opacity,
-                    textShadow: item.count > 5 ? '0 1px 2px rgba(0,0,0,0.3)' : 'none',
+                    textShadow: item.count > 5 ? '0 1px 1px rgba(0,0,0,0.4)' : 'none',
                     display: 'inline-block',
-                    margin: item.size > 40 ? '8px' : item.size > 28 ? '4px' : '2px',
-                    whiteSpace: 'nowrap'
+                    margin: '1px 2px',
+                    whiteSpace: 'nowrap',
+                    padding: '1px'
                   }}
                   title={`"${item.word}" appears ${item.count} times - Sentiment: ${(item.sentiment * 100).toFixed(0)}%`}
                 >
@@ -168,7 +171,7 @@ export default function WordCloud() {
                 </span>
               ))}
             </div>
-          )}
+          )}'
         </div>
         
         {/* Legend */}
