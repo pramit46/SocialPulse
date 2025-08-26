@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Cloud } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 type SocialEvent = {
   id: string;
@@ -22,16 +22,30 @@ const getSentimentColor = (sentiment: number) => {
   return "text-red-400";
 };
 
-const getSentimentBg = (sentiment: number) => {
-  if (sentiment >= 0.6) return "bg-green-400/5 hover:bg-green-400/10";
-  if (sentiment >= 0.3) return "bg-green-300/5 hover:bg-green-300/10";
-  if (sentiment >= 0) return "bg-gray-300/5 hover:bg-gray-300/10";
-  if (sentiment >= -0.3) return "bg-yellow-400/5 hover:bg-yellow-400/10";
-  if (sentiment >= -0.6) return "bg-orange-400/5 hover:bg-orange-400/10";
-  return "bg-red-400/5 hover:bg-red-400/10";
-};
-
 export default function WordCloud() {
+  const [allowedWords, setAllowedWords] = useState<string[]>([]);
+
+  // Fetch allowed words from CSV
+  useEffect(() => {
+    const fetchAllowedWords = async () => {
+      try {
+        const response = await fetch('/lib/assets/word-cloud-allowed-list.csv');
+        if (response.ok) {
+          const csvText = await response.text();
+          const words = csvText.split('\n')
+            .map(word => word.trim().toLowerCase())
+            .filter(word => word.length > 0);
+          setAllowedWords(words);
+        }
+      } catch (error) {
+        console.error('Failed to fetch allowed words:', error);
+        // Fallback to basic airport-related words
+        setAllowedWords(['airport', 'flight', 'delay', 'security', 'luggage', 'service', 'staff', 'queue', 'food', 'lounge']);
+      }
+    };
+    fetchAllowedWords();
+  }, []);
+
   // Fetch real social events data
   const { data: socialEvents, isLoading } = useQuery<SocialEvent[]>({
     queryKey: ['/api/social-events'],
@@ -45,7 +59,7 @@ export default function WordCloud() {
 
   // Generate word cloud data from real social events
   const wordCloudData = useMemo(() => {
-    if (!socialEvents || socialEvents.length === 0) return [];
+    if (!socialEvents || socialEvents.length === 0 || allowedWords.length === 0) return [];
     
     const wordCount: Record<string, { count: number; sentiments: number[] }> = {};
     
@@ -53,11 +67,11 @@ export default function WordCloud() {
       const text = (event.clean_event_text || event.event_content || '').toLowerCase();
       const sentiment = event.sentiment_analysis?.overall_sentiment || 0;
       
-      // Extract meaningful words (filter common words)
+      // Extract words and filter by allowed list
       const words = text.split(/\s+/)
-        .filter(word => word.length > 3)
-        .filter(word => !['this', 'that', 'with', 'from', 'they', 'have', 'been', 'were', 'said', 'what', 'when', 'where', 'will', 'there', 'their', 'would', 'could', 'should', 'about', 'after', 'before', 'during', 'while', 'under', 'over', 'through'].includes(word))
-        .filter(word => word.match(/^[a-zA-Z]+$/)); // Only alphabetic words
+        .map(word => word.replace(/[^a-zA-Z]/g, '').toLowerCase())
+        .filter(word => word.length > 2)
+        .filter(word => allowedWords.includes(word)); // Only include allowed words
       
       words.forEach(word => {
         if (!wordCount[word]) {
@@ -68,18 +82,18 @@ export default function WordCloud() {
       });
     });
     
-    // Convert to word cloud format and sort by frequency
+    // Convert to word cloud format with dramatic size differences
     return Object.entries(wordCount)
       .map(([word, data]) => ({
         word,
         count: data.count,
         sentiment: data.sentiments.reduce((sum, s) => sum + s, 0) / data.sentiments.length,
-        size: Math.min(48, Math.max(14, data.count * 5 + 8)) // Enhanced scaling for dramatic size differences
+        size: Math.min(48, Math.max(14, 14 + (data.count - 1) * 6)) // Dramatic size scaling: 14px to 48px
       }))
-      .filter(item => item.count >= 2) // Only show words mentioned at least twice
+      .filter(item => item.count >= 1) // Show words mentioned at least once
       .sort((a, b) => b.count - a.count)
-      .slice(0, 25); // Top 25 words
-  }, [socialEvents]);
+      .slice(0, 25); // Maximum 25 words
+  }, [socialEvents, allowedWords]);
 
   if (isLoading) {
     return (

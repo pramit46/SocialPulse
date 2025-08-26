@@ -37,6 +37,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Serve word cloud allowed list CSV
+  app.get("/lib/assets/word-cloud-allowed-list.csv", async (req, res) => {
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const csvPath = path.resolve('lib/assets/word-cloud-allowed-list.csv');
+      const csvContent = fs.readFileSync(csvPath, 'utf-8');
+      res.setHeader('Content-Type', 'text/csv');
+      res.send(csvContent);
+    } catch (error) {
+      res.status(404).json({ error: "Word cloud allowed list not found" });
+    }
+  });
+
   // Get social events endpoint
   app.get("/api/social-events", async (req, res) => {
     try {
