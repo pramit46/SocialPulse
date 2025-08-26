@@ -74,7 +74,7 @@ export default function WordCloud() {
         word,
         count: data.count,
         sentiment: data.sentiments.reduce((sum, s) => sum + s, 0) / data.sentiments.length,
-        size: Math.min(48, Math.max(8, data.count * 4)) // Scale size based on frequency
+        size: Math.min(32, Math.max(10, Math.log2(data.count + 1) * 8)) // Logarithmic scaling based on occurrence frequency
       }))
       .filter(item => item.count >= 2) // Only show words mentioned at least twice
       .sort((a, b) => b.count - a.count)

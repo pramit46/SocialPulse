@@ -179,29 +179,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Migrate all mock data to MongoDB
+  // **REMOVED MOCK DATA MIGRATION - NOW USING REAL DATA ONLY**
+  // This endpoint was disabled to eliminate mock data usage
   app.post("/api/migrate-mock-data", async (req, res) => {
-    try {
-      const { mockChartData, mockInsights, mockSentimentData } = await import('./mock-data-import');
-      
-      // Store chart data
-      await mongoService.storeChartData(mockChartData);
-      
-      // Store insights
-      await mongoService.storeInsights(mockInsights);
-      
-      // Store sentiment data
-      await mongoService.storeSentimentData(mockSentimentData);
-      
-      res.json({ 
-        success: true, 
-        message: "All mock data migrated to MongoDB collections successfully",
-        collections: ['chart_data', 'insights', 'sentiment_data']
-      });
-    } catch (error) {
-      console.error('Migration error:', error);
-      res.status(500).json({ error: "Failed to migrate mock data" });
-    }
+    res.status(410).json({ 
+      error: "Mock data migration disabled - system now uses only real data from social media sources"
+    });
   });
 
   // Data collection endpoint

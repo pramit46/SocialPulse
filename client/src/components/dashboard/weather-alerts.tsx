@@ -72,21 +72,17 @@ export default function WeatherAlerts() {
     }
   };
 
-  // Get current weather from latest conditions
+  // Get current weather from latest conditions - NO MOCK DATA
   const currentWeather = useMemo(() => {
     if (!weatherConditions || weatherConditions.length === 0) {
-      return {
-        temperature: 28,
-        condition: 'partly_cloudy',
-        humidity: 72,
-        windSpeed: 15,
-        visibility: 8,
-        pressure: 1013,
-        uvIndex: 6
-      };
+      return null; // Return null when no data instead of mock values
     }
     // Get the most recent weather condition
-    const latest = weatherConditions.sort((a, b) => b.date.localeCompare(a.date))[0];
+    const latest = weatherConditions.sort((a, b) => {
+      const dateA = new Date(a.mongodb_inserted_at || a.date);
+      const dateB = new Date(b.mongodb_inserted_at || b.date);
+      return dateB.getTime() - dateA.getTime();
+    })[0];
     return latest;
   }, [weatherConditions]);
 
@@ -107,8 +103,8 @@ export default function WeatherAlerts() {
         color: getAlertColor(alert.type)
       }));
     
-    // Add dynamic alerts based on current weather
-    if (currentWeather.temperature > 35) {
+    // Add dynamic alerts based on current weather (only if data exists)
+    if (currentWeather && currentWeather.temperature > 35) {
       alerts.push({
         id: 'temp-high',
         type: 'warning',
@@ -118,7 +114,7 @@ export default function WeatherAlerts() {
         icon: <Thermometer className="h-4 w-4" />,
         color: 'red'
       });
-    } else if (currentWeather.temperature < 15) {
+    } else if (currentWeather && currentWeather.temperature < 15) {
       alerts.push({
         id: 'temp-low',
         type: 'info',
@@ -131,7 +127,7 @@ export default function WeatherAlerts() {
     }
     
     // Visibility-based alerts
-    if (currentWeather.visibility < 5) {
+    if (currentWeather && currentWeather.visibility < 5) {
       alerts.push({
         id: 'visibility-low',
         type: 'warning',
@@ -144,7 +140,7 @@ export default function WeatherAlerts() {
     }
     
     // Wind-based alerts
-    if (currentWeather.windSpeed > 25) {
+    if (currentWeather && currentWeather.windSpeed > 25) {
       alerts.push({
         id: 'wind-high',
         type: 'warning',
@@ -157,7 +153,7 @@ export default function WeatherAlerts() {
     }
     
     // Humidity-based alerts
-    if (currentWeather.humidity > 85) {
+    if (currentWeather && currentWeather.humidity > 85) {
       alerts.push({
         id: 'humidity-high',
         type: 'info',
@@ -170,7 +166,7 @@ export default function WeatherAlerts() {
     }
     
     // Good weather alert
-    if (currentWeather.temperature >= 20 && currentWeather.temperature <= 30 && 
+    if (currentWeather && currentWeather.temperature >= 20 && currentWeather.temperature <= 30 && 
         currentWeather.visibility >= 8 && currentWeather.windSpeed < 20) {
       alerts.push({
         id: 'weather-good',
@@ -242,22 +238,22 @@ export default function WeatherAlerts() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-dark-primary p-3 rounded-lg text-center">
               <Thermometer className="h-6 w-6 mx-auto mb-2 text-orange-400" />
-              <p className="text-xl font-bold text-white">{currentWeather.temperature}°C</p>
+              <p className="text-xl font-bold text-white">{currentWeather?.temperature || 'N/A'}°C</p>
               <p className="text-xs text-gray-400">Temperature</p>
             </div>
             <div className="bg-dark-primary p-3 rounded-lg text-center">
               <Wind className="h-6 w-6 mx-auto mb-2 text-blue-400" />
-              <p className="text-xl font-bold text-white">{currentWeather.windSpeed} km/h</p>
+              <p className="text-xl font-bold text-white">{currentWeather?.windSpeed || 'N/A'} km/h</p>
               <p className="text-xs text-gray-400">Wind Speed</p>
             </div>
             <div className="bg-dark-primary p-3 rounded-lg text-center">
               <CloudRain className="h-6 w-6 mx-auto mb-2 text-gray-400" />
-              <p className="text-xl font-bold text-white">{currentWeather.humidity}%</p>
+              <p className="text-xl font-bold text-white">{currentWeather?.humidity || 'N/A'}%</p>
               <p className="text-xs text-gray-400">Humidity</p>
             </div>
             <div className="bg-dark-primary p-3 rounded-lg text-center">
               <Sun className="h-6 w-6 mx-auto mb-2 text-yellow-400" />
-              <p className="text-xl font-bold text-white">{currentWeather.visibility} km</p>
+              <p className="text-xl font-bold text-white">{currentWeather?.visibility || 'N/A'} km</p>
               <p className="text-xs text-gray-400">Visibility</p>
             </div>
           </div>
