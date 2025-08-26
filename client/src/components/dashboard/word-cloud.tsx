@@ -74,7 +74,7 @@ export default function WordCloud() {
         word,
         count: data.count,
         sentiment: data.sentiments.reduce((sum, s) => sum + s, 0) / data.sentiments.length,
-        size: Math.min(32, Math.max(10, Math.log2(data.count + 1) * 8)) // Logarithmic scaling based on occurrence frequency
+        size: Math.min(40, Math.max(12, data.count * 3)) // Linear scaling based on actual word frequency
       }))
       .filter(item => item.count >= 2) // Only show words mentioned at least twice
       .sort((a, b) => b.count - a.count)
@@ -119,23 +119,22 @@ export default function WordCloud() {
             </div>
           ) : (
             wordCloudData.map((item, index) => (
-            <div
+            <span
               key={index}
               className={`
-                inline-block px-2 py-0.5 rounded cursor-pointer transition-all duration-200
-                ${getSentimentColor(item.sentiment)} 
-                ${getSentimentBg(item.sentiment)}
-                hover:scale-110 hover:shadow-lg
+                inline-block mr-2 mb-1 cursor-pointer transition-all duration-200
+                ${getSentimentColor(item.sentiment)}
+                hover:opacity-80
               `}
               style={{
-                fontSize: `${Math.max(10, item.size * 0.7)}px`,
-                lineHeight: '1.2',
-                fontWeight: item.size > 20 ? '500' : '400'
+                fontSize: `${item.size}px`,
+                lineHeight: '1.1',
+                fontWeight: item.count > 5 ? '600' : item.count > 3 ? '500' : '400'
               }}
-              title={`"${item.word}" - ${item.count} mentions - Sentiment: ${(item.sentiment * 100).toFixed(0)}%`}
+              title={`"${item.word}" appears ${item.count} times - Sentiment: ${(item.sentiment * 100).toFixed(0)}%`}
             >
               {item.word}
-            </div>
+            </span>
           )))}
         </div>
         
