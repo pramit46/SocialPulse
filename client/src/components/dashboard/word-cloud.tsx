@@ -88,21 +88,18 @@ export default function WordCloud() {
         word,
         count: data.count,
         sentiment: data.sentiments.reduce((sum, s) => sum + s, 0) / data.sentiments.length,
-        size: Math.min(64, Math.max(16, 16 + (data.count - 1) * 8)) // Enhanced size range: 16px to 64px
+        size: Math.min(40, Math.max(16, 16 + (data.count - 1) * 8)) // Enhanced size range: 16px to 64px
       }))
-      .filter(item => item.count >= 1) // Show words mentioned at least once
+      .filter(item => item.count >= 5) // Show words mentioned at least once
       .sort((a, b) => b.count - a.count);
 
     // Add rotation and positioning for professional word cloud effect
-    return sortedWords
-      .map((item, index) => ({
-        ...item,
-        rotation: Math.random() > 0.6 ? 90 : 0, // Only 90° and 0° rotations, random distribution
-        opacity: Math.max(0.85, 1 - (index * 0.01)), // Subtle fade effect
-        priority: item.count > 5 ? 'high' : item.count > 3 ? 'medium' : 'low',
-        randomOrder: Math.random() // For shuffling big and small words
-      }))
-      .sort(() => Math.random() - 0.5); // Randomly mix word positions
+    return sortedWords.map((item, index) => ({
+      ...item,
+      rotation: index % 4 === 0 ? 0 : index % 3 === 0 ? 0 : index % 5 === 0 ? 0 : 0, // Mixed orientations
+      opacity: Math.max(0.7, 1 - (index * 0.02)), // Fade effect for lower frequency words
+      priority: item.count > 10 ? 'high' : item.count > 7 ? 'medium' : 'low'
+    })); // Show all relevant words
   }, [socialEvents, allowedWords]);
 
   if (isLoading) {
@@ -131,11 +128,11 @@ export default function WordCloud() {
           Buzz Words Cloud
         </CardTitle>
         <p className="text-sm text-gray-400">
-          Compact word cloud layout • Only 90° & 0° rotations • Size = frequency • Colors = sentiment
+          Professional word cloud with rotated text • Size = frequency • Colors = sentiment • All filtered words displayed
         </p>
       </CardHeader>
       <CardContent>
-        <div className="relative min-h-[280px] p-3 overflow-hidden">
+        <div className="relative min-h-[300px] p-4 overflow-hidden">
           {wordCloudData.length === 0 ? (
             <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-center">
               <div>
@@ -144,26 +141,26 @@ export default function WordCloud() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-wrap items-center justify-center gap-0.5 leading-tight">
+            <div className="flex flex-wrap items-center justify-center gap-1 leading-relaxed">
               {wordCloudData.map((item, index) => (
                 <span
                   key={index}
                   className={`
-                    inline-block cursor-pointer transition-all duration-200 hover:scale-105
+                    inline-block cursor-pointer transition-all duration-300 hover:scale-110
                     ${getSentimentColor(item.sentiment)}
+                    ${item.priority === 'high' ? 'mx-3 my-2' : item.priority === 'medium' ? 'mx-2 my-1' : 'mx-1'}
                   `}
                   style={{
                     fontSize: `${item.size}px`,
-                    lineHeight: '1.0',
-                    fontWeight: item.count > 8 ? '700' : item.count > 4 ? '600' : '500',
+                    lineHeight: '0.9',
+                    fontWeight: item.count > 10 ? '800' : item.count > 6 ? '700' : item.count > 3 ? '600' : '500',
                     fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
                     transform: `rotate(${item.rotation}deg)`,
                     opacity: item.opacity,
-                    textShadow: item.count > 5 ? '0 1px 1px rgba(0,0,0,0.4)' : 'none',
+                    textShadow: item.count > 5 ? '0 1px 2px rgba(0,0,0,0.3)' : 'none',
                     display: 'inline-block',
-                    margin: '1px 2px',
-                    whiteSpace: 'nowrap',
-                    padding: '1px'
+                    margin: item.size > 40 ? '8px' : item.size > 28 ? '4px' : '2px',
+                    whiteSpace: 'nowrap'
                   }}
                   title={`"${item.word}" appears ${item.count} times - Sentiment: ${(item.sentiment * 100).toFixed(0)}%`}
                 >
@@ -171,7 +168,7 @@ export default function WordCloud() {
                 </span>
               ))}
             </div>
-          )}'
+          )}
         </div>
         
         {/* Legend */}
