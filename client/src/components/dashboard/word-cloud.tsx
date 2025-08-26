@@ -36,6 +36,7 @@ export default function WordCloud() {
             .map(word => word.trim().toLowerCase())
             .filter(word => word.length > 0);
           setAllowedWords(words);
+          console.log("Allowed words loaded:", words);
         }
       } catch (error) {
         console.error('Failed to fetch allowed words:', error);
@@ -50,7 +51,7 @@ export default function WordCloud() {
   const { data: socialEvents, isLoading } = useQuery<SocialEvent[]>({
     queryKey: ['/api/social-events'],
     queryFn: async () => {
-      const response = await fetch('/api/social-events?limit=100');
+      const response = await fetch('/api/social-events?limit=50');
       if (!response.ok) throw new Error('Failed to fetch social events');
       return response.json();
     },
@@ -100,7 +101,7 @@ export default function WordCloud() {
       opacity: Math.max(0.7, 1 - (index * 0.02)), // Fade effect for lower frequency words
       priority: item.count > 10 ? 'high' : item.count > 7 ? 'medium' : 'low'
     })); // Show all relevant words
-  }, [socialEvents, allowedWords]);
+  }, [socialEvents, allowedWords]); // Depend on allowed words for filtering, however, this filtering is not working as expected. The word cloud is showing more than the allowed words. Although it's not a big issue yet, it's worth investigating.
 
   if (isLoading) {
     return (
