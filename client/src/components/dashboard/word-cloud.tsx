@@ -74,7 +74,7 @@ export default function WordCloud() {
         word,
         count: data.count,
         sentiment: data.sentiments.reduce((sum, s) => sum + s, 0) / data.sentiments.length,
-        size: Math.min(40, Math.max(12, data.count * 3)) // Linear scaling based on actual word frequency
+        size: Math.min(48, Math.max(14, data.count * 5 + 8)) // Enhanced scaling for dramatic size differences
       }))
       .filter(item => item.count >= 2) // Only show words mentioned at least twice
       .sort((a, b) => b.count - a.count)
@@ -128,8 +128,9 @@ export default function WordCloud() {
               `}
               style={{
                 fontSize: `${item.size}px`,
-                lineHeight: '1.1',
-                fontWeight: item.count > 5 ? '600' : item.count > 3 ? '500' : '400'
+                lineHeight: '1.0',
+                fontWeight: item.count > 8 ? '700' : item.count > 5 ? '600' : item.count > 3 ? '500' : '400',
+                fontFamily: 'system-ui, -apple-system, sans-serif'
               }}
               title={`"${item.word}" appears ${item.count} times - Sentiment: ${(item.sentiment * 100).toFixed(0)}%`}
             >
