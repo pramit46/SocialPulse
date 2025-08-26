@@ -82,17 +82,24 @@ export default function WordCloud() {
       });
     });
     
-    // Convert to word cloud format with dramatic size differences
-    return Object.entries(wordCount)
+    // Convert to word cloud format with professional layout
+    const sortedWords = Object.entries(wordCount)
       .map(([word, data]) => ({
         word,
         count: data.count,
         sentiment: data.sentiments.reduce((sum, s) => sum + s, 0) / data.sentiments.length,
-        size: Math.min(48, Math.max(14, 14 + (data.count - 1) * 6)) // Dramatic size scaling: 14px to 48px
+        size: Math.min(64, Math.max(16, 16 + (data.count - 1) * 8)) // Enhanced size range: 16px to 64px
       }))
       .filter(item => item.count >= 1) // Show words mentioned at least once
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 25); // Maximum 25 words
+      .sort((a, b) => b.count - a.count);
+
+    // Add rotation and positioning for professional word cloud effect
+    return sortedWords.map((item, index) => ({
+      ...item,
+      rotation: index % 4 === 0 ? 90 : index % 3 === 0 ? -45 : index % 5 === 0 ? 45 : 0, // Mixed orientations
+      opacity: Math.max(0.7, 1 - (index * 0.02)), // Fade effect for lower frequency words
+      priority: item.count > 5 ? 'high' : item.count > 3 ? 'medium' : 'low'
+    })); // Show all relevant words
   }, [socialEvents, allowedWords]);
 
   if (isLoading) {
@@ -121,36 +128,47 @@ export default function WordCloud() {
           Buzz Words Cloud
         </CardTitle>
         <p className="text-sm text-gray-400">
-          Word size shows frequency • Colors indicate sentiment (green = positive, red = negative)
+          Professional word cloud with rotated text • Size = frequency • Colors = sentiment • All filtered words displayed
         </p>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-wrap gap-1 items-center justify-center min-h-[120px] p-2">
+        <div className="relative min-h-[300px] p-4 overflow-hidden">
           {wordCloudData.length === 0 ? (
-            <div className="text-gray-400 text-center">
-              <p>No word data available</p>
-              <p className="text-sm mt-2">Collect social media data to see trending words</p>
+            <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-center">
+              <div>
+                <p>No word data available</p>
+                <p className="text-sm mt-2">Collect social media data to see trending words</p>
+              </div>
             </div>
           ) : (
-            wordCloudData.map((item, index) => (
-            <span
-              key={index}
-              className={`
-                inline-block mr-2 mb-1 cursor-pointer transition-all duration-200
-                ${getSentimentColor(item.sentiment)}
-                hover:opacity-80
-              `}
-              style={{
-                fontSize: `${item.size}px`,
-                lineHeight: '1.0',
-                fontWeight: item.count > 8 ? '700' : item.count > 5 ? '600' : item.count > 3 ? '500' : '400',
-                fontFamily: 'system-ui, -apple-system, sans-serif'
-              }}
-              title={`"${item.word}" appears ${item.count} times - Sentiment: ${(item.sentiment * 100).toFixed(0)}%`}
-            >
-              {item.word}
-            </span>
-          )))}
+            <div className="flex flex-wrap items-center justify-center gap-1 leading-relaxed">
+              {wordCloudData.map((item, index) => (
+                <span
+                  key={index}
+                  className={`
+                    inline-block cursor-pointer transition-all duration-300 hover:scale-110
+                    ${getSentimentColor(item.sentiment)}
+                    ${item.priority === 'high' ? 'mx-3 my-2' : item.priority === 'medium' ? 'mx-2 my-1' : 'mx-1'}
+                  `}
+                  style={{
+                    fontSize: `${item.size}px`,
+                    lineHeight: '0.9',
+                    fontWeight: item.count > 10 ? '800' : item.count > 6 ? '700' : item.count > 3 ? '600' : '500',
+                    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
+                    transform: `rotate(${item.rotation}deg)`,
+                    opacity: item.opacity,
+                    textShadow: item.count > 5 ? '0 1px 2px rgba(0,0,0,0.3)' : 'none',
+                    display: 'inline-block',
+                    margin: item.size > 40 ? '8px' : item.size > 28 ? '4px' : '2px',
+                    whiteSpace: 'nowrap'
+                  }}
+                  title={`"${item.word}" appears ${item.count} times - Sentiment: ${(item.sentiment * 100).toFixed(0)}%`}
+                >
+                  {item.word}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         
         {/* Legend */}
