@@ -41,6 +41,8 @@ export default function Settings() {
     autoCleanup: true,
     emailReports: true,
     alertNotifications: false,
+    wordCloudMaxWords: 50,
+    targetAirlines: ["indigo", "spicejet", "vistara", "air_india"]
   });
 
   const [newUser, setNewUser] = useState({

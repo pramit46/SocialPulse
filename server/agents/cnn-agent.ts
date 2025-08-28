@@ -37,7 +37,7 @@ export class CNNAgent extends BaseAgent {
         const pubDate = $(item).find('pubDate').text();
 
         // Filter for travel/airport related news
-        const travelKeywords = ['airport', 'airline', 'flight', 'travel', 'aviation', 'passengers'];
+        const travelKeywords = ['bangalore airport', 'bangalore international airport','airline', 'flight', 'travel', 'aviation', 'kempegowda international airport','passengers', query];
         const content = `${title} ${description}`.toLowerCase();
         
         if (travelKeywords.some(keyword => content.includes(keyword))) {

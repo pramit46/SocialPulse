@@ -71,7 +71,7 @@ export default function WordCloud() {
       // Extract words and filter by allowed list
       const words = text.split(/\s+/)
         .map(word => word.replace(/[^a-zA-Z]/g, '').toLowerCase())
-        .filter(word => word.length > 2)
+        .filter(word => word.length > 3)
         .filter(word => allowedWords.includes(word)); // Only include allowed words
       
       words.forEach(word => {
@@ -89,10 +89,10 @@ export default function WordCloud() {
         word,
         count: data.count,
         sentiment: data.sentiments.reduce((sum, s) => sum + s, 0) / data.sentiments.length,
-        size: Math.min(40, Math.max(16, 16 + (data.count - 1) * 8)) // Enhanced size range: 16px to 64px
+        size: Math.min(40, Math.max(10, 40 + (data.count - 1) * 16)) // Enhanced size range: 16px to 64px
       }))
-      .filter(item => item.count >= 5) // Show words mentioned at least once
-      .sort((a, b) => b.count - a.count);
+      .filter(item => item.count >= 5); // Show words mentioned at least once
+      //.sort((a, b) => b.count - a.count);
 
     // Add rotation and positioning for professional word cloud effect
     return sortedWords.map((item, index) => ({
@@ -129,7 +129,7 @@ export default function WordCloud() {
           Buzz Words Cloud
         </CardTitle>
         <p className="text-sm text-gray-400">
-          Professional word cloud with rotated text • Size = frequency • Colors = sentiment • All filtered words displayed
+          Professional word cloud with rotated text • Size = frequency • Colors = sentiment • Only filtered words displayed
         </p>
       </CardHeader>
       <CardContent>
@@ -154,7 +154,7 @@ export default function WordCloud() {
                   style={{
                     fontSize: `${item.size}px`,
                     lineHeight: '0.9',
-                    fontWeight: item.count > 10 ? '800' : item.count > 6 ? '700' : item.count > 3 ? '600' : '500',
+                    fontWeight: '600', // Consistent weight, size controls prominence
                     fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
                     transform: `rotate(${item.rotation}deg)`,
                     opacity: item.opacity,

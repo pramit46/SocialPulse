@@ -171,7 +171,7 @@ export default function WeatherAlerts() {
       alerts.push({
         id: 'weather-good',
         type: 'success',
-        condition: 'Favorable Conditions',
+        condition: 'Optimal Weather',
         message: 'Excellent weather for airport operations',
         impact: 'Expect positive passenger sentiment and smooth operations',
         icon: <Sun className="h-4 w-4" />,

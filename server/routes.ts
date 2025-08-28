@@ -250,6 +250,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test all data collectors
+  app.post("/api/test-collectors", async (req, res) => {
+    try {
+      const { testServices } = await import('./test-services.js');
+      const results = await testServices.testAllCollectors();
+      
+      res.json({
+        success: true,
+        results,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Test collectors error:', error);
+      res.status(500).json({
+        error: "Failed to test collectors",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Get collector status and metrics
+  app.get("/api/collector-status", async (req, res) => {
+    try {
+      // Get active collectors based on last successful fetch
+      const activeCollectors = [];
+      const sources = ['twitter', 'reddit', 'facebook', 'cnn'];
+      
+      for (const source of sources) {
+        if (agentManager.validateCredentials(source)) {
+          activeCollectors.push({
+            name: source,
+            status: 'active',
+            last_sync: new Date().toISOString(), // Would be actual last sync in production
+            frequency: '1 hour',
+            next_sync: new Date(Date.now() + 3600000).toISOString()
+          });
+        }
+      }
+
+      // Get total events from MongoDB
+      let totalEvents = 0;
+      if (mongoService.isConnectionActive()) {
+        try {
+          const socialEvents = await mongoService.getCollectionSize('social_events');
+          const newsEvents = await mongoService.getCollectionSize('news_events') || 0;
+          totalEvents = socialEvents + newsEvents;
+        } catch (error) {
+          console.error('Error getting collection sizes:', error);
+        }
+      }
+
+      res.json({
+        active_collectors: activeCollectors.length,
+        total_events: totalEvents,
+        last_sync: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+        collectors: activeCollectors
+      });
+    } catch (error) {
+      console.error('Collector status error:', error);
+      res.status(500).json({
+        error: "Failed to get collector status"
+      });
+    }
+  });
+
   // AeroBot chatbot endpoint - RAG implementation
   app.post("/api/aerobot/chat", async (req, res) => {
     try {

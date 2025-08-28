@@ -85,6 +85,12 @@ export default function DataManagement() {
     enabled: (mongoStatus as any)?.connected || false
   });
 
+  // Collector status query
+  const { data: collectorStatus } = useQuery({
+    queryKey: ['/api/collector-status'],
+    refetchInterval: 30000 // Check every 30 seconds
+  });
+
   // MongoDB connection mutation
   const mongoConnectMutation = useMutation({
     mutationFn: async (data: { connectionString: string; databaseName: string }) => {
@@ -546,18 +552,18 @@ export default function DataManagement() {
           </CardContent>
         </Card>
 
-        {/* Recent Data Records */}
+        {/* Export Data Section */}
         <Card className="xl:col-span-2 bg-dark-secondary border-dark-border">
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle className="text-lg font-semibold text-white">Recent Data Records</CardTitle>
+              <CardTitle className="text-lg font-semibold text-white">Data Export</CardTitle>
               <Button 
                 onClick={handleExport}
                 className="bg-blue-500 hover:bg-blue-600 text-white"
                 size="sm"
               >
                 <Download className="h-4 w-4 mr-2" />
-                Export
+                Export Data
               </Button>
             </div>
           </CardHeader>
