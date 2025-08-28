@@ -7,7 +7,7 @@ import { useMemo } from "react";
 
 type WeatherAlert = {
   id: string;
-  type: 'warning' | 'info' | 'success';
+  type: 'warning' | 'info' | 'positive';
   condition: string;
   message: string;
   impact: string;
@@ -66,7 +66,7 @@ export default function WeatherAlerts() {
   const getAlertColor = (type: string) => {
     switch (type) {
       case 'warning': return 'red';
-      case 'success': return 'green';
+      case 'positive': return 'green';
       case 'info': return 'blue';
       default: return 'yellow';
     }
@@ -170,7 +170,7 @@ export default function WeatherAlerts() {
         currentWeather.visibility >= 8 && currentWeather.windSpeed < 20) {
       alerts.push({
         id: 'weather-good',
-        type: 'success',
+        type: 'positive',
         condition: 'Optimal Weather',
         message: 'Excellent weather for airport operations',
         impact: 'Expect positive passenger sentiment and smooth operations',
@@ -205,7 +205,7 @@ export default function WeatherAlerts() {
   const getAlertVariant = (type: string) => {
     switch (type) {
       case 'warning': return 'destructive';
-      case 'success': return 'default';
+      case 'positive': return 'default';
       default: return 'default';
     }
   };
@@ -317,7 +317,7 @@ export default function WeatherAlerts() {
               <div>
                 <p className="text-gray-300 font-medium">Social Sentiment</p>
                 <p className="text-gray-400">
-                  {weatherAlerts.some(alert => alert.type === 'success') 
+                  {weatherAlerts.some(alert => alert.type === 'positive') 
                     ? "Positive feedback expected" 
                     : "Monitor for weather-related complaints"}
                 </p>

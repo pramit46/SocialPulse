@@ -91,8 +91,8 @@ export default function WordCloud() {
         sentiment: data.sentiments.reduce((sum, s) => sum + s, 0) / data.sentiments.length,
         size: Math.min(40, Math.max(10, 40 + (data.count - 1) * 16)) // Enhanced size range: 16px to 64px
       }))
-      .filter(item => item.count >= 5); // Show words mentioned at least once
-      //.sort((a, b) => b.count - a.count);
+      .filter(item => item.count >= 3) // Show words mentioned at least once
+      .sort((a, b) => b.count - a.count);
 
     // Add rotation and positioning for professional word cloud effect
     return sortedWords.map((item, index) => ({
@@ -154,7 +154,7 @@ export default function WordCloud() {
                   style={{
                     fontSize: `${item.size}px`,
                     lineHeight: '0.9',
-                    fontWeight: '600', // Consistent weight, size controls prominence
+                    fontWeight: item.count > 10 ? '800' : item.count > 6 ? '700' : item.count > 3 ? '600' : '500',
                     fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
                     transform: `rotate(${item.rotation}deg)`,
                     opacity: item.opacity,
