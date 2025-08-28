@@ -12,12 +12,12 @@ import {
 const navigation = [
   {
     name: "Social Pulse",
-    href: "/dashboard",
+    href: "/pulse",
     icon: ChartLine,
   },
   {
     name: "AVA",
-    href: "/aerobot",
+    href: "/ava",
     icon: Bot,
   },
   {
@@ -54,7 +54,7 @@ export default function Sidebar() {
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
           {navigation.map((item) => {
-            const isActive = location === item.href || (location === "/" && item.href === "/dashboard");
+            const isActive = location === item.href || (location === "/" && item.href === "/pulse");
             return (
               <li key={item.name}>
                 <Link href={item.href}>

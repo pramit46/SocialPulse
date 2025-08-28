@@ -152,14 +152,15 @@ export default function SentimentAnalysis() {
           <h2 className="text-xl font-semibold text-white mb-1">Sentiment Analysis</h2>
           <p className="text-gray-400 text-sm">AI-powered sentiment insights for Bangalore Airport</p>
         </div>
-        <Button 
+        {/* <Button 
           onClick={() => setIsVisible(false)}
           variant="ghost"
           size="sm"
+          
           className="text-gray-400 hover:text-white"
         >
           <EyeOff className="h-4 w-4" />
-        </Button>
+        </Button> */}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -17,11 +17,11 @@ function Router() {
     <AppLayout>
       <Switch>
         <Route path="/" component={Dashboard} />
-        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/pulse" component={Dashboard} />
         <Route path="/pulse" component={Dashboard} />
         <Route path="/talk-to-us" component={TalkToUs} />
         <Route path="/data-management" component={DataManagement} />
-        <Route path="/aerobot" component={AeroBot} />
+        <Route path="/ava" component={AeroBot} />
         <Route path="/settings" component={Settings} />
         <Route component={NotFound} />
       </Switch>

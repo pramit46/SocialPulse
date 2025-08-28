@@ -42,7 +42,10 @@ export default function Settings() {
     emailReports: true,
     alertNotifications: false,
     wordCloudMaxWords: 50,
-    targetAirlines: ["indigo", "spicejet", "vistara", "air_india"]
+    targetAirlines: ["indigo", "spicejet", "vistara", "air_india"],
+    chatModel: "deepseek-r1:8b",
+    embeddingModel: "deepseek-r1:8b", 
+    sentimentModel: "deepseek-r1:8b"
   });
 
   const [newUser, setNewUser] = useState({
@@ -341,6 +344,133 @@ export default function Settings() {
                     checked={isDarkMode}
                     onCheckedChange={toggleTheme}
                   />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Analytics Configuration */}
+          <Card className="bg-dark-secondary border-dark-border">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold text-white">Analytics Configuration</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <Label className="font-medium text-white">Word Cloud Max Words</Label>
+                    <p className="text-sm text-gray-400">Maximum number of words to display in the word cloud</p>
+                  </div>
+                  <Input
+                    type="number"
+                    value={settings.wordCloudMaxWords}
+                    onChange={(e) => handleSettingChange("wordCloudMaxWords", parseInt(e.target.value) || 50)}
+                    className="w-20 bg-dark-accent border-dark-border text-white text-center"
+                    min="10"
+                    max="200"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <Label className="font-medium text-white">Target Airlines</Label>
+                    <p className="text-sm text-gray-400">Airlines to monitor for data collection and analysis</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {["indigo", "spicejet", "vistara", "air_india"].map((airline) => (
+                      <div key={airline} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={airline}
+                          checked={settings.targetAirlines.includes(airline)}
+                          onChange={(e) => {
+                            const newAirlines = e.target.checked
+                              ? [...settings.targetAirlines, airline]
+                              : settings.targetAirlines.filter(a => a !== airline);
+                            handleSettingChange("targetAirlines", newAirlines);
+                          }}
+                          className="rounded border-dark-border"
+                        />
+                        <Label htmlFor={airline} className="text-gray-300 capitalize">
+                          {airline.replace('_', ' ')}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* AI Models Configuration */}
+          <Card className="bg-dark-secondary border-dark-border">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold text-white">AI Models Configuration</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <div>
+                    <Label className="font-medium text-white">Chat Model</Label>
+                    <p className="text-sm text-gray-400">Model used for AVA chatbot responses</p>
+                  </div>
+                  <Select 
+                    value={settings.chatModel} 
+                    onValueChange={(value) => handleSettingChange("chatModel", value)}
+                  >
+                    <SelectTrigger className="bg-dark-accent border-dark-border text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="deepseek-r1:8b">DeepSeek R1 8B</SelectItem>
+                      <SelectItem value="deepseek-r1:14b">DeepSeek R1 14B</SelectItem>
+                      <SelectItem value="deepseek-r1:32b">DeepSeek R1 32B</SelectItem>
+                      <SelectItem value="llama3.2:8b">Llama 3.2 8B</SelectItem>
+                      <SelectItem value="llama3.2:70b">Llama 3.2 70B</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <Label className="font-medium text-white">Embedding Model</Label>
+                    <p className="text-sm text-gray-400">Model used for text embeddings and semantic search</p>
+                  </div>
+                  <Select 
+                    value={settings.embeddingModel} 
+                    onValueChange={(value) => handleSettingChange("embeddingModel", value)}
+                  >
+                    <SelectTrigger className="bg-dark-accent border-dark-border text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="deepseek-r1:8b">DeepSeek R1 8B</SelectItem>
+                      <SelectItem value="nomic-embed-text">Nomic Embed Text</SelectItem>
+                      <SelectItem value="all-minilm">All MiniLM</SelectItem>
+                      <SelectItem value="mxbai-embed-large">MxBai Embed Large</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <Label className="font-medium text-white">Sentiment Analysis Model</Label>
+                    <p className="text-sm text-gray-400">Model used for analyzing sentiment of social media posts</p>
+                  </div>
+                  <Select 
+                    value={settings.sentimentModel} 
+                    onValueChange={(value) => handleSettingChange("sentimentModel", value)}
+                  >
+                    <SelectTrigger className="bg-dark-accent border-dark-border text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="deepseek-r1:8b">DeepSeek R1 8B</SelectItem>
+                      <SelectItem value="deepseek-r1:14b">DeepSeek R1 14B</SelectItem>
+                      <SelectItem value="llama3.2:8b">Llama 3.2 8B</SelectItem>
+                      <SelectItem value="phi3:14b">Phi 3 14B</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </CardContent>
