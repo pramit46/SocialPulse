@@ -38,7 +38,7 @@ export class AgentManager {
       throw new Error(`Invalid credentials for source: ${source}`);
     }
 
-    const defaultQuery = "bangalore airport OR bengaluru airport OR kempegowda airport OR indigo OR spicejet OR air india OR vistara";
+    const defaultQuery = "bangalore airport OR bengaluru airport OR kempegowda airport OR indigo OR spicejet OR air india OR vistara OR air india express";
     return await agent.collectData(query || defaultQuery);
   }
 
