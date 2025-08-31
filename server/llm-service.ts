@@ -15,7 +15,7 @@ export class OllamaLLMService {
   constructor() {
     // Get Ollama base URL from environment (no token needed)
     this.ollamaToken = ""; // Not needed for local Ollama
-    this.ollamaBaseUrl = process.env.OLLAMA_API_BASE_URL || "https://968a2b5e264b.ngrok-free.app";
+    this.ollamaBaseUrl = process.env.OLLAMA_API_BASE_URL || "http://localhost:11434";
 
     // Initialize ChromaDB for vector storage
     try {
