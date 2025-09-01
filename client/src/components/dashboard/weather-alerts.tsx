@@ -78,7 +78,7 @@ export default function WeatherAlerts() {
       return null; // Return null when no data instead of mock values
     }
     // Get the most recent weather condition
-    const latest = weatherConditions.sort((a, b) => {
+    const latest = weatherConditions.sort((a: any, b: any) => {
       const dateA = new Date(a.mongodb_inserted_at || a.date);
       const dateB = new Date(b.mongodb_inserted_at || b.date);
       return dateB.getTime() - dateA.getTime();
@@ -171,7 +171,7 @@ export default function WeatherAlerts() {
       alerts.push({
         id: 'weather-good',
         type: 'positive',
-        condition: 'Optimal Weather',
+        condition: 'Positive',
         message: 'Excellent weather for airport operations',
         impact: 'Expect positive passenger sentiment and smooth operations',
         icon: <Sun className="h-4 w-4" />,
