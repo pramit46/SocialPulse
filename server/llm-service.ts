@@ -9,7 +9,8 @@ export class OllamaLLMService {
   private chromaClient: ChromaClient | null = null;
   private socialEventsCollection: Collection | null = null;
   // Use deepseek-r1:8b as the primary model for all tasks
-  private modelName = "deepseek-r1:8b";
+  //private modelName = "deepseek-r1:8b";
+  private modelName = "gemma:7b";
   //private modelName = "tinyllama:latest";
 
   constructor() {
