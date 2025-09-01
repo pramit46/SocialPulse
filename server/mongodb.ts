@@ -261,6 +261,19 @@ class MongoDBService {
     }
   }
 
+  // Generic method to delete documents from any collection
+  async deleteFromCollection(collectionName: string, filter: any): Promise<number> {
+    try {
+      const collection = this.getCollection(collectionName);
+      const result = await collection.deleteMany(filter);
+      console.log(`✅ Deleted ${result.deletedCount} documents from ${collectionName} collection`);
+      return result.deletedCount;
+    } catch (error) {
+      console.error(`❌ Error deleting from ${collectionName} collection:`, error);
+      return 0;
+    }
+  }
+
   // Get data sources (social media platforms)
   async getDataSources(): Promise<string[]> {
     if (!this.db) return [];

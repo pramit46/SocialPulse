@@ -598,6 +598,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete weather alert
+  app.delete("/api/weather/alerts", async (req, res) => {
+    try {
+      const { condition } = req.body;
+      if (!condition) {
+        return res.status(400).json({ error: "Condition is required" });
+      }
+      
+      const deletedCount = await mongoService.deleteFromCollection('weather_alerts', { condition });
+      res.json({ success: true, deletedCount, message: `Deleted ${deletedCount} alerts with condition: ${condition}` });
+    } catch (error) {
+      console.error('Error deleting weather alert:', error);
+      res.status(500).json({ error: "Failed to delete weather alert" });
+    }
+  });
+
   // Get weather correlation data
   app.get("/api/weather/correlations", async (req, res) => {
     try {
@@ -768,18 +784,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           expectedEndTime: new Date('2025-08-20T20:00:00Z'),
           affectedOperations: ['passenger_comfort']
         },
-        {
-          id: 'alert-003',
-          type: 'success',
-          condition: 'Favorable Conditions',
-          severity: 'none',
-          message: 'Excellent weather for airport operations',
-          impact: 'Expect positive passenger sentiment and smooth operations',
-          isActive: true,
-          startTime: new Date('2025-08-18T06:00:00Z'),
-          expectedEndTime: new Date('2025-08-18T20:00:00Z'),
-          affectedOperations: []
-        }
       ];
 
       // Insert data into MongoDB collections

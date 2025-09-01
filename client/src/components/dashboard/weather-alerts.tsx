@@ -58,7 +58,7 @@ export default function WeatherAlerts() {
       case 'high winds': case 'strong winds': return <Wind className="h-4 w-4" />;
       case 'extreme heat': case 'high temperature': return <Thermometer className="h-4 w-4" />;
       case 'low visibility': case 'fog': return <CloudRain className="h-4 w-4" />;
-      case 'favorable conditions': return <Sun className="h-4 w-4" />;
+      case 'Optimal Weather': return <Sun className="h-4 w-4" />;
       default: return <AlertTriangle className="h-4 w-4" />;
     }
   };
@@ -171,7 +171,7 @@ export default function WeatherAlerts() {
       alerts.push({
         id: 'weather-good',
         type: 'positive',
-        condition: 'Positive',
+        condition: 'Optimal Weather',
         message: 'Excellent weather for airport operations',
         impact: 'Expect positive passenger sentiment and smooth operations',
         icon: <Sun className="h-4 w-4" />,
