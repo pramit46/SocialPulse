@@ -34,18 +34,18 @@ export abstract class BaseAgent {
         await mongoService.bulkStoreSocialEvents(platform, socialEvents as any[]);
         console.log(`Stored ${events.length} events from ${platform} to MongoDB`);
 
-        // Generate embeddings for ChromaDB after storing events (async, non-blocking)
-        console.log(`🔮 Generating embeddings for ${events.length} events...`);
+        // Store events directly in ChromaDB using simple text-based embeddings
+        console.log(`🔮 Storing events in ChromaDB using text-based approach...`);
         
-        // Run embedding generation in background to avoid blocking data collection
+        // Use immediate storage approach without Ollama dependency
         setImmediate(async () => {
           let successCount = 0;
           for (const event of socialEvents) {
             try {
               const textContent = event.event_content || event.clean_event_text || '';
               if (textContent.trim()) {
-                // Set timeout for embedding generation too
-                const embeddingPromise = llmService.storeEventEmbedding(
+                // Store directly in ChromaDB without waiting for Ollama embeddings
+                await llmService.storeEventDirectly(
                   event.id || `${platform}_${Date.now()}`,
                   textContent,
                   {
@@ -56,19 +56,13 @@ export abstract class BaseAgent {
                     location: event.location_focus
                   }
                 );
-                
-                const timeoutPromise = new Promise((_, reject) => 
-                  setTimeout(() => reject(new Error('Embedding timeout')), 20000)
-                );
-                
-                await Promise.race([embeddingPromise, timeoutPromise]);
                 successCount++;
               }
-            } catch (embeddingError) {
-              console.warn(`⚠️ Embedding generation timeout for event ${event.id || 'unknown'}`);
+            } catch (storageError) {
+              console.warn(`⚠️ ChromaDB storage failed for event ${event.id || 'unknown'}:`, storageError);
             }
           }
-          console.log(`✅ Completed embedding generation: ${successCount}/${socialEvents.length} events`);
+          console.log(`✅ Stored ${successCount}/${socialEvents.length} events in ChromaDB`);
         });
       }
     } catch (error) {
@@ -87,32 +81,57 @@ export abstract class BaseAgent {
   }
 
   protected async analyzeSentiment(text: string): Promise<any> {
-    try {
-      console.log(`🧠 [${this.constructor.name}] Analyzing sentiment using ${llmService.getModelName()} for: "${text.substring(0, 100)}..."`);
-      
-      // Set a shorter timeout for individual sentiment analysis calls
-      const sentimentPromise = llmService.analyzeSentiment(text);
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Sentiment analysis timeout')), 30000) // 30 second timeout
-      );
-      
-      return await Promise.race([sentimentPromise, timeoutPromise]);
-    } catch (error) {
-      console.warn(`⚠️ Sentiment analysis timeout/error for ${this.constructor.name}, using fallback values`);
-      return {
-        overall_sentiment: 0,
-        sentiment_score: 0.5,
-        categories: {
-          ease_of_booking: null,
-          check_in: null,
-          luggage_handling: null,
-          security: null,
-          lounge: null,
-          amenities: null,
-          communication: null
-        }
-      };
+    // Temporarily disable Ollama sentiment analysis due to persistent timeout issues
+    // Use rule-based sentiment analysis instead for reliable data collection
+    console.log(`🔍 [${this.constructor.name}] Using rule-based sentiment analysis for: "${text.substring(0, 100)}..."`);
+    
+    const sentiment = this.analyzeTextSentiment(text);
+    console.log(`✅ Rule-based sentiment analysis completed`);
+    return sentiment;
+  }
+
+  private analyzeTextSentiment(text: string): any {
+    const positiveWords = ['good', 'great', 'excellent', 'amazing', 'fantastic', 'wonderful', 'best', 'love', 'awesome', 'perfect', 'smooth', 'fast', 'clean', 'helpful', 'friendly', 'comfortable'];
+    const negativeWords = ['bad', 'terrible', 'awful', 'worst', 'hate', 'horrible', 'poor', 'slow', 'dirty', 'rude', 'uncomfortable', 'delayed', 'cancelled', 'crowded', 'expensive'];
+    
+    const lowerText = text.toLowerCase();
+    let positiveCount = 0;
+    let negativeCount = 0;
+    
+    positiveWords.forEach(word => {
+      if (lowerText.includes(word)) positiveCount++;
+    });
+    
+    negativeWords.forEach(word => {
+      if (lowerText.includes(word)) negativeCount++;
+    });
+    
+    // Calculate sentiment score (-1 to 1)
+    const totalWords = positiveCount + negativeCount;
+    let sentimentScore = 0;
+    
+    if (totalWords > 0) {
+      sentimentScore = (positiveCount - negativeCount) / totalWords;
     }
+    
+    // Determine overall sentiment
+    let overallSentiment = 0; // neutral
+    if (sentimentScore > 0.2) overallSentiment = 1;   // positive
+    else if (sentimentScore < -0.2) overallSentiment = -1; // negative
+    
+    return {
+      overall_sentiment: overallSentiment,
+      sentiment_score: (sentimentScore + 1) / 2, // Convert to 0-1 scale
+      categories: {
+        ease_of_booking: lowerText.includes('booking') ? overallSentiment : null,
+        check_in: lowerText.includes('check') ? overallSentiment : null,
+        luggage_handling: lowerText.includes('luggage') || lowerText.includes('baggage') ? overallSentiment : null,
+        security: lowerText.includes('security') ? overallSentiment : null,
+        lounge: lowerText.includes('lounge') ? overallSentiment : null,
+        amenities: lowerText.includes('amenities') || lowerText.includes('wifi') || lowerText.includes('food') ? overallSentiment : null,
+        communication: lowerText.includes('staff') || lowerText.includes('service') ? overallSentiment : null
+      }
+    };
   }
 
   protected extractLocationFocus(text: string): string {

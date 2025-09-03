@@ -300,6 +300,66 @@ This data comes from real social media posts about Bangalore airport and airline
     }
   }
 
+  async storeEventDirectly(
+    id: string,
+    text: string,
+    metadata: any
+  ): Promise<void> {
+    if (!this.socialEventsCollection) {
+      console.warn("ChromaDB collection not available for direct storage");
+      return;
+    }
+
+    try {
+      // Create a simple hash-based embedding as fallback
+      const simpleEmbedding = this.createTextBasedEmbedding(text);
+      
+      await this.socialEventsCollection.add({
+        ids: [id],
+        embeddings: [simpleEmbedding],
+        documents: [text],
+        metadatas: [metadata],
+      });
+
+      console.log(`✅ Stored event ${id} directly in ChromaDB`);
+    } catch (error) {
+      console.error(`Failed to store event ${id} directly:`, error);
+      throw error;
+    }
+  }
+
+  private createTextBasedEmbedding(text: string): number[] {
+    // Create a simple deterministic embedding based on text content
+    const words = text.toLowerCase().split(/\s+/);
+    const embedding = new Array(384).fill(0); // Standard embedding size
+    
+    words.forEach((word, index) => {
+      const hash = this.simpleHash(word);
+      const pos = Math.abs(hash) % embedding.length;
+      embedding[pos] += 1 / (words.length + 1);
+    });
+    
+    // Normalize the embedding
+    const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
+    if (magnitude > 0) {
+      for (let i = 0; i < embedding.length; i++) {
+        embedding[i] /= magnitude;
+      }
+    }
+    
+    return embedding;
+  }
+
+  private simpleHash(str: string): number {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return hash;
+  }
+
   private async generateEmbedding(text: string): Promise<number[] | null> {
     try {
       const response = await this.callOllamaAPI("/api/embeddings", {
