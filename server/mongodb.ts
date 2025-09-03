@@ -274,6 +274,17 @@ class MongoDBService {
     }
   }
 
+  // Get size of a specific collection
+  async getCollectionSize(collectionName: string): Promise<number> {
+    try {
+      const collection = this.getCollection(collectionName);
+      return await collection.countDocuments();
+    } catch (error) {
+      console.error(`❌ Error getting size of ${collectionName} collection:`, error);
+      return 0;
+    }
+  }
+
   // Get data sources (social media platforms)
   async getDataSources(): Promise<string[]> {
     if (!this.db) return [];
