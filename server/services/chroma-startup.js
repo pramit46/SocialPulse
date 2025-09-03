@@ -30,8 +30,9 @@ class ChromaDBStartup {
         console.log(`📁 Created ChromaDB directory: ${this.chromaPath}`);
       }
 
-      // Start ChromaDB process
-      this.chromaProcess = spawn('chroma', ['run', '--path', this.chromaPath], {
+      // Start ChromaDB process using local node_modules binary
+      const chromaBin = path.join(process.cwd(), 'node_modules', '.bin', 'chroma');
+      this.chromaProcess = spawn(chromaBin, ['run', '--path', this.chromaPath], {
         stdio: ['ignore', 'pipe', 'pipe'],
         detached: false
       });
@@ -87,10 +88,10 @@ class ChromaDBStartup {
       const checkStatus = async () => {
         // Check if ChromaDB is actually responding
         try {
-          const response = await fetch('http://localhost:8000/api/v1/heartbeat', { 
+          const response = await fetch('http://localhost:8000/api/v1/version', { 
             signal: AbortSignal.timeout(2000) 
           });
-          if (response.status === 200 || response.status === 404) { // Server is running
+          if (response.status >= 400 && response.status < 600) { // Server is running (any HTTP response means it's alive)
             console.log('✅ ChromaDB server confirmed running on port 8000');
             this.isRunning = true;
             this.isStarting = false;
