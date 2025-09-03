@@ -34,29 +34,42 @@ export abstract class BaseAgent {
         await mongoService.bulkStoreSocialEvents(platform, socialEvents as any[]);
         console.log(`Stored ${events.length} events from ${platform} to MongoDB`);
 
-        // Generate embeddings for ChromaDB after storing events
+        // Generate embeddings for ChromaDB after storing events (async, non-blocking)
         console.log(`🔮 Generating embeddings for ${events.length} events...`);
-        for (const event of socialEvents) {
-          try {
-            const textContent = event.event_content || event.clean_event_text || '';
-            if (textContent.trim()) {
-              await llmService.storeEventEmbedding(
-                event.id || `${platform}_${Date.now()}`,
-                textContent,
-                {
-                  platform: event.platform,
-                  timestamp: event.timestamp_utc || event.created_at,
-                  sentiment: event.sentiment_analysis?.overall_sentiment || 0,
-                  airline: event.airline_mentioned,
-                  location: event.location_focus
-                }
-              );
+        
+        // Run embedding generation in background to avoid blocking data collection
+        setImmediate(async () => {
+          let successCount = 0;
+          for (const event of socialEvents) {
+            try {
+              const textContent = event.event_content || event.clean_event_text || '';
+              if (textContent.trim()) {
+                // Set timeout for embedding generation too
+                const embeddingPromise = llmService.storeEventEmbedding(
+                  event.id || `${platform}_${Date.now()}`,
+                  textContent,
+                  {
+                    platform: event.platform,
+                    timestamp: event.timestamp_utc || event.created_at,
+                    sentiment: event.sentiment_analysis?.overall_sentiment || 0,
+                    airline: event.airline_mentioned,
+                    location: event.location_focus
+                  }
+                );
+                
+                const timeoutPromise = new Promise((_, reject) => 
+                  setTimeout(() => reject(new Error('Embedding timeout')), 20000)
+                );
+                
+                await Promise.race([embeddingPromise, timeoutPromise]);
+                successCount++;
+              }
+            } catch (embeddingError) {
+              console.warn(`⚠️ Embedding generation timeout for event ${event.id || 'unknown'}`);
             }
-          } catch (embeddingError) {
-            console.error(`Failed to generate embedding for event ${event.id}:`, embeddingError);
           }
-        }
-        console.log(`✅ Completed embedding generation for ${platform} events`);
+          console.log(`✅ Completed embedding generation: ${successCount}/${socialEvents.length} events`);
+        });
       }
     } catch (error) {
       console.error(`Error storing ${platform} events:`, error);
@@ -76,9 +89,16 @@ export abstract class BaseAgent {
   protected async analyzeSentiment(text: string): Promise<any> {
     try {
       console.log(`🧠 [${this.constructor.name}] Analyzing sentiment using ${llmService.getModelName()} for: "${text.substring(0, 100)}..."`);
-      return await llmService.analyzeSentiment(text);
+      
+      // Set a shorter timeout for individual sentiment analysis calls
+      const sentimentPromise = llmService.analyzeSentiment(text);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Sentiment analysis timeout')), 30000) // 30 second timeout
+      );
+      
+      return await Promise.race([sentimentPromise, timeoutPromise]);
     } catch (error) {
-      console.error('Sentiment analysis error:', error);
+      console.warn(`⚠️ Sentiment analysis timeout/error for ${this.constructor.name}, using fallback values`);
       return {
         overall_sentiment: 0,
         sentiment_score: 0.5,

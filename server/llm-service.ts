@@ -8,9 +8,9 @@ export class OllamaLLMService {
   private ollamaBaseUrl: string;
   private chromaClient: ChromaClient | null = null;
   private socialEventsCollection: Collection | null = null;
-  // Use deepseek-r1:8b as the primary model for all tasks
-  private modelName = "deepseek-r1:8b";
-  //private modelName = "gemma:7b";
+  // Use gemma:7b for faster processing and better timeout tolerance
+  private modelName = "gemma:7b";
+  //private modelName = "deepseek-r1:8b";  // Too slow for real-time processing
   //private modelName = "tinyllama:latest";
 
   // Getter method for model name
@@ -365,7 +365,7 @@ This data comes from real social media posts about Bangalore airport and airline
         method: 'POST',
         headers,
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(120000), // 2 minute timeout
+        signal: AbortSignal.timeout(300000), // 5 minute timeout for large models
       });
 
       if (!response.ok) {
