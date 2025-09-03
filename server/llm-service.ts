@@ -13,10 +13,16 @@ export class OllamaLLMService {
   //private modelName = "gemma:7b";
   //private modelName = "tinyllama:latest";
 
+  // Getter method for model name
+  getModelName(): string {
+    return this.modelName;
+  }
+
   constructor() {
     // Get Ollama base URL from environment (no token needed)
     this.ollamaToken = ""; // Not needed for local Ollama
     this.ollamaBaseUrl = process.env.OLLAMA_API_BASE_URL || "http://localhost:11434";
+    console.log(`🔗 [LLM] Using Ollama at: ${this.ollamaBaseUrl}`);
 
     // Initialize ChromaDB for vector storage
     try {
@@ -36,6 +42,9 @@ export class OllamaLLMService {
     if (!this.chromaClient) return;
     
     try {
+      // Add a small delay to ensure ChromaDB is fully ready
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
       this.socialEventsCollection =
         await this.chromaClient.getOrCreateCollection({
           name: "bangalore_airport_social_events",
@@ -44,8 +53,10 @@ export class OllamaLLMService {
               "Social media events related to Bangalore airport and airlines",
           },
         });
+      console.log("✅ ChromaDB collection 'bangalore_airport_social_events' initialized");
     } catch (error) {
       console.error("Failed to initialize ChromaDB collection:", error);
+      this.socialEventsCollection = null;
     }
   }
 
@@ -292,14 +303,24 @@ This data comes from real social media posts about Bangalore airport and airline
   private async generateEmbedding(text: string): Promise<number[] | null> {
     try {
       const response = await this.callOllamaAPI("/api/embeddings", {
-        model: this.modelName,
+        model: this.modelName,  // Use same model for embeddings
         prompt: text
       });
 
       return response?.embedding || null;
     } catch (error) {
       console.error("Ollama embedding generation error:", error);
-      return null;
+      // If main model doesn't support embeddings, try a smaller embedding model
+      try {
+        const fallbackResponse = await this.callOllamaAPI("/api/embeddings", {
+          model: "gemma:7b",  // Fallback to available model
+          prompt: text
+        });
+        return fallbackResponse?.embedding || null;
+      } catch (fallbackError) {
+        console.error("Fallback embedding generation failed:", fallbackError);
+        return null;
+      }
     }
   }
 
@@ -335,7 +356,10 @@ This data comes from real social media posts about Bangalore airport and airline
         'Content-Type': 'application/json',
       };
 
-      // No authorization needed for local Ollama
+      // Add ngrok required headers if using ngrok
+      if (this.ollamaBaseUrl.includes('ngrok')) {
+        headers['ngrok-skip-browser-warning'] = 'true';
+      }
 
       const response = await fetch(url, {
         method: 'POST',

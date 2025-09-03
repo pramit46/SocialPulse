@@ -33,6 +33,30 @@ export abstract class BaseAgent {
 
         await mongoService.bulkStoreSocialEvents(platform, socialEvents as any[]);
         console.log(`Stored ${events.length} events from ${platform} to MongoDB`);
+
+        // Generate embeddings for ChromaDB after storing events
+        console.log(`🔮 Generating embeddings for ${events.length} events...`);
+        for (const event of socialEvents) {
+          try {
+            const textContent = event.event_content || event.clean_event_text || '';
+            if (textContent.trim()) {
+              await llmService.storeEventEmbedding(
+                event.id || `${platform}_${Date.now()}`,
+                textContent,
+                {
+                  platform: event.platform,
+                  timestamp: event.timestamp_utc || event.created_at,
+                  sentiment: event.sentiment_analysis?.overall_sentiment || 0,
+                  airline: event.airline_mentioned,
+                  location: event.location_focus
+                }
+              );
+            }
+          } catch (embeddingError) {
+            console.error(`Failed to generate embedding for event ${event.id}:`, embeddingError);
+          }
+        }
+        console.log(`✅ Completed embedding generation for ${platform} events`);
       }
     } catch (error) {
       console.error(`Error storing ${platform} events:`, error);
@@ -51,7 +75,7 @@ export abstract class BaseAgent {
 
   protected async analyzeSentiment(text: string): Promise<any> {
     try {
-      console.log(`🧠 [${this.constructor.name}] Analyzing sentiment using tinyllama:latest for: "${text.substring(0, 100)}..."`);
+      console.log(`🧠 [${this.constructor.name}] Analyzing sentiment using ${llmService.getModelName()} for: "${text.substring(0, 100)}..."`);
       return await llmService.analyzeSentiment(text);
     } catch (error) {
       console.error('Sentiment analysis error:', error);
