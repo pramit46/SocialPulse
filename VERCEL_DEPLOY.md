@@ -6,6 +6,7 @@
 - **Bundle size optimization** - Moved heavy dependencies to optionalDependencies
 - **Serverless compatibility** - Created lightweight API handler for Vercel
 - **Static file serving** - Properly configured for production deployment
+- **Build dependencies** - Moved Vite and build tools to regular dependencies for Vercel
 
 ## Environment Variables Required
 
@@ -23,7 +24,7 @@ NODE_ENV=production
 ## Deployment Steps
 
 1. **Commit and push these changes** to your GitHub repository
-2. **Set the environment variables** in Vercel dashboard
+2. **Set the environment variables** in Vercel dashboard  
 3. **Deploy!** - Vercel will automatically use the optimized configuration
 
 ## Build Configuration
@@ -37,6 +38,7 @@ The `vercel.json` file is configured to:
 
 ## Optimizations Made
 
+- **Fixed build dependencies** - Moved Vite, esbuild, and PostCSS to dependencies
 - **Excluded ChromaDB** from serverless deployment (too heavy for Vercel)
 - **Moved optional dependencies** to reduce function size
 - **Simplified API routes** for core functionality only
@@ -65,3 +67,13 @@ The `vercel.json` file is configured to:
 ❌ **AI Insight Generation** - OpenAI integration  
 ❌ **Real-time Data Collection** - Background agents  
 ❌ **WebSocket Support** - Real-time features
+
+## Build Dependencies in Production
+
+The following build tools are now in regular dependencies for Vercel compatibility:
+- `vite` - Frontend build tool
+- `esbuild` - Server bundling
+- `@vitejs/plugin-react` - React support
+- `autoprefixer` - CSS processing
+- `postcss` - CSS processing
+- `tailwindcss` - Styling framework
