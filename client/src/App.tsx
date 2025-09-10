@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import TalkToUs from "@/pages/talk-to-us";
@@ -18,7 +19,6 @@ function Router() {
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/pulse" component={Dashboard} />
-        <Route path="/pulse" component={Dashboard} />
         <Route path="/talk-to-us" component={TalkToUs} />
         <Route path="/data-management" component={DataManagement} />
         <Route path="/ava" component={AeroBot} />
@@ -31,16 +31,18 @@ function Router() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <div className="dark">
-            <Toaster />
-            <Router />
-          </div>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <div className="dark">
+              <Toaster />
+              <Router />
+            </div>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 
