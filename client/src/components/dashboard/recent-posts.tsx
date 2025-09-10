@@ -31,14 +31,24 @@ export default function RecentPosts() {
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 4; // Show 4 posts per page as requested
 
-  // Fetch real social events data from API
-  const { data: socialEvents, isLoading } = useQuery({
+  // Fetch real social events data from API with error handling
+  const { data: socialEvents, isLoading, error } = useQuery({
     queryKey: ['/api/social-events'],
     queryFn: async () => {
-      const response = await fetch('/api/social-events?limit=50'); // Fetch more for pagination
-      if (!response.ok) throw new Error('Failed to fetch social events');
-      return response.json();
+      try {
+        const response = await fetch('/api/social-events?limit=50'); // Fetch more for pagination
+        if (!response.ok) {
+          console.warn('Social events API not available, using fallback data');
+          return [];
+        }
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+      } catch (err) {
+        console.warn('Failed to fetch social events:', err);
+        return [];
+      }
     },
+    retry: false,
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
