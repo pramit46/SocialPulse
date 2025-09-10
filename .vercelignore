@@ -12,4 +12,10 @@ replit.md
 logs
 script
 server/test
+server/services
+shared/chroma-db
 *.log
+*.sqlite3
+chromadb
+*.test.js
+*.test.ts

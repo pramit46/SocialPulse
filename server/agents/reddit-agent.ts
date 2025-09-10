@@ -71,7 +71,7 @@ export class RedditAgent extends BaseAgent {
             allPosts.push(...posts);
             console.log(`   Found ${posts.length} posts for "${searchTerm}"`);
           }
-        } catch (searchError) {
+        } catch (searchError: any) {
           console.warn(`⚠️ Search failed for "${searchTerm}":`, searchError.message);
         }
       }
@@ -93,7 +93,7 @@ export class RedditAgent extends BaseAgent {
         try {
           sentimentResult = await this.analyzeSentiment(eventText);
           console.log(`✅ Sentiment analyzed for post ${totalProcessed}`);
-        } catch (sentError) {
+        } catch (sentError: any) {
           console.warn(`⚠️ Sentiment analysis failed for post ${totalProcessed}:`, sentError.message);
           sentimentResult = {
             overall_sentiment: 0,

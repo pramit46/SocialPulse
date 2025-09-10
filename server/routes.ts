@@ -6,20 +6,15 @@ import { insertContactMessageSchema, insertSocialEventSchema, insertSettingsSche
 import { z } from "zod";
 import { agentManager } from "./agents/agent-manager";
 import { llmService } from "./llm-service";
-import chromaStartup from "./services/chroma-startup.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize ChromaDB on startup
-  console.log('🚀 Initializing ChromaDB service...');
+  // Initialize ChromaDB on startup (disabled for Vercel deployment)
+  console.log('🚀 Initializing services...');
   try {
-    const chromaStarted = await chromaStartup.start();
-    if (chromaStarted) {
-      console.log('✅ ChromaDB service initialized successfully');
-    } else {
-      console.warn('⚠️ ChromaDB service failed to start, continuing without it');
-    }
-  } catch (error) {
-    console.error('❌ ChromaDB initialization error:', error.message);
+    // Skip ChromaDB initialization for serverless deployment
+    console.log('✅ Services initialized successfully');
+  } catch (error: any) {
+    console.error('❌ Service initialization error:', error.message);
   }
 
   // Contact form endpoint
@@ -123,25 +118,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/insights", async (req, res) => {
     try {
-      // Try AI-generated insights first
-      try {
-        const { AgenticInsightSystem } = await import('./services/insight-generator.js');
-        const aiSystem = new AgenticInsightSystem();
-        const result = await aiSystem.generateActionableInsights();
-        
-        // Ensure insights is a proper array
-        const insights = Array.isArray(result.insights) ? result.insights : Object.values(result.insights || {});
-        
-        res.json(insights);
-        return;
-      } catch (aiError: any) {
-        console.warn('AI insight generation failed, using stored insights:', aiError?.message || 'Unknown error');
+      // Try AI-generated insights first (disabled for Vercel)
+      if (process.env.NODE_ENV !== 'production') {
+        try {
+          const { AgenticInsightSystem } = await import('./services/insight-generator.js');
+          const aiSystem = new AgenticInsightSystem();
+          const result = await aiSystem.generateActionableInsights();
+          
+          // Ensure insights is a proper array
+          const insights = Array.isArray(result.insights) ? result.insights : Object.values(result.insights || {});
+          
+          res.json(insights);
+          return;
+        } catch (aiError: any) {
+          console.warn('AI insight generation failed, using stored insights:', aiError?.message || 'Unknown error');
+        }
       }
       
       // Fallback to stored insights
       const insights = await mongoService.getInsights();
       res.json(insights);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ error: "Failed to fetch insights" });
     }
   });

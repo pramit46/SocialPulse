@@ -91,7 +91,11 @@ export class MemStorage implements IStorage {
       author_id: insertEvent.author_id || null,
       author_name: insertEvent.author_name || null,
       clean_event_text: insertEvent.clean_event_text || null,
-      engagement_metrics: insertEvent.engagement_metrics || null,
+      engagement_metrics: insertEvent.engagement_metrics || {
+        comments: null,
+        likes: null,
+        shares: null
+      },
       event_content: insertEvent.event_content || null,
       event_id: insertEvent.event_id || null,
       event_title: insertEvent.event_title || null,
@@ -99,12 +103,24 @@ export class MemStorage implements IStorage {
       parent_event_id: insertEvent.parent_event_id || null,
       platform: insertEvent.platform || null,
       timestamp_utc: insertEvent.timestamp_utc || null,
-      sentiment_analysis: insertEvent.sentiment_analysis || null,
+      sentiment_analysis: insertEvent.sentiment_analysis || {
+        overall_sentiment: 0,
+        sentiment_score: 0,
+        categories: {
+          ease_of_booking: null,
+          check_in: null,
+          luggage_handling: null,
+          security: null,
+          lounge: null,
+          amenities: null,
+          communication: null
+        }
+      },
       location_focus: insertEvent.location_focus || null,
       airline_mentioned: insertEvent.airline_mentioned || null,
       id,
       created_at: new Date()
-    };
+    } as SocialEvent;
     
     // Store in memory
     this.socialEvents.set(id, event);
@@ -285,6 +301,7 @@ export class MemStorage implements IStorage {
     const user: User = { 
       ...insertUser, 
       id,
+      role: insertUser.role || "user",
       created_at: new Date(),
       updated_at: new Date()
     };
