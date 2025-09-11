@@ -1,90 +1,58 @@
-# Social Media Analytics Dashboard
+# Social Media Analytics Dashboard — Project Status (sync with codebase)
 
-## Overview
+## Overview (current)
+This repository contains a full‑stack social media analytics application for monitoring Bangalore airport and major Indian airlines. The stack is a React (TypeScript) frontend + Express (TypeScript) backend running inside a dev container (Ubuntu 24.04.2 LTS).
 
-This is a full-stack social media analytics application built specifically for monitoring Bangalore airport and airline services across multiple platforms. The system combines React-based frontend with an Express backend, featuring real-time data collection, AI-powered sentiment analysis, and comprehensive dashboard analytics. The application focuses on tracking social media mentions for major Indian airlines (IndiGo, SpiceJet, Air India, Vistara) and provides insights into passenger experiences at Bangalore airport.
+Important: the file contents below reflect the current code — the project no longer uses separate Hugging Face models for sentiment/chat/embeddings. It uses a local LLM integration (Ollama) via a single server-side LLM service.
 
-## User Preferences
+## Quick summary (keep this as the ground-truth)
+- Frontend: React 18 + TypeScript, Vite for dev and build.
+- Backend: Node.js + Express (TypeScript), REST API endpoints for social events, analytics, settings, data collection, and LLM query routing.
+- LLM Integration: Local Ollama service (OllamaLLMService). Code uses one LLM service class and a single configured model (example: `deepseek-r1:8b`) for intent parsing, chat responses and embeddings — not separate cloud models per task.
+- Vector DB: ChromaDB in persistent mode (expected at `./shared/chroma_db`); code falls back to in-memory storage when the client cannot connect.
+- Data collection: Twitter API v2, Reddit API, RSS news feeds. Posts are cleaned, tagged for airport/airline mentions and optionally stored in MongoDB. Embeddings inserted into ChromaDB for semantic search.
+- Storage: In-memory Maps for rapid prototyping; Drizzle ORM configured for PostgreSQL (schema + migrations available).
+- Logging: Winston-based server logging writing to `logs/` (e.g., `logs/error.log`, `logs/combined.log`).
+- Config: Local config files under `config/` (secrets stored as base64-encoded values). Note: `config/*` is in `.gitignore`.
+- Dev environment: runs in container; use the repo's npm scripts (install, build, start).
 
-Preferred communication style: Simple, everyday language.
+## Recent / Relevant changes (as in code)
+- LLM routing changed to a single local service (OllamaLLMService) — the code expects an Ollama host/token and a single model name used across functions (intent, chat, sentiment, embeddings).
+- Previously referenced Hugging Face model names in docs/examples were not matching current code; documentation files updated to reflect the local Ollama approach.
+- ChromaDB usage: persistent local ChromaDB is expected (path `./shared/chroma_db`), but the code will silently fall back to in-memory if it cannot connect.
+- Logging has been added across server modules; logs are written under `logs/`.
+- Config secrets are base64-encoded and decoded at runtime by services (see `config/` files). These files are intentionally ignored from git.
 
-## Recent Changes (August 2025)
+## Developer notes / troubleshooting
+- If you see "ChromaDB not available, using in-memory storage for embeddings":
+  - Verify the ChromaDB process is running and the configured path/endpoint matches the code (check `server/llm-service.ts` and `server/routes.ts` initialization).
+  - Ensure `./shared/chroma_db` exists and is writable in the container.
+- LLM usage:
+  - The server uses `OllamaLLMService` (check `server/llm-service.ts`). Confirm Ollama daemon is running (default: `http://localhost:11434`) and that the configured token/URL are correct.
+  - The code currently expects a single model configured in the service (e.g. `deepseek-r1:8b`). If you plan to switch to external providers, update the LLM service and config accordingly.
+- Running an integration test (Reddit, Twitter):
+  - Provide API credentials via the service `setCredentials` or the base64 config files in `config/`.
+  - For local TypeScript scripts, run via `npx ts-node` after installing `ts-node` and `typescript` dev deps.
 
-### Enhanced Features Implemented:
-- **RAG System Complete**: Built proper Retrieval-Augmented Generation using scraped social media data from ChromaDB and in-memory storage
-- **MongoDB Integration**: Full database service with source-specific collections (twitter, reddit, facebook, cnn, wion, etc.) and automatic data storage
-- **Data Export System**: Download functionality for MongoDB collections in both JSON and CSV formats via Data Management page
-- **Chat UI Improvements**: Fixed chat bubble expansion, added auto-focus input field, improved word wrapping for long messages
-- **Anti-Hallucination Protection**: AVA chatbot searches actual social media posts before responding, clearly states when no relevant data exists
-- **User Management System**: Full RBAC (Role-Based Access Control) with super admin (Pramit), admin, editor, and viewer roles
-- **Automatic Data Collection**: Collection starts immediately when API credentials are provided, with automatic MongoDB storage
-- **Hugging Face Integration**: Complete migration from OpenAI to Hugging Face API for sentiment analysis and chat responses
+## How to run locally (dev container, Ubuntu 24.04.2 LTS)
+```bash
+cd /workspaces/SocialPulse
+npm install
+# build front + backend (project scripts may vary)
+npm run build
+npm start
+# open in host browser:
+$BROWSER http://localhost:5000
+```
 
-## System Architecture
+## Where to look in the codebase
+- Server LLM service: `server/llm-service.ts` (OllamaLLMService)
+- ChromaDB init + routes: `server/routes.ts`
+- Data collection: `server/data-collection.ts`
+- Logging: `server/logger.ts` (Winston config) and `logs/` directory
+- Configs: `config/` (base64-encoded secrets; ignored by git)
+- Frontend Aerobot chat UI: `client/src/pages/aerobot.tsx` (sample queries + mock responses preserved)
 
-### Frontend Architecture
-- **Framework**: React 18 with TypeScript for type safety and modern development practices
-- **Routing**: Wouter for lightweight client-side routing without unnecessary bloat
-- **State Management**: TanStack Query (React Query) for efficient server state management, caching, and data synchronization
-- **UI Components**: Radix UI primitives with shadcn/ui components providing accessible, customizable design system
-- **Styling**: Tailwind CSS with custom dark theme implementation and responsive design patterns
-- **Data Visualization**: Recharts library for interactive charts including line charts, pie charts with proper legends and responsive containers
-- **Build Tool**: Vite for fast development server and optimized production builds
+---
 
-### Backend Architecture
-- **Runtime**: Node.js with Express.js framework using TypeScript and ES modules
-- **API Design**: RESTful endpoints serving social events, contact messages, settings, analytics data, data collection services, user management, and LLM query processing
-- **Data Validation**: Zod schemas ensuring type-safe request validation and runtime type checking
-- **Development Environment**: Hot module replacement integration with Vite for seamless full-stack development
-- **User Management**: RBAC system with secure user creation, deletion, and role management
-- **LLM Integration**: Intelligent query processing endpoint routing unknown requests to Hugging Face models
-
-### AI and Machine Learning Integration
-- **Sentiment Analysis**: Hugging Face API integration using `nlptown/bert-base-multilingual-uncased-sentiment` model for multilingual sentiment scoring
-- **Chatbot Service**: Meta Llama 2 7B Chat model (`meta-llama/Llama-2-7b-chat-hf`) for conversational AI functionality
-- **Text Embeddings**: Qwen3 Embedding model (`Qwen/Qwen3-Embedding-0.6B`) for semantic text representation
-- **Vector Storage**: ChromaDB integration for storing and querying text embeddings, enabling semantic search and event similarity analysis
-- **Airport-Specific Analysis**: Custom sentiment categorization for specific airport services including check-in, security, luggage handling, and lounge experiences
-
-### Data Collection Services
-- **Multi-Platform Integration**: Automated data collection from Twitter, Reddit, Facebook, YouTube, Instagram, Vimeo, TikTok, and Tumblr
-- **News Aggregation**: RSS feed integration for Indian news sources (CNN, AajTak, WION, Zee News, NDTV)
-- **Credential Management**: Secure API key storage using base64 encoding with local configuration files
-- **Real-time Processing**: Continuous data collection with immediate sentiment analysis and airline/location tagging
-- **Focus Filtering**: Bangalore airport and major Indian airline-specific content filtering and categorization
-
-### Data Storage Solutions
-- **Current Implementation**: In-memory Map-based storage for rapid development and prototyping
-- **Database Architecture**: Drizzle ORM configured for PostgreSQL with comprehensive schema definitions
-- **Schema Design**: Enhanced database tables supporting sentiment analysis results, airline mentions, location focus, and engagement metrics
-- **Migration Support**: Drizzle Kit integration for database schema management and version control
-- **Vector Database**: ChromaDB for high-dimensional text embeddings and semantic search capabilities
-
-## External Dependencies
-
-### AI and Machine Learning Services
-- **Hugging Face API**: Primary AI service for sentiment analysis, chatbot functionality, and text embeddings
-- **ChromaDB**: Vector database for semantic search and text similarity operations
-
-### Social Media APIs
-- **Twitter API v2**: Tweet collection and engagement metrics
-- **Reddit API**: Post and comment data from aviation-related subreddits
-- **RSS Feeds**: News article collection from major Indian news outlets
-
-### Database and Storage
-- **PostgreSQL**: Primary database (configured via Drizzle ORM)
-- **Neon Database**: Serverless PostgreSQL provider integration
-
-### Development and Build Tools
-- **Vite**: Build tool and development server
-- **Replit Integration**: Development environment with cartographer plugin and error overlay
-- **TypeScript**: Type system for both frontend and backend code
-
-### UI and Visualization Libraries
-- **Radix UI**: Accessible component primitives
-- **Recharts**: Chart and data visualization library
-- **Tailwind CSS**: Utility-first CSS framework
-- **Lucide React**: Icon library for consistent iconography
-
-### Authentication and Session Management
-- **connect-pg-simple**: PostgreSQL session store for Express sessions (configured but not actively used in current implementation)
+This file is intended to be the up‑to‑date project snapshot for Replit / quick onboarding. Update again if you change LLM provider, ChromaDB path, or config storage
