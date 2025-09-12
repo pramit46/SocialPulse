@@ -11,7 +11,7 @@ import { dataSources, DataSourceCredentials } from "@shared/schema";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest } from "../lib/queryClient";
 
 // Mock collection status for demonstration
 const collectionStatus = {
