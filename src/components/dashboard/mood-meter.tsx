@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Progress } from "../ui/progress";
+import { Badge } from "../ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { Heart, Zap, CloudLightning, Sun, Cloud } from "lucide-react";
 import { useMemo } from "react";
