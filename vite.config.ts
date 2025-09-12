@@ -8,12 +8,31 @@ export default defineConfig({
     outDir: "dist",
     sourcemap: false,
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
   },
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "src"),
-      "@shared": path.resolve(__dirname, "shared"),
-    },
+    alias: [
+      {
+        find: "@/",
+        replacement: path.resolve(__dirname, "src") + "/",
+      },
+      {
+        find: "@shared/",
+        replacement: path.resolve(__dirname, "shared") + "/",
+      },
+      {
+        find: "@",
+        replacement: path.resolve(__dirname, "src"),
+      },
+      {
+        find: "@shared",
+        replacement: path.resolve(__dirname, "shared"),
+      },
+    ],
   },
   server: {
     proxy: {
