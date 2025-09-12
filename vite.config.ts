@@ -7,6 +7,7 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: false,
+    emptyOutDir: true,
     rollupOptions: {
       input: path.resolve(__dirname, "index.html"),
     },
@@ -23,12 +24,6 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
-  },
-});
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
-    emptyOutDir: true,
-  },
-  server: {
     fs: {
       strict: true,
       deny: ["**/.*"],
