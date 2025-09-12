@@ -1,0 +1,38 @@
+# Ignore server-side code and development files
+server/
+shared/
+logs/
+script/
+demo-agentic-insights-junk/
+lib/
+src/
+
+# Ignore development files
+*.log
+*.env
+*.env.local
+*.env.development
+*.env.test
+*.env.production
+
+# Ignore build tools and configs (except vercel.json)
+tsconfig.json
+vite.config.ts
+tailwind.config.ts
+postcss.config.js
+drizzle.config.ts
+components.json
+
+# Ignore documentation and non-essential files
+README.md
+DEPLOYMENT_GUIDE.md
+SYSTEM_DESIGN.md
+replit.md
+*.backup
+
+# Ignore database files
+*.sqlite3
+mongodb-config.json
+
+# Node modules (should be ignored by default, but being explicit)
+node_modules/
