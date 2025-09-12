@@ -1,9 +1,10 @@
 # Ignore server-side code and development files
 server/
+shared/
 logs/
 script/
 demo-agentic-insights-junk/
-lib/
+client/
 
 # Ignore development files
 *.log
