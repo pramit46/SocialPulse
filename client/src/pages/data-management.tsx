@@ -13,6 +13,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
+interface AirportConfig {
+  airport: {
+    code: string;
+    city: string;
+  };
+}
+
 // Mock collection status for demonstration
 const collectionStatus = {
   isCollecting: false,
@@ -64,12 +71,17 @@ const connectionStatus = {
 };
 
 export default function DataManagement() {
+  // Load airport configuration
+  const { data: airportConfig } = useQuery<AirportConfig>({
+    queryKey: ['/api/airport-config'],
+    staleTime: 5 * 60 * 1000
+  });
   const [credentials, setCredentials] = useState<DataSourceCredentials>({});
   const [isConnectDialogOpen, setIsConnectDialogOpen] = useState(false);
   const [connectedSources, setConnectedSources] = useState<Set<string>>(new Set());
   const [isCollecting, setIsCollecting] = useState<Set<string>>(new Set());
   const [mongoConnectionString, setMongoConnectionString] = useState('');
-  const [mongoDatabaseName, setMongoDatabaseName] = useState('bangalore_airport_analytics');
+  const [mongoDatabaseName, setMongoDatabaseName] = useState(`${airportConfig?.airport.locationSlug || 'airport'}_analytics`);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -188,7 +200,7 @@ export default function DataManagement() {
       
       if (data && data.length > 0) {
         const csvData = convertToCSV(data);
-        downloadCSV(csvData, `bangalore-airport-data-${new Date().toISOString().split('T')[0]}.csv`);
+        downloadCSV(csvData, `${airportConfig?.airport.code.toLowerCase() || 'airport'}-data-${new Date().toISOString().split('T')[0]}.csv`);
         
         toast({
           title: "Export Complete",
@@ -214,7 +226,7 @@ export default function DataManagement() {
     <div className="p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">Data Management</h1>
-        <p className="text-gray-400">Bangalore Airport social media data collection and analytics storage</p>
+        <p className="text-gray-400">{airportConfig?.airport.city || 'Airport'} social media data collection and analytics storage</p>
       </div>
 
       {/* Data Overview Cards */}

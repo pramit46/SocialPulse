@@ -3,6 +3,18 @@ import { Cloud } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
 
+interface AirportConfig {
+  airport: {
+    code: string;
+    city: string;
+    alternateCity: string;
+  };
+  wordCloud: {
+    airportSpecificTerms: string[];
+    extraAllowedTerms: string[];
+  };
+}
+
 type SocialEvent = {
   id: string;
   event_content?: string;
@@ -23,29 +35,40 @@ const getSentimentColor = (sentiment: number) => {
 };
 
 export default function WordCloud() {
-  const [allowedWords, setAllowedWords] = useState<string[]>([]);
+  // Load airport configuration
+  const { data: airportConfig } = useQuery<AirportConfig>({
+    queryKey: ['/api/airport-config'],
+    staleTime: 5 * 60 * 1000
+  });
 
-  // Fetch allowed words from CSV
-  useEffect(() => {
-    const fetchAllowedWords = async () => {
-      try {
-        const response = await fetch('/lib/assets/word-cloud-allowed-list.csv');
-        if (response.ok) {
-          const csvText = await response.text();
-          const words = csvText.split('\n')
-            .map(word => word.trim().toLowerCase())
-            .filter(word => word.length > 0);
-          setAllowedWords(words);
-          console.log("Allowed words loaded:", words);
-        }
-      } catch (error) {
-        console.error('Failed to fetch allowed words:', error);
-        // Fallback to basic airport-related words
-        setAllowedWords(['airport','security','security-check','frisk','frisking','kia','kempegowda','check-in','checkin','lounge','lounges','baggage','handling','baggage-handling','luggage-handling','stores','amenities','duty-free','cab','bus','vajra','Vayu','Vayu-Vajra','World-class','worst','terrible','terrific','bad','good','nice','awesome','pleasant','great','best','worse','better','good-to-have','weather','city','far','close','near','road','communication','transport','highway','decoration','decor','terminal','terminals','T1','T2','airlines','Vistara','AirIndia','Air-India','Air-India Express','Express','Indigo','Spicejet','International','Domestic','Gate','Gates','first','last','late','delayed','delay','early','very','night','day','Business','Economy','flight','luggage','experience','service','staff','queue','waiting','time','food','wifi','clean','dirty','fast','slow','excellent','satisfied','disappointed','recommend','avoid','comfortable','uncomfortable','efficient','inefficient','helpful','rude']);
-      }
-    };
-    fetchAllowedWords();
-  }, []);
+  // Get allowed words from airport configuration
+  const allowedWords = useMemo(() => {
+    if (!airportConfig) return ['airport', 'security', 'check-in', 'lounge', 'baggage', 'airlines', 'flight', 'terminal'];
+    
+    const baseWords = [
+      'airport', 'security', 'security-check', 'check-in', 'checkin', 'lounge', 'lounges',
+      'baggage', 'handling', 'baggage-handling', 'luggage-handling', 'stores', 'amenities', 
+      'duty-free', 'terminals', 'airlines', 'international', 'domestic', 'gate', 'gates',
+      'flight', 'luggage', 'experience', 'service', 'staff', 'queue', 'waiting', 'time',
+      'food', 'wifi', 'clean', 'dirty', 'fast', 'slow', 'excellent', 'satisfied', 
+      'disappointed', 'recommend', 'avoid', 'comfortable', 'uncomfortable', 'efficient',
+      'inefficient', 'helpful', 'rude', 'delayed', 'delay', 'early', 'business', 'economy'
+    ];
+    
+    const configWords = [
+      ...airportConfig.wordCloud.airportSpecificTerms,
+      ...airportConfig.wordCloud.extraAllowedTerms
+    ].map(word => {
+      // Interpolate template placeholders with actual airport values
+      return word
+        .replace(/\$\{city\}/g, airportConfig.airport.city.toLowerCase())
+        .replace(/\$\{code\}/g, airportConfig.airport.code.toLowerCase())
+        .replace(/\$\{alternateCity\}/g, airportConfig.airport.alternateCity.toLowerCase());
+    });
+    
+    const allWords = [...baseWords, ...configWords].map(word => word.toLowerCase());
+    return allWords;
+  }, [airportConfig]);
 
   // Fetch real social events data
   const { data: socialEvents, isLoading } = useQuery<SocialEvent[]>({

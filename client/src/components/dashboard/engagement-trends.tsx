@@ -5,6 +5,14 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { TrendingUp, Newspaper } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
+interface AirportConfig {
+  airport: {
+    code: string;
+    city: string;
+    locationSlug: string;
+  };
+}
+
 type SocialEvent = {
   id: string;
   platform?: string;
@@ -22,6 +30,12 @@ type SocialEvent = {
 
 export default function EngagementTrends() {
   const [activeTab, setActiveTab] = useState("social");
+  
+  // Load airport configuration
+  const { data: airportConfig } = useQuery<AirportConfig>({
+    queryKey: ['/api/airport-config'],
+    staleTime: 5 * 60 * 1000
+  });
   
   // Fetch real social events data
   const { data: socialEvents, isLoading } = useQuery<SocialEvent[]>({
@@ -78,7 +92,7 @@ export default function EngagementTrends() {
     // News trends (simplified for now)
     const newsTrends = timeSlots.map(time => ({
       time,
-      bangalore_airport: Math.floor(Math.random() * 30) + 10,
+      [`${airportConfig?.airport.locationSlug || 'airport'}`]: Math.floor(Math.random() * 30) + 10,
       indigo: Math.floor(Math.random() * 20) + 5,
       air_india: Math.floor(Math.random() * 15) + 3,
       spicejet: Math.floor(Math.random() * 10) + 2,
@@ -266,10 +280,10 @@ export default function EngagementTrends() {
                   <Legend />
                   <Line 
                     type="monotone" 
-                    dataKey="bangalore_airport" 
+                    dataKey={`${airportConfig?.airport.locationSlug || 'airport'}`} 
                     stroke="#3B82F6" 
                     strokeWidth={3}
-                    name="Bangalore Airport"
+                    name={`${airportConfig?.airport.city || 'Airport'}`}
                     dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
                   />
                   <Line 
@@ -310,9 +324,9 @@ export default function EngagementTrends() {
             <div className="mt-4 grid grid-cols-5 gap-4 text-center">
               <div className="bg-dark-primary p-3 rounded-lg">
                 <p className="text-lg font-bold text-blue-400">
-                  {engagementData.newsTrends.reduce((sum, item) => sum + item.bangalore_airport, 0)}
+                  {engagementData.newsTrends.reduce((sum, item) => sum + item[`${airportConfig?.airport.locationSlug || 'airport'}`], 0)}
                 </p>
-                <p className="text-xs text-gray-400">BLR Airport</p>
+                <p className="text-xs text-gray-400">{airportConfig?.airport.code || 'Airport'}</p>
               </div>
               <div className="bg-dark-primary p-3 rounded-lg">
                 <p className="text-lg font-bold text-green-400">

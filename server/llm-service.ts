@@ -51,7 +51,7 @@ export class OllamaLLMService {
           name: AirportConfigHelper.getCollectionName(),
           metadata: {
             description:
-              "Social media events related to Bangalore airport and airlines",
+              `Social media events related to ${AirportConfigHelper.getConfig().airport.city} airport and airlines`,
           },
         });
       console.log(`✅ ChromaDB collection '${AirportConfigHelper.getCollectionName()}' initialized`);
@@ -63,7 +63,7 @@ export class OllamaLLMService {
 
   async analyzeSentiment(text: string): Promise<any> {
     try {
-      const prompt = `Analyze the sentiment of this text about Bangalore airport or airline services. Return only valid JSON with this structure:
+      const prompt = `Analyze the sentiment of this text about ${AirportConfigHelper.getConfig().airport.city} airport or airline services. Return only valid JSON with this structure:
 {
   "overall_sentiment": <number between -1 and 1>,
   "sentiment_score": <confidence score between 0 and 1>,

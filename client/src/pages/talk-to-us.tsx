@@ -7,6 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+
+interface AirportConfig {
+  airport: {
+    code: string;
+    city: string;
+  };
+}
 
 export default function TalkToUs() {
   const [formData, setFormData] = useState({
@@ -16,6 +24,12 @@ export default function TalkToUs() {
     message: ""
   });
   const { toast } = useToast();
+  
+  // Load airport configuration
+  const { data: airportConfig } = useQuery<AirportConfig>({
+    queryKey: ['/api/airport-config'],
+    staleTime: 5 * 60 * 1000
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +50,7 @@ export default function TalkToUs() {
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Talk to Us</h1>
-          <p className="text-gray-400">We'd love to hear from you. About us, about the Bangalore Airport, about everything (Just kidding!!!). Send us a message and we'll respond as soon as possible.</p>
+          <p className="text-gray-400">We'd love to hear from you. About us, about the {airportConfig?.airport.city || 'airport'}, about everything (Just kidding!!!). Send us a message and we'll respond as soon as possible.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -117,7 +131,7 @@ export default function TalkToUs() {
                   </div>
                   <div>
                     <h3 className="font-medium text-white mb-1">Email</h3>
-                    <p className="text-gray-400">contact@blr.analytics</p>
+                    <p className="text-gray-400">contact@{airportConfig?.airport.code.toLowerCase() || 'airport'}.analytics</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-4">

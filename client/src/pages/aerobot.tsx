@@ -28,50 +28,63 @@ interface Message {
 }
 
 // DO NOT CHANGE the values of these constants:
-const sampleQueries = [
-  "What's the sentiment about IndiGo at Bangalore airport?",
-  "How is the luggage handling experience?",
-  "Which airline has the best lounge reviews?",
-  "What are common complaints about security processes?",
-  "Tell me about check-in experiences"
-];
-
-const mockResponses: Record<string, string> = {
-  "sentiment": "Based on recent social media analysis, IndiGo has a positive sentiment score of 72% at Bangalore airport. Passengers particularly appreciate the quick security processes and seamless lounge access.",
-  "luggage": "Luggage handling shows mixed sentiment. While Vistara and Air India maintain good ratings, SpiceJet has received significant negative feedback with a -45% sentiment score, primarily due to delayed and lost baggage incidents.",
-  "lounge": "Vistara leads in lounge satisfaction with 90% positive sentiment. Their lounge at Bangalore airport is praised for excellent food, comfortable seating, and reliable WiFi. Air India lounges receive moderate ratings.",
-  "security": "Security processes receive mixed feedback with 31% positive sentiment. While most passengers appreciate the efficiency, some report longer wait times during peak hours. Recent improvements in digital systems have helped.",
-  "checkin": "Check-in experiences vary by airline. Air India's new digital kiosks receive 80% positive feedback for speed and efficiency. IndiGo maintains consistent positive ratings, while SpiceJet faces challenges with staff communication.",
-  "delay": "Flight delays at Bangalore airport show varying patterns across airlines. IndiGo maintains the best on-time performance at 82%, followed by Vistara at 78%. Air India has improved to 71% on-time, while SpiceJet faces challenges with 65% punctuality. Weather and air traffic are the primary delay factors during monsoon season.",
-  "default": "I understand you're asking about Bangalore airport experiences. Based on our AI analysis of social media data, I can provide insights about sentiment, airline performance, and passenger feedback across various airport services."
+// Sample queries will be dynamically generated based on airport config
+const getConfigurableSampleQueries = (airportConfig?: AirportConfig) => {
+  if (!airportConfig) {
+    return [
+      "How is the luggage handling experience?",
+      "Which airline has the best lounge reviews?",
+      "What are common complaints about security processes?",
+      "Tell me about check-in experiences"
+    ];
+  }
+  return [
+    `What's the sentiment about ${airportConfig.airport.code} airport services?`,
+    "How is the luggage handling experience?",
+    "Which airline has the best lounge reviews?", 
+    "What are common complaints about security processes?",
+    "Tell me about check-in experiences"
+  ];
 };
 
-async function getResponse(query: string): Promise<string> {
+// Dynamic mock responses based on airport config
+const getConfigurableMockResponses = (airportConfig?: AirportConfig) => ({
+  "sentiment": `Based on recent social media analysis, airlines have varying sentiment scores at ${airportConfig?.airport.city || 'the airport'}. Passengers particularly appreciate the quick security processes and seamless lounge access.`,
+  "luggage": "Luggage handling shows mixed sentiment. While some airlines maintain good ratings, others have received negative feedback, primarily due to delayed and lost baggage incidents.",
+  "lounge": `Airline lounges at ${airportConfig?.airport.city || 'the airport'} receive varying satisfaction scores. Premium lounges are praised for excellent food, comfortable seating, and reliable WiFi.`,
+  "security": "Security processes receive mixed feedback. While most passengers appreciate the efficiency, some report longer wait times during peak hours. Recent improvements in digital systems have helped.",
+  "checkin": "Check-in experiences vary by airline. New digital kiosks receive positive feedback for speed and efficiency. Different airlines maintain varying performance levels.",
+  "delay": `Flight delays at ${airportConfig?.airport.city || 'the airport'} show varying patterns across airlines. Performance ranges from good to challenging punctuality rates. Weather and air traffic are primary delay factors.`,
+  "default": `I understand you're asking about ${airportConfig?.airport.city || 'airport'} experiences. Based on our AI analysis of social media data, I can provide insights about sentiment, airline performance, and passenger feedback across various airport services.`
+});
+
+async function getResponse(query: string, airportConfig?: AirportConfig): Promise<string> {
   const lowerQuery = query.toLowerCase();
+  const responses = getConfigurableMockResponses(airportConfig);
 
   // Check for predefined sample responses first
-  if (lowerQuery.includes("sentiment") || lowerQuery.includes("indigo")) {
-    return mockResponses.sentiment;
+  if (lowerQuery.includes("sentiment")) {
+    return responses.sentiment;
   } else if (lowerQuery.includes("luggage") || lowerQuery.includes("baggage")) {
-    return mockResponses.luggage;
+    return responses.luggage;
   } else if (lowerQuery.includes("lounge")) {
-    return mockResponses.lounge;
+    return responses.lounge;
   } else if (lowerQuery.includes("security")) {
-    return mockResponses.security;
+    return responses.security;
   } else if (lowerQuery.includes("check") || lowerQuery.includes("checkin")) {
-    return mockResponses.checkin;
+    return responses.checkin;
   } else if (lowerQuery.includes("delay")) {
-    return mockResponses.delay;
+    return responses.delay;
   } else {
     // Route unknown queries to LLM service
     try {
       const sessionId = 'user_' + Math.random().toString(36).substr(2, 9);
       const response = await apiRequest('POST', '/api/aerobot/chat', { message: query, sessionId });
       const data = await response.json();
-      return data.response || mockResponses.default;
+      return data.response || responses.default;
     } catch (error) {
       console.error('AeroBot API error:', error);
-      return mockResponses.default;
+      return responses.default;
     }
   }
 }
@@ -123,7 +136,7 @@ export default function AeroBot() {
     setIsTyping(true);
 
     // Check if it's a sample query first
-    const fallbackContent = await getResponse(currentQuery);
+    const fallbackContent = await getResponse(currentQuery, airportConfig);
     const lowerQuery = currentQuery.toLowerCase();
     const isSampleQuery = lowerQuery.includes("sentiment") || lowerQuery.includes("indigo") ||
                          lowerQuery.includes("luggage") || lowerQuery.includes("baggage") ||
@@ -207,7 +220,7 @@ export default function AeroBot() {
           <div className="mb-6">
             <p className="text-gray-400 mb-3">Try these sample questions:</p>
             <div className="flex flex-wrap gap-2">
-              {sampleQueries.map((query, index) => (
+              {getConfigurableSampleQueries(airportConfig).map((query, index) => (
                 <Button
                   key={index}
                   variant="outline"
@@ -286,7 +299,7 @@ export default function AeroBot() {
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder="Ask about Bangalore airport experiences..."
+                      placeholder={`Ask about ${airportConfig?.airport.city || 'airport'} experiences...`}
                       className="flex-1 bg-dark-accent border-dark-border text-white placeholder-gray-500"
                       disabled={isTyping}
                       autoFocus

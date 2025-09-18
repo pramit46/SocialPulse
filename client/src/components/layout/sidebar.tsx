@@ -8,6 +8,7 @@ import {
   User,
   Bot
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 const navigation = [
   {
@@ -37,8 +38,24 @@ const navigation = [
   },
 ];
 
+interface AirportConfig {
+  airport: {
+    code: string;
+    city: string;
+  };
+  ui: {
+    botDisplayNameTemplate: string;
+  };
+}
+
 export default function Sidebar() {
   const [location] = useLocation();
+  
+  // Load airport configuration
+  const { data: airportConfig } = useQuery<AirportConfig>({
+    queryKey: ['/api/airport-config'],
+    staleTime: 5 * 60 * 1000 // Cache for 5 minutes
+  });
 
   return (
     <aside className="w-64 bg-dark-secondary border-r border-dark-border flex flex-col">
@@ -47,7 +64,7 @@ export default function Sidebar() {
           <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-lg">@</span>
           </div>
-          <span className="text-xl font-bold text-white">BLR</span>
+          <span className="text-xl font-bold text-white">{airportConfig?.airport.code || '—'}</span>
         </div>
       </div>
       

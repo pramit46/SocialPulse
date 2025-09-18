@@ -4,6 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
+interface AirportConfig {
+  airport: {
+    code: string;
+    city: string;
+    synonyms: string[];
+    locationSlug: string;
+  };
+  airlines: {
+    primary: string[];
+  };
+}
+
 type SocialEvent = {
   id: string;
   platform?: string;
@@ -38,6 +50,12 @@ const formatSentimentValue = (value: number) => {
 export default function SentimentAnalysis() {
   const [isVisible, setIsVisible] = useState(true);
   
+  // Load airport configuration
+  const { data: airportConfig } = useQuery<AirportConfig>({
+    queryKey: ['/api/airport-config'],
+    staleTime: 5 * 60 * 1000
+  });
+  
   // Fetch real social events data
   const { data: socialEvents, isLoading } = useQuery<SocialEvent[]>({
     queryKey: ['/api/social-events'],
@@ -51,20 +69,20 @@ export default function SentimentAnalysis() {
 
   // Calculate real sentiment data from MongoDB
   const sentimentData = useMemo(() => {
-    if (!socialEvents || socialEvents.length === 0) {
+    if (!socialEvents || socialEvents.length === 0 || !airportConfig) {
       return {
-        bangalore_airport: { overall_sentiment: 0, categories: {} },
+        [airportConfig?.airport.locationSlug || 'airport']: { overall_sentiment: 0, categories: {} },
         airlines: {}
       };
     }
     
-    // Airport sentiment analysis
+    // Airport sentiment analysis using configurable synonyms
+    const airportSynonyms = airportConfig.airport.synonyms.map(s => s.toLowerCase());
     const airportEvents = socialEvents.filter(event => {
       const text = (event.clean_event_text || event.event_content || '').toLowerCase();
-      return text.includes('bangalore') || text.includes('bengaluru') || 
-             text.includes('kempegowda') || 
+      return airportSynonyms.some(synonym => text.includes(synonym)) ||
              (event.location_tags && event.location_tags.some(tag => 
-               tag.toLowerCase().includes('bangalore') || tag.toLowerCase().includes('bengaluru')));
+               airportSynonyms.some(synonym => tag.toLowerCase().includes(synonym))));
     });
     
     const airportSentiments = airportEvents
@@ -97,16 +115,16 @@ export default function SentimentAnalysis() {
         : 0;
     });
     
-    // Airline sentiment analysis
-    const airlines = ['indigo', 'spicejet', 'air_india', 'vistara'];
+    // Airline sentiment analysis using configurable airlines
+    const airlines = airportConfig.airlines.primary;
     const airlineData: Record<string, { sentiment: number; mentions: number }> = {};
     
     airlines.forEach(airline => {
       const airlineEvents = socialEvents.filter(event => {
         const text = (event.clean_event_text || event.event_content || '').toLowerCase();
-        return text.includes(airline.replace('_', ' ')) || 
+        return text.includes(airline.toLowerCase()) || 
                (event.airline_mentions && event.airline_mentions.some(mention => 
-                 mention.toLowerCase().includes(airline.replace('_', ' '))));
+                 mention.toLowerCase().includes(airline.toLowerCase())));
       });
       
       const sentiments = airlineEvents
@@ -122,13 +140,13 @@ export default function SentimentAnalysis() {
     });
     
     return {
-      bangalore_airport: {
+      [airportConfig.airport.locationSlug]: {
         overall_sentiment: avgAirportSentiment,
         categories
       },
       airlines: airlineData
     };
-  }, [socialEvents]);
+  }, [socialEvents, airportConfig]);
 
   if (!isVisible) {
     return (
@@ -150,7 +168,7 @@ export default function SentimentAnalysis() {
       <div className="flex justify-between items-center mb-4">
         <div>
           <h2 className="text-xl font-semibold text-white mb-1">Sentiment Analysis</h2>
-          <p className="text-gray-400 text-sm">AI-powered sentiment insights for Bangalore Airport</p>
+          <p className="text-gray-400 text-sm">AI-powered sentiment insights for {airportConfig?.airport.city || 'Airport'}</p>
         </div>
         {/* <Button 
           onClick={() => setIsVisible(false)}
@@ -167,40 +185,52 @@ export default function SentimentAnalysis() {
         {/* Overall Sentiment */}
         <Card className="bg-dark-secondary border-dark-border">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-white">Bangalore Airport Overall</CardTitle>
+            <CardTitle className="text-lg font-semibold text-white">{airportConfig?.airport.city || 'Airport'} Overall</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center mb-6">
-              <div className={`text-4xl font-bold mb-2 ${getSentimentColor(sentimentData.bangalore_airport.overall_sentiment)}`}>
-                {formatSentimentValue(sentimentData.bangalore_airport.overall_sentiment)}
-              </div>
-              <div className="text-gray-400">
-                {getSentimentLabel(sentimentData.bangalore_airport.overall_sentiment)}
-              </div>
+              {(() => {
+                const locationKey = airportConfig?.airport.locationSlug || 'airport';
+                const locationData = sentimentData[locationKey] as { overall_sentiment: number; categories: Record<string, number> } || { overall_sentiment: 0, categories: {} };
+                return (
+                  <>
+                    <div className={`text-4xl font-bold mb-2 ${getSentimentColor(locationData.overall_sentiment)}`}>
+                      {formatSentimentValue(locationData.overall_sentiment)}
+                    </div>
+                    <div className="text-gray-400">
+                      {getSentimentLabel(locationData.overall_sentiment)}
+                    </div>
+                  </>
+                );
+              })()}
             </div>
             
             <div className="space-y-3">
-              {Object.entries(sentimentData.bangalore_airport.categories).map(([category, value]) => (
-                <div key={category} className="flex justify-between items-center">
-                  <span className="text-gray-300 capitalize">
-                    {category.replace(/_/g, ' ')}
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <span className={`font-medium ${getSentimentColor(value)}`}>
-                      {formatSentimentValue(value)}
+              {(() => {
+                const locationKey = airportConfig?.airport.locationSlug || 'airport';
+                const locationData = sentimentData[locationKey] as { overall_sentiment: number; categories: Record<string, number> } || { overall_sentiment: 0, categories: {} };
+                return Object.entries(locationData.categories).map(([category, value]) => (
+                  <div key={category} className="flex justify-between items-center">
+                    <span className="text-gray-300 capitalize">
+                      {category.replace(/_/g, ' ')}
                     </span>
-                    <div className="w-16 h-2 bg-dark-accent rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full transition-all duration-300 ${
-                          value >= 0.5 ? 'bg-green-400' : 
-                          value >= 0 ? 'bg-yellow-400' : 'bg-red-400'
-                        }`}
-                        style={{ width: `${Math.abs(value) * 100}%` }}
-                      />
+                    <div className="flex items-center space-x-2">
+                      <span className={`font-medium ${getSentimentColor(value)}`}>
+                        {formatSentimentValue(value)}
+                      </span>
+                      <div className="w-16 h-2 bg-dark-accent rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full transition-all duration-300 ${
+                            value >= 0.5 ? 'bg-green-400' : 
+                            value >= 0 ? 'bg-yellow-400' : 'bg-red-400'
+                          }`}
+                          style={{ width: `${Math.abs(value) * 100}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ));
+              })()}
             </div>
           </CardContent>
         </Card>
