@@ -1,0 +1,64 @@
+{
+  "_meta": {
+    "description": "Editable airport profile configuration for AVA Analytics System",
+    "version": "1.0.0",
+    "instructions": "Change values below to configure the system for a different airport. Impact areas are documented in 'usage' fields."
+  },
+  "airport": {
+    "code": "CCU",
+    "city": "Kolkata", 
+    "alternateCity": "Calcutta",
+    "airportName": "Netaji Subhas Chandra Bose International Airport",
+    "synonyms": ["kolkata", "calcutta", "netaji", "ccu", "kolkata airport", "calcutta airport", "netaji airport"],
+    "locationSlug": "kolkata_airport",
+    "usage": ["Intent validation", "Agent location extraction", "UI normalization", "Database collection naming"]
+  },
+  "airlines": {
+    "primary": ["indigo", "spicejet", "air india", "vistara"],
+    "usage": ["Query generation", "Intent validation", "Data collection filters"]
+  },
+  "queryTerms": {
+    "general": ["airport", "flight", "airline", "terminal", "baggage", "luggage", "security", "check-in", "boarding", "lounge", "delay", "punctual", "gate"],
+    "services": ["store", "shop", "food", "restaurant", "wifi", "clean", "dirty"],
+    "experience": ["good", "bad", "excellent", "terrible", "satisfied", "disappointed", "recommend", "avoid"],
+    "usage": ["Intent analysis", "Agent query building", "Data relevance scoring"]
+  },
+  "ui": {
+    "botName": "AVA",
+    "botDisplayNameTemplate": "AVA @ ${code}",
+    "appTitleTemplate": "${city} Airport Analytics",
+    "greetingTemplate": "Hello! 👋 I'm AVA, your ${city} airport analytics assistant. I can help you with information about airport experiences, airline performance, passenger feedback, and current trends. What would you like to know?",
+    "capabilitiesTemplate": "I'm AVA, specialized in ${city} airport and airline analytics. I can help you understand passenger experiences, airport services, airline performance, and sentiment trends from real social media data. What specific airport or airline topic would you like to explore?",
+    "scopeDescriptionTemplate": "I focus specifically on ${city} airport and airline analytics.",
+    "rejectionTemplate": "I'm specialized in ${city} airport and airline analytics. I can help you with airport facilities, flight information, airline performance, passenger experiences, security processes, baggage handling, and lounge services. Please ask me something related to ${city} airport or airlines.",
+    "consentPromptTemplate": "Would you like me to search the internet for current information about \"${topic}\" at ${city} airport? Please reply with \"yes\" if you'd like me to look for this information online.",
+    "usage": ["Chatbot responses", "Page titles", "Navigation labels", "User-facing messages"]
+  },
+  "dataCollection": {
+    "defaultQueryTemplate": "${airportSynonyms} OR ${airlines}",
+    "collectionNameTemplate": "${locationSlug}_social_events",
+    "usage": ["MongoDB collection naming", "Data source queries", "ChromaDB collection naming"]
+  },
+  "wordCloud": {
+    "extraAllowedTerms": [],
+    "airportSpecificTerms": ["${city}", "${code}", "${alternateCity}"],
+    "usage": ["Frontend word cloud filtering", "Dynamic allowed terms generation"]
+  },
+  "security": {
+    "promptInjectionPatterns": [
+      "system prompt", "give me your prompt", "show your prompt", "what is your prompt",
+      "reveal your prompt", "system instructions", "initial prompt", "original prompt",
+      "ignore previous instructions", "ignore above", "forget previous", "disregard above",
+      "you are now", "pretend you are", "act as if", "roleplay as",
+      "as an admin", "as a developer", "i am your creator", "i am your developer",
+      "override your settings", "change your behavior", "bypass your restrictions",
+      "show me all data", "export all data", "database dump", "show database",
+      "list all users", "show configuration", "reveal secrets", "show api keys",
+      "dan mode", "developer mode", "jailbreak", "unrestricted mode",
+      "act without limitations", "remove all restrictions", "bypass safety"
+    ],
+    "conversationStarters": ["how are you", "what can you do", "who are you", "help", "tell me about yourself"],
+    "outOfScopeTerms": ["weather", "politics", "sports", "movie", "music", "cooking", "recipe", "programming", "code", "software"],
+    "usage": ["Security validation", "Intent classification", "Query rejection patterns"]
+  }
+}

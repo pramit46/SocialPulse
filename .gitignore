@@ -4,10 +4,12 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
-config/*
-attached_assets/*
 .env
 lib/Assets/*.png
 lib/Assets/*.jpg
 lib/Assets/*.jpeg
 logs/*
+.cache/*
+.local/*
+*.log
+*.tmp
