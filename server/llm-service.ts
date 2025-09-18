@@ -124,43 +124,51 @@ JSON Response:`;
 
       console.log(`🤖 [AVA] Analyzing query: "${sanitizedQuery}" | Session: ${sessionId}`);
 
-      // Get previous context from MongoDB
-      const { mongoService } = await import('./mongodb');
-      const previousContext = await mongoService.getAvaContext(sessionId);
-      console.log(`🧠 [AVA] Previous context: ${previousContext ? JSON.stringify(previousContext) : 'None'} | User: ${userId}`);
+      // 🔐 CRITICAL SECURITY: Analyze intent BEFORE any database access
+      const queryIntent = await this.analyzeQueryIntent(sanitizedQuery);
+      console.log(`🧠 [AVA] Query intent: ${queryIntent.type} | Topic: ${queryIntent.topic}`);
 
-      // Check if this is a response to a previous internet search request
-      if (previousContext?.waitingForInternetConsent) {
-        const normalized = sanitizedQuery.toLowerCase().trim();
-        const positiveResponses = ['yes', 'y', 'yeah', 'yep', 'sure', 'ok', 'okay', 'fine', 'go ahead', 'proceed', 'continue'];
-        const isPositive = positiveResponses.some(positive => normalized.includes(positive));
-        console.log(`🔄 [AVA] User response to internet search consent: ${isPositive ? 'APPROVED' : 'DENIED'} | Response: "${normalized}"`);
+      // Block malicious queries immediately without database access
+      if (queryIntent.type === 'prompt_injection') {
+        console.warn(`🚨 [SECURITY ALERT] Prompt injection blocked for session: ${sessionId}`);
+        return "I'm designed to assist specifically with Bangalore airport and airline information. I can help you with flight delays, baggage handling, security processes, airline experiences, and airport amenities. What would you like to know about the airport?";
+      }
+
+      // Check for consent responses BEFORE blocking invalid queries
+      const normalized = sanitizedQuery.toLowerCase().trim();
+      const consentKeywords = ['yes', 'y', 'yeah', 'yep', 'sure', 'ok', 'okay', 'fine', 'go ahead', 'proceed', 'continue', 'no', 'nope', 'deny', 'decline'];
+      const isConsentResponse = consentKeywords.some(keyword => normalized === keyword);
+
+      // Handle consent responses even if they would be classified as invalid
+      if (isConsentResponse) {
+        const { mongoService } = await import('./mongodb');
+        const previousContext = await mongoService.getAvaContext(sessionId);
         
-        if (isPositive) {
-          // Clear the context and perform internet search
-          await mongoService.storeAvaContext(sessionId, { waitingForInternetConsent: false }, userId);
-          console.log(`🌐 [AVA] Performing internet search for: "${previousContext.originalQuery}"`);
-          return `I would search the internet for information about "${previousContext.originalQuery}" at Bangalore airport, but this feature is currently being developed. In the meantime, I can help you with passenger experiences, airline performance, and sentiment analysis from our existing social media data. What specific aspect would you like to explore?`;
-        } else {
-          // Clear the context and provide alternative
-          await mongoService.storeAvaContext(sessionId, { waitingForInternetConsent: false }, userId);
-          console.log(`❌ [AVA] Internet search declined by user`);
-          return `No problem! I can help with other aspects of Bangalore airport like passenger experiences, airline services, security processes, or flight information. What would you like to know?`;
+        if (previousContext?.waitingForInternetConsent) {
+          const positiveResponses = ['yes', 'y', 'yeah', 'yep', 'sure', 'ok', 'okay', 'fine', 'go ahead', 'proceed', 'continue'];
+          const isPositive = positiveResponses.some(positive => normalized === positive);
+          console.log(`🔄 [AVA] User response to internet search consent: ${isPositive ? 'APPROVED' : 'DENIED'} | Response: "${normalized}"`);
+          
+          if (isPositive) {
+            await mongoService.storeAvaContext(sessionId, { waitingForInternetConsent: false }, userId);
+            console.log(`🌐 [AVA] Performing internet search for: "${previousContext.originalQuery}"`);
+            return `I would search the internet for information about "${previousContext.originalQuery}" at Bangalore airport, but this feature is currently being developed. In the meantime, I can help you with passenger experiences, airline performance, and sentiment analysis from our existing social media data. What specific aspect would you like to explore?`;
+          } else {
+            await mongoService.storeAvaContext(sessionId, { waitingForInternetConsent: false }, userId);
+            console.log(`❌ [AVA] Internet search declined by user`);
+            return `No problem! I can help with other aspects of Bangalore airport like passenger experiences, airline services, security processes, or flight information. What would you like to know?`;
+          }
         }
       }
 
-      // Step 1: Understand the query intent using reasoning
-      const queryIntent = await this.analyzeQueryIntent(sanitizedQuery);
-      console.log(`🧠 [AVA] Query intent: ${queryIntent.type} | Topic: ${queryIntent.topic}`);
-      
-      // Always store/update user context for every conversation
-      await mongoService.storeAvaContext(sessionId, { 
-        lastQuery: sanitizedQuery,
-        lastIntent: queryIntent,
-        waitingForInternetConsent: false 
-      }, userId);
+      // Now block invalid queries (after consent handling)
+      if (queryIntent.type === 'invalid_query') {
+        console.info(`⚠️ [VALIDATION] Invalid query rejected: "${sanitizedQuery}"`);
+        return "I'm specialized in Bangalore airport and airline analytics. I can help you with airport facilities, flight information, airline performance, passenger experiences, security processes, baggage handling, and lounge services. Please ask me something related to Bangalore airport or airlines.";
+      }
 
-      // Step 2: Handle different intent types appropriately
+
+      // Handle different intent types (security checks already done above)
       switch (queryIntent.type) {
         case 'greeting':
           return "Hello! 👋 I'm AVA, your Bangalore airport analytics assistant. I can help you with information about airport experiences, airline performance, passenger feedback, and current trends. What would you like to know?";
@@ -172,15 +180,20 @@ JSON Response:`;
           return `I focus specifically on Bangalore airport and airline analytics. For questions about "${queryIntent.topic}", I'd recommend checking with a general assistant. However, I can help with airport facilities, airline experiences, flight information, and passenger sentiment analysis. Anything airport-related you'd like to know?`;
           
         case 'airport_specific':
+          // Access database only for legitimate airport queries
+          const { mongoService } = await import('./mongodb');
+          
           // For airport queries, use RAG with targeted search
           const relevantEvents = await this.searchSimilarEvents(sanitizedQuery, 5);
           
           if (relevantEvents.length === 0) {
-            // Store context for internet search consent
+            // Store context for internet search consent (only for legitimate airport queries)
             await mongoService.storeAvaContext(sessionId, {
               waitingForInternetConsent: true,
               originalQuery: sanitizedQuery,
-              queryIntent: queryIntent
+              queryIntent: queryIntent,
+              lastQuery: sanitizedQuery,
+              lastIntent: queryIntent
             }, userId);
             console.log(`📝 [AVA] Stored context for internet search consent | Session: ${sessionId}`);
             
@@ -189,13 +202,19 @@ JSON Response:`;
 Would you like me to search the internet for current information about "${queryIntent.topic}" at Bangalore airport? Please reply with "yes" if you'd like me to look for this information online.`;
           }
           
+          // Store context for successful airport queries only
+          await mongoService.storeAvaContext(sessionId, { 
+            lastQuery: sanitizedQuery,
+            lastIntent: queryIntent,
+            waitingForInternetConsent: false 
+          }, userId);
+          
           // Generate contextual response with found data
           return await this.generateContextualResponse(sanitizedQuery, relevantEvents, queryIntent);
           
         default:
-          // Fallback to general search
-          const events = await this.searchSimilarEvents(sanitizedQuery);
-          return await this.generateContextualResponse(sanitizedQuery, events, queryIntent);
+          console.warn(`⚠️ [VALIDATION] Unhandled query type: ${queryIntent.type}`);
+          return "I'm specialized in Bangalore airport and airline analytics. Please ask me something related to airport facilities, airline services, flight information, or passenger experiences.";
       }
     } catch (error) {
       console.error("Chat response generation error:", error);
@@ -203,35 +222,63 @@ Would you like me to search the internet for current information about "${queryI
     }
   }
 
-  // New method: Analyze query intent for proper reasoning
+  // Enhanced method: Detect prompt injection and validate query intent
   private async analyzeQueryIntent(query: string): Promise<{type: string, topic: string, confidence: number}> {
     const queryLower = query.toLowerCase().trim();
     
     // Remove punctuation for better matching
     const cleanQuery = queryLower.replace(/[^\w\s]/g, '').trim();
     
-    // Greeting patterns (more flexible)
+    // 🔐 CRITICAL SECURITY: Detect prompt injection attempts
+    const promptInjectionPatterns = [
+      // System prompt attempts
+      'system prompt', 'give me your prompt', 'show your prompt', 'what is your prompt',
+      'reveal your prompt', 'system instructions', 'initial prompt', 'original prompt',
+      
+      // Role manipulation attempts  
+      'ignore previous instructions', 'ignore above', 'forget previous', 'disregard above',
+      'you are now', 'pretend you are', 'act as if', 'roleplay as',
+      
+      // Developer/admin impersonation
+      'as an admin', 'as a developer', 'i am your creator', 'i am your developer',
+      'override your settings', 'change your behavior', 'bypass your restrictions',
+      
+      // Data extraction attempts
+      'show me all data', 'export all data', 'database dump', 'show database',
+      'list all users', 'show configuration', 'reveal secrets', 'show api keys',
+      
+      // Jailbreak attempts
+      'dan mode', 'developer mode', 'jailbreak', 'unrestricted mode',
+      'act without limitations', 'remove all restrictions', 'bypass safety'
+    ];
+    
+    if (promptInjectionPatterns.some(pattern => queryLower.includes(pattern))) {
+      console.warn(`🚨 [SECURITY] Prompt injection attempt detected: "${queryLower}"`);
+      return { type: 'prompt_injection', topic: 'security_violation', confidence: 1.0 };
+    }
+    
+    // Greeting patterns (strict matching)
     if (/^(hi|hello|hey|good morning|good afternoon|good evening)$/i.test(cleanQuery)) {
       return { type: 'greeting', topic: 'greeting', confidence: 1.0 };
     }
     
-    // General conversation starters (more flexible to handle punctuation)
+    // General conversation starters (ONLY legitimate ones)
     const conversationStarters = [
-      'how are you', 'how are you doing', 'what can you do', 'who are you', 
-      'help', 'whats up', 'how do you do', 'what are you', 'tell me about yourself'
+      'how are you', 'what can you do', 'who are you', 'help', 'tell me about yourself'
     ];
     
-    if (conversationStarters.some(starter => cleanQuery === starter || cleanQuery.includes(starter))) {
+    if (conversationStarters.some(starter => cleanQuery === starter)) {
       return { type: 'general_conversation', topic: 'capabilities', confidence: 1.0 };
     }
     
-    // Airport and airline specific topics
+    // 🏢 STRICT AIRPORT VALIDATION: Must contain airport/airline terms
     const airportTerms = ['airport', 'flight', 'airline', 'terminal', 'baggage', 'luggage', 'security', 'check-in', 'boarding', 'lounge', 'delay', 'punctual', 'gate'];
     const airlineNames = ['indigo', 'spicejet', 'air india', 'vistara', 'bangalore airport', 'bengaluru airport', 'kempegowda'];
     
     const hasAirportTerms = airportTerms.some(term => queryLower.includes(term));
     const hasAirlineNames = airlineNames.some(airline => queryLower.includes(airline));
     
+    // STRICT VALIDATION: Only proceed if clearly airport-related
     if (hasAirportTerms || hasAirlineNames) {
       // Extract specific topic
       let topic = 'general_airport';
@@ -245,20 +292,16 @@ Would you like me to search the internet for current information about "${queryI
       return { type: 'airport_specific', topic, confidence: 0.9 };
     }
     
-    // Out of scope topics (weather, politics, sports, etc.)
-    const outOfScopeTerms = ['weather', 'politics', 'sports', 'movie', 'music', 'cooking', 'recipe'];
+    // Explicitly out of scope topics
+    const outOfScopeTerms = ['weather', 'politics', 'sports', 'movie', 'music', 'cooking', 'recipe', 'programming', 'code', 'software'];
     if (outOfScopeTerms.some(term => queryLower.includes(term))) {
       const topic = outOfScopeTerms.find(term => queryLower.includes(term)) || 'general';
       return { type: 'out_of_scope', topic, confidence: 0.8 };
     }
     
-    // If query is very short and doesn't contain airport terms, treat as general conversation
-    if (cleanQuery.length < 20 && !hasAirportTerms && !hasAirlineNames) {
-      return { type: 'general_conversation', topic: 'capabilities', confidence: 0.5 };
-    }
-    
-    // Default: treat as potential airport query with low confidence
-    return { type: 'airport_specific', topic: 'general_inquiry', confidence: 0.3 };
+    // 🚨 DEFAULT: Reject non-airport queries instead of treating as airport-specific
+    console.warn(`⚠️ [VALIDATION] Non-airport query rejected: "${queryLower}"`);
+    return { type: 'invalid_query', topic: 'not_airport_related', confidence: 1.0 };
   }
 
   // Enhanced contextual response generation
