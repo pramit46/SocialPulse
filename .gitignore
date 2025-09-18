@@ -13,3 +13,6 @@ logs/*
 .local/*
 *.log
 *.tmp
+attached_assets/*.png
+attached_assets/*.jpg
+attached_assets/*.jpeg
