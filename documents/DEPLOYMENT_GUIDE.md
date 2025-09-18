@@ -1,28 +1,24 @@
-# Social Media Analytics Dashboard - Deployment Guide
+# Universal Airport Social Media Analytics Dashboard - Deployment Guide
 
 ## Overview
-This is a comprehensive client-server deployment guide for the Bangalore Airport Social Media Analytics Dashboard. The application features real-time data collection, AI-powered sentiment analysis, and comprehensive dashboard analytics.
+This is a comprehensive client-server deployment guide for the Universal Airport Social Media Analytics Dashboard. The application features real-time data collection, AI-powered sentiment analysis, and comprehensive dashboard analytics. **The system is fully configurable for any airport worldwide** through the `config/airport-config.json` file.
 
 ## Architecture Overview
 
 ### Client-Server Model Components
 
-#### **Frontend Components (Client)**
-- **React 18 Application** with TypeScript
-- **UI Framework**: Radix UI + shadcn/ui components
+#### **Unified Application Architecture**
+- **Integrated Frontend + Backend**: Single Node.js Express server with embedded Vite dev server
+- **React 18 Application** with TypeScript served via Vite integration
+- **UI Framework**: Radix UI + shadcn/ui components with Tailwind CSS
 - **Routing**: Wouter for client-side navigation
-- **State Management**: TanStack Query (React Query)
-- **Styling**: Tailwind CSS with dark theme support
-- **Data Visualization**: Recharts for interactive charts
-- **Build Tool**: Vite for development and production builds
-
-#### **Backend Components (Server)**
-- **Node.js Express Server** with TypeScript
+- **State Management**: TanStack Query (React Query) for server state
 - **Database Services**: MongoDB Atlas + ChromaDB (vector database)
-- **AI Services**: Local Ollama integration + Hugging Face API
-- **Data Collection**: Multi-platform social media agents
-- **Session Management**: Express sessions with PostgreSQL store
-- **Real-time Features**: WebSocket support
+- **AI Services**: Local Ollama integration for complete data privacy
+- **Data Collection**: 5 specialized multi-platform social media agents
+- **Real-time Features**: Integrated via unified server architecture
+
+**Note**: This application uses a unified server architecture where Express serves both API endpoints and the frontend via integrated Vite. Do not modify `vite.config.ts` as it's pre-configured for this unified setup.
 
 ---
 
@@ -63,6 +59,43 @@ This is a comprehensive client-server deployment guide for the Bangalore Airport
 
 ---
 
+## 🌍 Airport Configuration
+
+### **Configuring for Your Airport**
+The system is designed to work with any airport worldwide. Before deployment, configure your target airport:
+
+#### **1. Edit Airport Configuration**
+```bash
+# Edit the main configuration file
+nano config/airport-config.json
+```
+
+#### **2. Update Airport Details**
+```json
+{
+  "airport": {
+    "code": "LAX",           // Your airport code
+    "city": "Los Angeles",   // Primary city name
+    "alternateCity": "LA",   // Alternate/short city name
+    "airportName": "Los Angeles International Airport",
+    "synonyms": ["lax", "los angeles", "los angeles airport"]
+  },
+  "airlines": {
+    "primary": ["american", "delta", "united", "southwest"]  // Local airlines
+  }
+}
+```
+
+#### **3. System Auto-Configuration**
+Once updated, the entire system automatically adapts:
+- ✅ UI labels update to show your city/airport code
+- ✅ Data collection agents filter for your airport
+- ✅ ChromaDB collections renamed with your airport slug
+- ✅ Chatbot responses localize to your airport
+- ✅ Word cloud includes airport-specific terms
+
+---
+
 ## Step-by-Step Installation Process
 
 ### **Phase 1: Backend Server Setup**
@@ -96,7 +129,7 @@ pip3 install chromadb==3.0.12
 # Get connection string in format:
 # mongodb+srv://username:password@cluster.mongodb.net/database_name
 
-# Create database: bangalore_airport_analytics
+# Create database: airport_analytics (or use configured airport name)
 # Create collections: social_events, users, settings, insights, weather_data
 ```
 
@@ -142,7 +175,7 @@ Create `.env` file in backend root:
 ```env
 # Database Configuration
 MONGODB_CONNECTION_STRING=mongodb+srv://username:password@cluster.mongodb.net/
-MONGODB_DATABASE_NAME=bangalore_airport_analytics
+MONGODB_DATABASE_NAME=airport_analytics
 DATABASE_URL=postgresql://analytics_user:secure_password@localhost:5432/social_analytics_sessions
 
 # AI Services
@@ -171,104 +204,39 @@ npm run start
 curl http://localhost:5000/api/mongodb/status
 ```
 
-### **Phase 2: Frontend Server Setup**
+### **Phase 2: Production Deployment** 
 
-#### **1. Frontend Environment Setup**
+#### **1. Unified Application Deployment**
+This application uses a unified architecture where a single Express server serves both the API and frontend via integrated Vite.
+
+**For production deployment:**
 ```bash
-# Create frontend deployment directory
-mkdir social-analytics-frontend
-cd social-analytics-frontend
-
-# Copy frontend files
-# Copy these directories: client/, vite.config.ts, tailwind.config.js
-
-# Install Node.js dependencies
-npm install
-
-# Install frontend-specific dependencies
-npm install @vitejs/plugin-react vite tailwindcss autoprefixer postcss
-```
-
-#### **2. Frontend Configuration**
-Create `client/.env` file:
-```env
-# Backend API URL
-VITE_API_BASE_URL=http://your-backend-server:5000
-VITE_ENABLE_DEV_TOOLS=false
-```
-
-Update `vite.config.ts` for production:
-```typescript
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "client", "src"),
-      "@shared": path.resolve(__dirname, "shared"),
-    },
-  },
-  root: path.resolve(__dirname, "client"),
-  build: {
-    outDir: path.resolve(__dirname, "dist/public"),
-    emptyOutDir: true,
-  },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://your-backend-server:5000',
-        changeOrigin: true
-      }
-    }
-  }
-});
-```
-
-#### **3. Build and Deploy Frontend**
-```bash
-# Build production frontend
+# Build the application (if needed)
 npm run build
 
-# Serve static files (using nginx or serve)
-npx serve dist/public -l 3000
+# Start production server (unified Express + Vite)
+npm run start
 
-# OR setup nginx (recommended)
-sudo apt-get install nginx
+# For development
+npm run dev
 ```
 
-#### **4. Nginx Configuration** (Recommended)
-Create `/etc/nginx/sites-available/social-analytics`:
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    
-    # Frontend static files
-    location / {
-        root /path/to/social-analytics-frontend/dist/public;
-        try_files $uri $uri/ /index.html;
-    }
-    
-    # API proxy to backend
-    location /api/ {
-        proxy_pass http://your-backend-server:5000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-    
-    # Static assets
-    location /lib/ {
-        proxy_pass http://your-backend-server:5000;
-    }
-}
-```
+**Important Notes:**
+- ✅ Do not modify `vite.config.ts` - it's pre-configured for unified architecture
+- ✅ Single server handles both frontend and API endpoints
+- ✅ No separate nginx or frontend server setup required
+- ✅ All configuration through `config/airport-config.json`
 
-Enable site:
+#### **2. Verify Deployment**
 ```bash
-sudo ln -s /etc/nginx/sites-available/social-analytics /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
+# Check application is running
+curl http://localhost:5000/api/airport-config
+
+# Check AI services
+curl http://localhost:5000/api/social-events
+
+# Access web interface
+open http://localhost:5000
 ```
 
 ---
@@ -277,17 +245,10 @@ sudo systemctl reload nginx
 
 ### **Minimum Server Specifications**
 
-#### **Backend Server**
-- **CPU**: 4 cores (for AI processing)
-- **RAM**: 8GB (4GB for Ollama, 2GB for Node.js, 2GB for databases)
+#### **Application Server (Unified Frontend + Backend)**
+- **CPU**: 4 cores (for AI processing and frontend serving)
+- **RAM**: 8GB (4GB for Ollama, 2GB for Node.js, 2GB for databases) 
 - **Storage**: 50GB SSD (20GB for models, 10GB for databases, 20GB for logs)
-- **Network**: 100Mbps uplink
-- **OS**: Ubuntu 22.04 LTS or CentOS 8
-
-#### **Frontend Server**
-- **CPU**: 2 cores
-- **RAM**: 2GB
-- **Storage**: 10GB SSD
 - **Network**: 100Mbps uplink
 - **OS**: Ubuntu 22.04 LTS or CentOS 8
 

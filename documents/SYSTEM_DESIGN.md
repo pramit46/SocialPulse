@@ -1,11 +1,19 @@
-# 🚀 Bangalore Airport Social Media Analytics Platform
+# 🚀 Universal Airport Social Media Analytics Platform
 ## Executive System Design & Architecture
 
 ---
 
 ## 📊 **Executive Summary**
 
-The Bangalore Airport Social Media Analytics Platform is a comprehensive, AI-powered system that monitors, analyzes, and provides actionable insights from social media conversations about Bangalore airport and major Indian airlines. The platform delivers real-time sentiment analysis, predictive business intelligence, and intelligent chatbot capabilities while efficiently processing data from multiple sources into MongoDB collections with advanced agentic AI systems.
+The Universal Airport Social Media Analytics Platform is a comprehensive, AI-powered system that monitors, analyzes, and provides actionable insights from social media conversations about any airport worldwide and their associated airlines. The platform delivers real-time sentiment analysis, predictive business intelligence, and intelligent chatbot capabilities while efficiently processing data from multiple sources into MongoDB collections with advanced agentic AI systems.
+
+### **🌍 Universal Configuration System**
+The entire platform is **fully configurable for any airport** through a single configuration file (`config/airport-config.json`). Simply update the airport details, and the entire system adapts:
+- UI labels and titles automatically update
+- Data collection agents filter for new airport/airlines  
+- ChromaDB collections are automatically renamed
+- Chatbot responses adapt to new location
+- Word cloud terms include airport-specific keywords
 
 ### **Key Performance Indicators:**
 - **Data Sources**: 8+ social platforms (Twitter, Reddit, Facebook, CNN, WION, etc.)
@@ -61,7 +69,7 @@ The Bangalore Airport Social Media Analytics Platform is a comprehensive, AI-pow
 │  │  │   Agent     │  │   Agent     │  │   Agent     │  │   Agent     │  │  Agent    │ │  │
 │  │  │ • OAuth 2.0 │  │ • OAuth 2.0 │  │ • Graph API │  │ • RSS Feed  │  │ • RSS     │ │  │
 │  │  │ • Search v2 │  │ • Search    │  │ • Search    │  │ • Parsing   │  │ • Parse   │ │  │
-│  │  │ • Filter BLR│  │ • Filter BLR│  │ • Filter BLR│  │ • Extract   │  │ • Filter  │ │  │
+│  │  │ • Filter CFG│  │ • Filter CFG│  │ • Filter CFG│  │ • Extract   │  │ • Filter  │ │  │
 │  │  │ • Sentiment │  │ • Sentiment │  │ • Sentiment │  │ • Sentiment │  │ • Extract │ │  │
 │  │  └─────┬───────┘  └─────┬───────┘  └─────┬───────┘  └─────┬───────┘  └─────┬─────┘ │  │
 │  └────────┼──────────────────┼──────────────────┼──────────────────┼──────────────┼─────┘  │
@@ -331,6 +339,14 @@ The Bangalore Airport Social Media Analytics Platform is a comprehensive, AI-pow
 - ✅ Insights generated from real social media data analysis
 - ✅ Disabled mock data migration endpoints
 
+### **Universal Airport Configuration:**
+- ✅ Single configuration file (`config/airport-config.json`) adapts entire system
+- ✅ Frontend components automatically update UI labels and titles
+- ✅ Backend services filter data for configured airport/airlines
+- ✅ ChromaDB collections dynamically renamed based on airport
+- ✅ Chatbot responses automatically localize to configured airport
+- ✅ Word cloud includes airport-specific terms from configuration
+
 ---
 
 ## 🚀 **Deployment & Scaling**
@@ -351,4 +367,4 @@ The Bangalore Airport Social Media Analytics Platform is a comprehensive, AI-pow
 
 ---
 
-*Last Updated: August 26, 2025 - Reflecting current agentic AI system, local LLM integration, and zero mock data architecture*
+*Last Updated: September 18, 2025 - Reflecting universal airport configuration system, complete architectural transformation from hardcoded to configurable airport analytics platform*

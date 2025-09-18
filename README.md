@@ -1,8 +1,8 @@
-# 🚀 Bangalore Airport Social Media Analytics Platform
+# 🚀 Universal Airport Social Media Analytics Platform
 
 ## Overview
 
-A comprehensive, AI-powered social media analytics platform specifically designed for monitoring Bangalore airport and major Indian airlines (IndiGo, SpiceJet, Air India, Vistara). The system features advanced agentic AI capabilities, real-time sentiment analysis, and intelligent business insights generation using locally-hosted language models for complete data privacy.
+A comprehensive, AI-powered social media analytics platform designed for monitoring any airport worldwide and their associated airlines. The system features advanced agentic AI capabilities, real-time sentiment analysis, and intelligent business insights generation using locally-hosted language models for complete data privacy. **Fully configurable for any airport** - simply edit the airport configuration file to adapt the entire system to your target airport.
 
 ## 🎯 Key Features
 
@@ -17,6 +17,7 @@ A comprehensive, AI-powered social media analytics platform specifically designe
 - **Real-time Processing**: Live data collection with immediate MongoDB storage
 - **Weather Correlation**: Live weather data integration for sentiment correlation analysis
 - **Zero Mock Data**: All metrics derived from actual social media and weather collections
+- **Universal Configuration**: Configurable for any airport through `config/airport-config.json`
 
 ### **Business Intelligence Dashboard**
 - **Pulse Dashboard**: Real-time analytics with sentiment trends and platform distribution
@@ -54,7 +55,7 @@ A comprehensive, AI-powered social media analytics platform specifically designe
 - **Sentiment Analysis**: Local tinyllama model for multilingual sentiment scoring
 - **Chatbot Service**: DeepSeek model for conversational AI functionality with RAG
 - **Text Embeddings**: ChromaDB integration for semantic text representation and search
-- **Airport-Specific Analysis**: Custom categorization for airport services and airline performance
+- **Airport-Specific Analysis**: Configurable categorization for airport services and airline performance
 - **Agentic Insight System**: 4-agent workflow generating actionable business intelligence
 
 ### **Data Storage Solutions**
@@ -67,7 +68,7 @@ A comprehensive, AI-powered social media analytics platform specifically designe
 - **Multi-Platform Integration**: Automated collection from Twitter, Reddit, Facebook, and news sources
 - **Credential Management**: Secure API key storage with environment variable integration
 - **Real-time Processing**: Continuous data collection with immediate sentiment analysis
-- **Focus Filtering**: Bangalore airport and Indian airline-specific content filtering
+- **Focus Filtering**: Configurable airport and airline-specific content filtering
 - **Weather Integration**: Live weather data collection with passenger sentiment correlation
 
 ## 🤖 AI Agents and Services
@@ -78,6 +79,8 @@ A comprehensive, AI-powered social media analytics platform specifically designe
 3. **FacebookAgent**: Graph API integration for Facebook post collection (limited by API availability)
 4. **CNNAgent**: RSS feed parsing for aviation news with automatic content filtering
 5. **InshortsAgent**: News aggregation with AI-powered content relevance filtering
+
+All agents automatically adapt to the configured airport settings from `config/airport-config.json`.
 
 ### **AI Service Agents (3 total)**
 1. **LLM Service**: Local Ollama integration for sentiment analysis and chat response generation
@@ -129,6 +132,20 @@ A comprehensive, AI-powered social media analytics platform specifically designe
 - Ollama server running locally with DeepSeek models
 - API credentials for social media platforms (Twitter, Reddit, Facebook)
 
+### **Airport Configuration**
+Configure the system for any airport by editing `config/airport-config.json`:
+```json
+{
+  "airport": {
+    "code": "LAX",
+    "city": "Los Angeles",
+    "alternateCity": "LA",
+    "airportName": "Los Angeles International Airport"
+  }
+}
+```
+The entire system will automatically adapt to your airport configuration.
+
 ### **Installation**
 ```bash
 # Clone the repository
@@ -149,7 +166,7 @@ npm run dev
 ### **Environment Configuration**
 ```env
 MONGODB_CONNECTION_STRING=<your-mongodb-atlas-connection>
-MONGODB_DATABASE_NAME=social_analytics
+MONGODB_DATABASE_NAME=airport_analytics
 TWITTER_BEARER_TOKEN=<your-twitter-api-key>
 REDDIT_CLIENT_ID=<your-reddit-client-id>
 REDDIT_CLIENT_SECRET=<your-reddit-client-secret>
@@ -161,11 +178,11 @@ OLLAMA_API_BASE_URL=http://localhost:11434
 The application is designed for production deployment on Replit with automatic workflow management:
 
 ```bash
-# Production build
-npm run build
-
-# Start production server (handled by Replit workflow)
+# For development (handled by Replit workflow)
 npm run dev
+
+# For production deployment
+npm run start
 ```
 
 ## 📊 Usage Examples
@@ -178,8 +195,8 @@ npm run dev
 
 ### **AVA Chatbot Interactions**
 ```
-User: "What's the sentiment about IndiGo at Bangalore airport?"
-AVA: Based on recent social media analysis from 57 events, IndiGo shows...
+User: "What's the sentiment about airlines at this airport?"
+AVA: Based on recent social media analysis from configured airport data, airlines show...
 
 User: "How does weather affect passenger mood?"  
 AVA: Weather correlation analysis shows that rainy days increase...
@@ -215,13 +232,31 @@ AVA: Weather correlation analysis shows that rainy days increase...
 
 ---
 
+## 🔧 Configuration Mapping
+
+### **What Gets Updated When You Change `config/airport-config.json`:**
+
+| Configuration Field | Affected Components |
+|---------------------|-------------------|
+| `airport.code` | UI titles, ChromaDB collection names, chatbot responses |
+| `airport.city` | Page headers, export filenames, agent search terms |
+| `airport.synonyms` | Data collection agent query filters |
+| `airlines.primary` | Sentiment analysis filters, search query terms |
+| `ui.botDisplayNameTemplate` | Chatbot interface title and greeting |
+| `wordCloud.airportSpecificTerms` | Word cloud allowed terms and frequency analysis |
+
+**Auto-restart required**: Changes take effect immediately for frontend; backend services auto-reload on config changes.
+
+---
+
 ## 📝 Documentation
 
-- **System Design**: Complete architectural overview in `SYSTEM_DESIGN.md`
+- **System Design**: Complete architectural overview in `documents/SYSTEM_DESIGN.md`
+- **Deployment Guide**: Universal airport deployment in `documents/DEPLOYMENT_GUIDE.md`  
 - **User Preferences**: Configuration details in `replit.md`
 - **API Documentation**: RESTful endpoint specifications
 - **Development Guide**: Setup and contribution guidelines
 
 ---
 
-*Last Updated: August 26, 2025 - Reflecting current agentic AI system, local LLM integration, and production-ready architecture*
+*Last Updated: September 18, 2025 - Reflecting universal airport configuration system, transforming from hardcoded Bangalore system to configurable platform for any airport worldwide*
