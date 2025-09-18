@@ -7,6 +7,7 @@ import { z } from "zod";
 import { agentManager } from "./agents/agent-manager";
 import { llmService } from "./llm-service";
 import chromaStartup from "./services/chroma-startup.js";
+import AirportConfigHelper from "@shared/airport-config";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize ChromaDB on startup
@@ -37,17 +38,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve word cloud allowed list CSV
+  // Serve word cloud allowed list CSV with dynamic airport terms
   app.get("/lib/assets/word-cloud-allowed-list.csv", async (req, res) => {
     try {
       const fs = await import('fs');
       const path = await import('path');
       const csvPath = path.resolve('lib/assets/word-cloud-allowed-list.csv');
-      const csvContent = fs.readFileSync(csvPath, 'utf-8');
+      let csvContent = fs.readFileSync(csvPath, 'utf-8');
+      
+      // Add airport-specific terms dynamically
+      const airportTerms = AirportConfigHelper.getWordCloudTerms();
+      if (airportTerms.length > 0) {
+        csvContent += '\n' + airportTerms.join('\n');
+      }
+      
       res.setHeader('Content-Type', 'text/csv');
       res.send(csvContent);
     } catch (error) {
       res.status(404).json({ error: "Word cloud allowed list not found" });
+    }
+  });
+
+  // Airport configuration endpoints
+  app.get("/api/airport-config", async (req, res) => {
+    try {
+      const config = AirportConfigHelper.getConfig();
+      res.json({
+        success: true,
+        config: {
+          airport: config.airport,
+          ui: config.ui,
+          airlines: config.airlines
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        error: "Failed to load airport configuration",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  app.post("/api/airport-config/reload", async (req, res) => {
+    try {
+      const config = AirportConfigHelper.reloadConfig();
+      res.json({
+        success: true,
+        message: "Airport configuration reloaded successfully",
+        airport: `${config.airport.city} (${config.airport.code})`
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        error: "Failed to reload airport configuration",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
@@ -214,7 +258,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       agentManager.setCredentials(source, credentials || {});
       
       let events: any[] = [];
-      const query = "bangalore airport OR bengaluru airport OR kempegowda airport OR indigo OR spicejet OR air india OR vistara";
+      const query = AirportConfigHelper.buildDefaultQuery();
       
       // Check if agent exists and credentials are valid
       if (!agentManager.validateCredentials(source)) {
