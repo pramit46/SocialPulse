@@ -5,6 +5,20 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Bot, User, Plane } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { useQuery } from "@tanstack/react-query";
+
+interface AirportConfig {
+  airport: {
+    code: string;
+    city: string;
+    alternateCity: string;
+    airportName: string;
+  };
+  ui: {
+    greetingTemplate: string;
+    scopeDescriptionTemplate: string;
+  };
+}
 
 interface Message {
   id: string;
@@ -63,24 +77,36 @@ async function getResponse(query: string): Promise<string> {
 }
 
 export default function AeroBot() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      content: "Hello! I'm AVA (Aerobot Virtual Assistant), your AI assistant for Bangalore Airport insights. I can help you understand passenger sentiment, airline performance, and service feedback. What would you like to know?",
-      sender: "bot",
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Load airport configuration
+  const { data: airportConfig } = useQuery<AirportConfig>({
+    queryKey: ['/api/airport-config'],
+    staleTime: 5 * 60 * 1000 // Cache for 5 minutes
+  });
 
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
+  
+  // Initialize with airport-specific greeting when config loads
+  useEffect(() => {
+    if (airportConfig && messages.length === 0) {
+      const greeting = airportConfig.ui.greetingTemplate.replace('${code}', airportConfig.airport.code).replace('${city}', airportConfig.airport.city);
+      setMessages([{
+        id: "1",
+        content: greeting,
+        sender: "bot",
+        timestamp: new Date()
+      }]);
+    }
+  }, [airportConfig, messages.length]);
 
   const handleSendMessage = async (msg?: string) => {
     const currentQuery = msg !== undefined ? msg : inputValue;
@@ -170,7 +196,7 @@ export default function AeroBot() {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-white">AVA</h1>
-              <p className="text-gray-400">AI-powered insights for Bangalore Airport</p>
+              <p className="text-gray-400">{airportConfig ? airportConfig.ui.scopeDescriptionTemplate.replace('${code}', airportConfig.airport.code).replace('${city}', airportConfig.airport.city) : 'AI-powered airport insights'}</p>
             </div>
           </div>
         </div>

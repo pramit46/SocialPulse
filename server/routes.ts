@@ -63,14 +63,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/airport-config", async (req, res) => {
     try {
       const config = AirportConfigHelper.getConfig();
-      res.json({
-        success: true,
-        config: {
-          airport: config.airport,
-          ui: config.ui,
-          airlines: config.airlines
-        }
-      });
+      res.json(config);
     } catch (error) {
       res.status(500).json({ 
         error: "Failed to load airport configuration",
