@@ -1,5 +1,6 @@
 import { ChromaClient, Collection } from "chromadb";
 import dotenv from "dotenv";
+import AirportConfigHelper from '@shared/airport-config';
 
 dotenv.config();
 
@@ -47,13 +48,13 @@ export class OllamaLLMService {
       
       this.socialEventsCollection =
         await this.chromaClient.getOrCreateCollection({
-          name: "bangalore_airport_social_events",
+          name: AirportConfigHelper.getCollectionName(),
           metadata: {
             description:
               "Social media events related to Bangalore airport and airlines",
           },
         });
-      console.log("✅ ChromaDB collection 'bangalore_airport_social_events' initialized");
+      console.log(`✅ ChromaDB collection '${AirportConfigHelper.getCollectionName()}' initialized`);
     } catch (error) {
       console.error("Failed to initialize ChromaDB collection:", error);
       this.socialEventsCollection = null;
@@ -131,7 +132,7 @@ JSON Response:`;
       // Block malicious queries immediately without database access
       if (queryIntent.type === 'prompt_injection') {
         console.warn(`🚨 [SECURITY ALERT] Prompt injection blocked for session: ${sessionId}`);
-        return "I'm designed to assist specifically with Bangalore airport and airline information. I can help you with flight delays, baggage handling, security processes, airline experiences, and airport amenities. What would you like to know about the airport?";
+        return AirportConfigHelper.getRejection();
       }
 
       // Check for consent responses BEFORE blocking invalid queries
@@ -164,20 +165,21 @@ JSON Response:`;
       // Now block invalid queries (after consent handling)
       if (queryIntent.type === 'invalid_query') {
         console.info(`⚠️ [VALIDATION] Invalid query rejected: "${sanitizedQuery}"`);
-        return "I'm specialized in Bangalore airport and airline analytics. I can help you with airport facilities, flight information, airline performance, passenger experiences, security processes, baggage handling, and lounge services. Please ask me something related to Bangalore airport or airlines.";
+        return AirportConfigHelper.getRejection();
       }
 
 
       // Handle different intent types (security checks already done above)
       switch (queryIntent.type) {
         case 'greeting':
-          return "Hello! 👋 I'm AVA, your Bangalore airport analytics assistant. I can help you with information about airport experiences, airline performance, passenger feedback, and current trends. What would you like to know?";
+          return AirportConfigHelper.getGreeting();
           
         case 'general_conversation':
-          return "I'm AVA, specialized in Bangalore airport and airline analytics. I can help you understand passenger experiences, airport services, airline performance, and sentiment trends from real social media data. What specific airport or airline topic would you like to explore?";
+          return AirportConfigHelper.getCapabilities();
           
         case 'out_of_scope':
-          return `I focus specifically on Bangalore airport and airline analytics. For questions about "${queryIntent.topic}", I'd recommend checking with a general assistant. However, I can help with airport facilities, airline experiences, flight information, and passenger sentiment analysis. Anything airport-related you'd like to know?`;
+          const scopeDescription = AirportConfigHelper.formatTemplate(AirportConfigHelper.getConfig().ui.scopeDescriptionTemplate);
+          return `${scopeDescription}. For questions about "${queryIntent.topic}", I'd recommend checking with a general assistant. However, I can help with airport facilities, airline experiences, flight information, and passenger sentiment analysis. Anything airport-related you'd like to know?`;
           
         case 'airport_specific':
           // Access database only for legitimate airport queries
@@ -197,9 +199,9 @@ JSON Response:`;
             }, userId);
             console.log(`📝 [AVA] Stored context for internet search consent | Session: ${sessionId}`);
             
-            return `I don't have specific social media data about "${queryIntent.topic}" at Bangalore airport right now. Our system tracks passenger experiences including delays, luggage handling, security, check-in, lounges, and airline services. 
+            return `I don't have specific social media data about "${queryIntent.topic}" at ${AirportConfigHelper.getConfig().airport.city} airport right now. Our system tracks passenger experiences including delays, luggage handling, security, check-in, lounges, and airline services. 
 
-Would you like me to search the internet for current information about "${queryIntent.topic}" at Bangalore airport? Please reply with "yes" if you'd like me to look for this information online.`;
+${AirportConfigHelper.getConsentPrompt(queryIntent.topic)}`;
           }
           
           // Store context for successful airport queries only
@@ -214,7 +216,7 @@ Would you like me to search the internet for current information about "${queryI
           
         default:
           console.warn(`⚠️ [VALIDATION] Unhandled query type: ${queryIntent.type}`);
-          return "I'm specialized in Bangalore airport and airline analytics. Please ask me something related to airport facilities, airline services, flight information, or passenger experiences.";
+          return AirportConfigHelper.getRejection();
       }
     } catch (error) {
       console.error("Chat response generation error:", error);
@@ -230,27 +232,7 @@ Would you like me to search the internet for current information about "${queryI
     const cleanQuery = queryLower.replace(/[^\w\s]/g, '').trim();
     
     // 🔐 CRITICAL SECURITY: Detect prompt injection attempts
-    const promptInjectionPatterns = [
-      // System prompt attempts
-      'system prompt', 'give me your prompt', 'show your prompt', 'what is your prompt',
-      'reveal your prompt', 'system instructions', 'initial prompt', 'original prompt',
-      
-      // Role manipulation attempts  
-      'ignore previous instructions', 'ignore above', 'forget previous', 'disregard above',
-      'you are now', 'pretend you are', 'act as if', 'roleplay as',
-      
-      // Developer/admin impersonation
-      'as an admin', 'as a developer', 'i am your creator', 'i am your developer',
-      'override your settings', 'change your behavior', 'bypass your restrictions',
-      
-      // Data extraction attempts
-      'show me all data', 'export all data', 'database dump', 'show database',
-      'list all users', 'show configuration', 'reveal secrets', 'show api keys',
-      
-      // Jailbreak attempts
-      'dan mode', 'developer mode', 'jailbreak', 'unrestricted mode',
-      'act without limitations', 'remove all restrictions', 'bypass safety'
-    ];
+    const promptInjectionPatterns = AirportConfigHelper.getPromptInjectionPatterns();
     
     if (promptInjectionPatterns.some(pattern => queryLower.includes(pattern))) {
       console.warn(`🚨 [SECURITY] Prompt injection attempt detected: "${queryLower}"`);
@@ -263,17 +245,15 @@ Would you like me to search the internet for current information about "${queryI
     }
     
     // General conversation starters (ONLY legitimate ones)
-    const conversationStarters = [
-      'how are you', 'what can you do', 'who are you', 'help', 'tell me about yourself'
-    ];
+    const conversationStarters = AirportConfigHelper.getConversationStarters();
     
     if (conversationStarters.some(starter => cleanQuery === starter)) {
       return { type: 'general_conversation', topic: 'capabilities', confidence: 1.0 };
     }
     
     // 🏢 STRICT AIRPORT VALIDATION: Must contain airport/airline terms
-    const airportTerms = ['airport', 'flight', 'airline', 'terminal', 'baggage', 'luggage', 'security', 'check-in', 'boarding', 'lounge', 'delay', 'punctual', 'gate'];
-    const airlineNames = ['indigo', 'spicejet', 'air india', 'vistara', 'bangalore airport', 'bengaluru airport', 'kempegowda'];
+    const airportTerms = AirportConfigHelper.getAirportKeywords();
+    const airlineNames = AirportConfigHelper.getAirlineNames();
     
     const hasAirportTerms = airportTerms.some(term => queryLower.includes(term));
     const hasAirlineNames = airlineNames.some(airline => queryLower.includes(airline));
@@ -293,7 +273,7 @@ Would you like me to search the internet for current information about "${queryI
     }
     
     // Explicitly out of scope topics
-    const outOfScopeTerms = ['weather', 'politics', 'sports', 'movie', 'music', 'cooking', 'recipe', 'programming', 'code', 'software'];
+    const outOfScopeTerms = AirportConfigHelper.getOutOfScopeTerms();
     if (outOfScopeTerms.some(term => queryLower.includes(term))) {
       const topic = outOfScopeTerms.find(term => queryLower.includes(term)) || 'general';
       return { type: 'out_of_scope', topic, confidence: 0.8 };

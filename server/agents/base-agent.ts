@@ -2,6 +2,7 @@ import { InsertSocialEvent } from '@shared/schema';
 import { llmService } from '../llm-service';
 import { mongoService } from '../mongodb';
 import { storage } from '../storage';
+import AirportConfigHelper from '@shared/airport-config';
 
 export abstract class BaseAgent {
   protected credentials: any = {};
@@ -135,17 +136,17 @@ export abstract class BaseAgent {
   }
 
   protected extractLocationFocus(text: string): string {
-    const airportKeywords = ['bangalore airport', 'bengaluru airport', 'kempegowda airport', 'blr airport'];
+    const airportKeywords = AirportConfigHelper.getLocationKeywords();
     for (const keyword of airportKeywords) {
       if (text.toLowerCase().includes(keyword)) {
-        return 'bangalore_airport';
+        return AirportConfigHelper.getLocationSlug();
       }
     }
-    return 'bangalore_airport'; // Default for this project
+    return AirportConfigHelper.getLocationSlug(); // Default for this project
   }
 
   protected extractAirlineMention(text: string): string | null {
-    const airlines = ['indigo', 'spicejet', 'air india', 'vistara', 'go first', 'akasa air'];
+    const airlines = AirportConfigHelper.getConfig().airlines.primary;
     for (const airline of airlines) {
       if (text.toLowerCase().includes(airline)) {
         return airline.replace(' ', '_');

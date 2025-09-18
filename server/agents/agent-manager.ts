@@ -5,6 +5,7 @@ import { CNNAgent } from './cnn-agent';
 import { InshortsAgent } from './inshorts-agent';
 import { BaseAgent } from './base-agent';
 import { DataSourceCredentials, InsertSocialEvent } from '@shared/schema';
+import AirportConfigHelper from '@shared/airport-config';
 
 export class AgentManager {
   private agents: Map<string, BaseAgent> = new Map();
@@ -38,7 +39,7 @@ export class AgentManager {
       throw new Error(`Invalid credentials for source: ${source}`);
     }
 
-    const defaultQuery = "bangalore airport OR bengaluru airport OR kempegowda airport OR indigo OR spicejet OR air india OR vistara OR air india express";
+    const defaultQuery = AirportConfigHelper.buildDefaultQuery();
     return await agent.collectData(query || defaultQuery);
   }
 
