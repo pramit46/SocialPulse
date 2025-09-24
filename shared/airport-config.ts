@@ -218,6 +218,97 @@ export class AirportConfigHelper {
     return this.formatTemplate(config.dataCollection.userAgents[platform]);
   }
 
+  // Load all airport configurations from config/list folder
+  public static getAllAirportConfigs(): AirportConfig[] {
+    const configs: AirportConfig[] = [];
+    const configFiles = ['airport-config_BLR.json', 'airport-config_CCU.json', 'airport-config_BOM.json'];
+    
+    for (const filename of configFiles) {
+      try {
+        const configPath = path.join(process.cwd(), 'config', 'list', filename);
+        if (fs.existsSync(configPath)) {
+          const configData = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+          configs.push(configData);
+        }
+      } catch (error) {
+        console.warn(`Failed to load config ${filename}:`, error);
+      }
+    }
+    
+    return configs;
+  }
+
+  // Get airport keywords from all configurations
+  public static getAllAirportKeywords(): string[] {
+    const allConfigs = this.getAllAirportConfigs();
+    const keywords: string[] = [];
+    
+    for (const config of allConfigs) {
+      // Add airport synonyms
+      keywords.push(...config.airport.synonyms);
+      
+      // Add formatted airport name variants
+      const city = config.airport.city.toLowerCase();
+      const alternateCity = config.airport.alternateCity.toLowerCase();
+      const code = config.airport.code.toLowerCase();
+      const airportName = config.airport.airportName.toLowerCase();
+      
+      keywords.push(
+        `${city} airport`,
+        `${alternateCity} airport`, 
+        `${code} airport`,
+        city,
+        alternateCity,
+        code,
+        airportName
+      );
+    }
+    
+    // Add general airport terms
+    keywords.push('departure', 'arrival', 'flight', 'terminal', 'baggage', 'check-in', 'security', 'lounge');
+    
+    return Array.from(new Set(keywords.map(k => k.toLowerCase()))); // Remove duplicates and normalize
+  }
+
+  // Get airline keywords from all configurations + additional airlines
+  public static getAllAirlineKeywords(): string[] {
+    const allConfigs = this.getAllAirportConfigs();
+    const airlines: string[] = [];
+    
+    for (const config of allConfigs) {
+      airlines.push(...config.airlines.primary);
+    }
+    
+    // Add additional airlines
+    airlines.push('akasa air', 'air india express');
+    
+    return Array.from(new Set(airlines.map(a => a.toLowerCase()))); // Remove duplicates and normalize
+  }
+
+  // Extract location focus from text by checking against all airport configs
+  public static extractLocationFromText(text: string): string | null {
+    const lowercaseText = text.toLowerCase();
+    const allConfigs = this.getAllAirportConfigs();
+    
+    for (const config of allConfigs) {
+      const synonyms = config.airport.synonyms.map(s => s.toLowerCase());
+      const airportTerms = [
+        config.airport.city.toLowerCase(),
+        config.airport.alternateCity.toLowerCase(),
+        config.airport.code.toLowerCase(),
+        config.airport.airportName.toLowerCase()
+      ];
+      
+      const allTerms = [...synonyms, ...airportTerms];
+      
+      if (allTerms.some(term => lowercaseText.includes(term))) {
+        return config.airport.locationSlug;
+      }
+    }
+    
+    return null;
+  }
+
   // Get all airport keywords for intent validation
   public static getAirportKeywords(): string[] {
     const config = this.getConfig();

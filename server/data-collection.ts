@@ -238,33 +238,28 @@ export class DataCollectionService {
   }
 
   private isAirportRelated(text: string): boolean {
-    const keywords = [
-      'bangalore airport', 'bengaluru airport', 'kempegowda airport',
-      'blr airport', 'indigo', 'spicejet', 'air india', 'vistara',
-      'departure', 'arrival', 'flight', 'terminal', 'baggage',
-      'check-in', 'security', 'lounge'
-    ];
+    const airportKeywords = AirportConfigHelper.getAllAirportKeywords();
+    const airlineKeywords = AirportConfigHelper.getAllAirlineKeywords();
+    const keywords = [...airportKeywords, ...airlineKeywords];
     
     const lowercaseText = text.toLowerCase();
     return keywords.some(keyword => lowercaseText.includes(keyword));
   }
 
   private extractLocationFocus(text: string): string | null {
-    const lowercaseText = text.toLowerCase();
-    if (lowercaseText.includes('bangalore') || lowercaseText.includes('bengaluru') || 
-        lowercaseText.includes('kempegowda') || lowercaseText.includes('blr')) {
-      return 'bangalore_airport';
-    }
-    return null;
+    return AirportConfigHelper.extractLocationFromText(text);
   }
 
   private extractAirlineMention(text: string): string | null {
     const lowercaseText = text.toLowerCase();
     
+    // Check for specific airlines with their codes and variations
     if (lowercaseText.includes('indigo') || lowercaseText.includes('6e')) return 'indigo';
     if (lowercaseText.includes('spicejet') || lowercaseText.includes('sg')) return 'spicejet';
+    if (lowercaseText.includes('air india express')) return 'air_india_express';
     if (lowercaseText.includes('air india') || lowercaseText.includes('ai')) return 'air_india';
     if (lowercaseText.includes('vistara') || lowercaseText.includes('uk')) return 'vistara';
+    if (lowercaseText.includes('akasa air') || lowercaseText.includes('akasa')) return 'akasa_air';
     
     return null;
   }
@@ -317,8 +312,8 @@ export class DataCollectionService {
           platform: 'Facebook',
           timestamp_utc: post.created_time || new Date().toISOString(),
           sentiment_analysis: await this.analyzeSentiment(post.message || ''),
-          location_focus: this.detectLocationFocus(post.message || ''),
-          airline_mentioned: this.detectAirlineMention(post.message || ''),
+          location_focus: this.extractLocationFocus(post.message || ''),
+          airline_mentioned: this.extractAirlineMention(post.message || ''),
         };
         events.push(eventData);
       }
@@ -348,7 +343,16 @@ export class DataCollectionService {
         timestamp_utc: new Date().toISOString(),
         sentiment_analysis: {
           overall_sentiment: 0.8,
-          sentiment_score: 0.85
+          sentiment_score: 0.85,
+          categories: {
+            ease_of_booking: null,
+            check_in: null,
+            luggage_handling: null,
+            security: null,
+            lounge: null,
+            amenities: null,
+            communication: null
+          }
         },
         location_focus: 'bangalore_airport',
         airline_mentioned: 'indigo',
