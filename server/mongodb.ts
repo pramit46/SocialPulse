@@ -2,6 +2,7 @@ import { MongoClient, Db, Collection } from "mongodb";
 import type { SocialEvent } from "@shared/schema";
 import * as fs from 'fs';
 import dotenv from 'dotenv';
+import AirportConfigHelper from '@shared/airport-config';
 
 dotenv.config();
 
@@ -19,7 +20,9 @@ class MongoDBService {
   // Auto-connect using environment variables
   private async autoConnect() {
     const connectionString = process.env.MONGODB_CONNECTION_STRING;
-    const databaseName = process.env.MONGODB_DATABASE_NAME || "bangalore_airport_analytics";
+    const baseDbName = process.env.MONGODB_DATABASE_NAME || "airport_analytics";
+    const city = AirportConfigHelper.getConfig().airport.city.toLowerCase();
+    const databaseName = `${city}_${baseDbName}`;
 
     if (connectionString) {
       try {
@@ -31,7 +34,12 @@ class MongoDBService {
     }
   }
 
-  async connect(connectionString: string, databaseName: string = "bangalore_airport_analytics"): Promise<void> {
+  async connect(connectionString: string, databaseName?: string): Promise<void> {
+    if (!databaseName) {
+      const baseDbName = process.env.MONGODB_DATABASE_NAME || "airport_analytics";
+      const city = AirportConfigHelper.getConfig().airport.city.toLowerCase();
+      databaseName = `${city}_${baseDbName}`;
+    }
     try {
       if (this.client) {
         await this.client.close();

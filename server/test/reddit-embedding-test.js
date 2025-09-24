@@ -16,8 +16,13 @@ class RedditEmbeddingTest {
 
   async connect() {
     try {
+      // Import AirportConfigHelper (assuming config is accessible)
+      const { default: AirportConfigHelper } = await import('../../shared/airport-config');
+      
       const connectionString = process.env.MONGODB_CONNECTION_STRING;
-      const dbName = process.env.MONGODB_DATABASE_NAME;
+      const baseDbName = process.env.MONGODB_DATABASE_NAME || 'airport_analytics';
+      const city = AirportConfigHelper.getConfig().airport.city.toLowerCase();
+      const dbName = `${city}_${baseDbName}`;
       
       this.mongoClient = new MongoClient(connectionString);
       await this.mongoClient.connect();

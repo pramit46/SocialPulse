@@ -301,7 +301,7 @@ export default function WeatherAlerts() {
               <div>
                 <p className="text-gray-300 font-medium">Flight Operations</p>
                 <p className="text-gray-400">
-                  {currentWeather.visibility >= 8 && currentWeather.windSpeed < 25 
+                  {currentWeather?.visibility >= 8 && currentWeather?.windSpeed < 25 
                     ? "Normal operations expected" 
                     : "Potential delays possible"}
                 </p>
@@ -309,7 +309,7 @@ export default function WeatherAlerts() {
               <div>
                 <p className="text-gray-300 font-medium">Passenger Comfort</p>
                 <p className="text-gray-400">
-                  {currentWeather.temperature >= 20 && currentWeather.temperature <= 32 
+                  {currentWeather?.temperature >= 20 && currentWeather?.temperature <= 32 
                     ? "Comfortable conditions" 
                     : "May affect outdoor comfort"}
                 </p>

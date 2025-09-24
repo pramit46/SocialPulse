@@ -16,9 +16,14 @@ class AgenticInsightSystem {
   // Connect to MongoDB (using same connection as main app)
   async connect() {
     try {
+      // Import AirportConfigHelper (assuming config is accessible)
+      const { default: AirportConfigHelper } = await import('../../shared/airport-config');
+      
       // Use environment variables like the main app
       const connectionString = process.env.MONGODB_CONNECTION_STRING || 'mongodb://localhost:27017';
-      const dbName = process.env.MONGODB_DATABASE_NAME || 'social_analytics';
+      const baseDbName = process.env.MONGODB_DATABASE_NAME || 'social_analytics';
+      const city = AirportConfigHelper.getConfig().airport.city.toLowerCase();
+      const dbName = `${city}_${baseDbName}`;
       
       this.mongoClient = new MongoClient(connectionString);
       await this.mongoClient.connect();

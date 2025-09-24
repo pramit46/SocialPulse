@@ -1,5 +1,6 @@
 import { MongoClient, Db, Collection } from 'mongodb';
 import type { SocialEvent } from '@shared/schema';
+import AirportConfigHelper from '@shared/airport-config';
 
 export class MongoDBService {
   private client: MongoClient | null = null;
@@ -15,7 +16,9 @@ export class MongoDBService {
 
   private async autoConnect() {
     const mongoUri = process.env.MONGODB_CONNECTION_STRING;
-    const dbName = process.env.MONGODB_DATABASE_NAME || 'bangalore_airport_analytics';
+    const baseDbName = process.env.MONGODB_DATABASE_NAME || 'airport_analytics';
+    const city = AirportConfigHelper.getConfig().airport.city.toLowerCase();
+    const dbName = `${city}_${baseDbName}`;
     
     if (mongoUri) {
       try {
@@ -27,7 +30,12 @@ export class MongoDBService {
     }
   }
 
-  async connect(connectionString: string, databaseName: string = 'bangalore_airport_analytics') {
+  async connect(connectionString: string, databaseName?: string) {
+    if (!databaseName) {
+      const baseDbName = process.env.MONGODB_DATABASE_NAME || 'airport_analytics';
+      const city = AirportConfigHelper.getConfig().airport.city.toLowerCase();
+      databaseName = `${city}_${baseDbName}`;
+    }
     try {
       if (this.isConnected) {
         console.log('MongoDB already connected');
@@ -63,9 +71,6 @@ export class MongoDBService {
   }
 
   // Methods required by storage layer
-  isConnectionActive(): boolean {
-    return this.isConnected;
-  }
 
   async getAllSocialEvents(): Promise<any[]> {
     if (!this.db) {
