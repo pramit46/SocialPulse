@@ -5,12 +5,12 @@
     "instructions": "Change values below to configure the system for a different airport. Impact areas are documented in 'usage' fields."
   },
   "airport": {
-    "code": "BLR",
-    "city": "Bangalore", 
-    "alternateCity": "Bangalore",
-    "airportName": "Kempegowda International Airport",
-    "synonyms": ["Bangalore", "Bengaluru", "kempegowda", "blr", "bangalore airport", "bengaluru airport", "kempegowda airport"],
-    "locationSlug": "bangalore_airport",
+    "code": "BOM",
+    "city": "Mumbai", 
+    "alternateCity": "Bombay",
+    "airportName": "Chhatrapati Shivaji Maharaj International Airport",
+    "synonyms": ["Mumbai", "Bombay", "chhatrapati shivaji maharaj", "bom", "mumbai airport", "bombay airport", "chhatrapati airport", "csmia", "csia"],
+    "locationSlug": "mumbai_airport",
     "usage": ["Intent validation", "Agent location extraction", "UI normalization", "Database collection naming"]
   },
   "airlines": {
@@ -19,8 +19,8 @@
   },
   "queryTerms": {
     "general": ["airport", "flight", "airline", "terminal", "baggage", "luggage", "security", "check-in", "boarding", "lounge", "delay", "punctual", "gate"],
-    "services": ["store", "shop", "food", "restaurant", "wifi", "clean", "dirty"],
-    "experience": ["good", "bad", "excellent", "terrible", "satisfied", "disappointed", "recommend", "avoid"],
+    "services": ["store", "shop", "food", "lounge", "restaurant", "wifi", "clean", "communication", "baggage", "staff", "security", "check-in", "boarding", "infrastructure", "facilities", "amenities"],
+    "experience": ["awesome", "terrific", "nice", "great", "lovely", "satisfactory", "great", "pleasant", "worst", "good", "bad", "excellent", "terrible", "satisfied", "disappointed", "recommend", "avoid", "helpful", "rude", "friendly", "unfriendly", "efficient", "slow"],
     "usage": ["Intent analysis", "Agent query building", "Data relevance scoring"]
   },
   "ui": {

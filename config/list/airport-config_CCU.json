@@ -9,7 +9,7 @@
     "city": "Kolkata", 
     "alternateCity": "Calcutta",
     "airportName": "Netaji Subhas Chandra Bose International Airport",
-    "synonyms": ["kolkata", "calcutta", "netaji", "ccu", "kolkata airport", "calcutta airport", "netaji airport"],
+    "synonyms": ["Kolkata", "Calcutta", "netaji subhas chandra bose", "ccu", "kolkata airport", "calcutta airport", "netaji airport"],
     "locationSlug": "kolkata_airport",
     "usage": ["Intent validation", "Agent location extraction", "UI normalization", "Database collection naming"]
   },
@@ -19,8 +19,8 @@
   },
   "queryTerms": {
     "general": ["airport", "flight", "airline", "terminal", "baggage", "luggage", "security", "check-in", "boarding", "lounge", "delay", "punctual", "gate"],
-    "services": ["store", "shop", "food", "restaurant", "wifi", "clean", "dirty"],
-    "experience": ["good", "bad", "excellent", "terrible", "satisfied", "disappointed", "recommend", "avoid"],
+    "services": ["store", "shop", "food", "lounge", "restaurant", "wifi", "clean", "communication", "baggage", "staff", "security", "check-in", "boarding", "infrastructure", "facilities", "amenities"],
+    "experience": ["awesome", "terrific", "nice", "great", "lovely", "satisfactory", "great", "pleasant", "worst", "good", "bad", "excellent", "terrible", "satisfied", "disappointed", "recommend", "avoid", "helpful", "rude", "friendly", "unfriendly", "efficient", "slow"],
     "usage": ["Intent analysis", "Agent query building", "Data relevance scoring"]
   },
   "ui": {
@@ -37,7 +37,25 @@
   "dataCollection": {
     "defaultQueryTemplate": "${airportSynonyms} OR ${airlines}",
     "collectionNameTemplate": "${locationSlug}_social_events",
-    "usage": ["MongoDB collection naming", "Data source queries", "ChromaDB collection naming"]
+    "searchTerms": {
+      "reddit": {
+        "airport": "${city} airport OR ${alternateCity} airport OR ${airportName} OR ${code} airport",
+        "airlines": [
+          "IndiGo ${city} OR Indigo ${alternateCity} OR 6E ${city}",
+          "SpiceJet ${city} OR SpiceJet ${alternateCity}",
+          "Air India ${city} OR Air India ${alternateCity}",
+          "Vistara ${city} OR Vistara ${alternateCity}"
+        ]
+      },
+      "news": {
+        "keywords": ["${city} airport", "${alternateCity} airport", "airline", "flight", "travel", "aviation", "${airportName}", "passengers"]
+      }
+    },
+    "userAgents": {
+      "reddit": "${city}AirportAnalytics/1.0",
+      "general": "${code}Analytics/1.0"
+    },
+    "usage": ["MongoDB collection naming", "Data source queries", "ChromaDB collection naming", "Agent search term generation"]
   },
   "wordCloud": {
     "extraAllowedTerms": [],
