@@ -2,6 +2,7 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { BaseAgent } from './base-agent';
 import { InsertSocialEvent } from '@shared/schema';
+import AirportConfigHelper from '@shared/airport-config';
 
 export class CNNAgent extends BaseAgent {
   constructor(credentials?: any) {
@@ -22,7 +23,7 @@ export class CNNAgent extends BaseAgent {
       const rssUrl = 'http://rss.cnn.com/rss/edition.rss';
       const response = await axios.get(rssUrl, {
         headers: {
-          'User-Agent': 'BLRAnalytics/1.0'
+          'User-Agent': AirportConfigHelper.getUserAgent('general')
         },
         timeout: 10000
       });
@@ -36,8 +37,8 @@ export class CNNAgent extends BaseAgent {
         const link = $(item).find('link').text();
         const pubDate = $(item).find('pubDate').text();
 
-        // Filter for travel/airport related news
-        const travelKeywords = ['bangalore airport', 'bangalore international airport','airline', 'flight', 'travel', 'aviation', 'kempegowda international airport','passengers', query];
+        // Filter for travel/airport related news using centralized configuration
+        const travelKeywords = [...AirportConfigHelper.getNewsSearchKeywords(), ...(query ? [query] : [])];
         const content = `${title} ${description}`.toLowerCase();
         
         if (travelKeywords.some(keyword => content.includes(keyword))) {

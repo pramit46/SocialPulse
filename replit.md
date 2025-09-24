@@ -8,9 +8,17 @@ This is a full-stack social media analytics application built specifically for m
 
 Preferred communication style: Simple, everyday language.
 
-## Recent Changes (August 2025)
+## Recent Changes (September 2025)
 
-### Enhanced Features Implemented:
+### Latest Configuration Enhancement:
+- **Complete Configurability Achievement**: Successfully transformed the system from hardcoded Bangalore-specific to fully configurable universal airport system
+- **Centralized Search Configuration**: Added comprehensive searchTerms section to airport-config.json with platform-specific search queries, travel keywords, and user agent strings
+- **Dynamic Agent Configuration**: All agent files (reddit-agent.ts, cnn-agent.ts, twitter-agent.ts, facebook-agent.ts) now use AirportConfigHelper methods instead of hardcoded search terms
+- **LLM Service Configuration**: Updated llm-service.ts to use dynamic airport references and configurable location keywords throughout chatbot responses
+- **Data Collection Centralization**: Replaced all hardcoded User-Agent strings in data-collection.ts with configurable values
+- **TypeScript Interface Updates**: Enhanced AirportConfig interface to support new search configuration structure with helper methods
+
+### Previous Enhanced Features:
 - **RAG System Complete**: Built proper Retrieval-Augmented Generation using scraped social media data from ChromaDB and in-memory storage
 - **MongoDB Integration**: Full database service with source-specific collections (twitter, reddit, facebook, cnn, wion, etc.) and automatic data storage
 - **Data Export System**: Download functionality for MongoDB collections in both JSON and CSV formats via Data Management page

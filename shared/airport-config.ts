@@ -41,6 +41,19 @@ export interface AirportConfig {
   dataCollection: {
     defaultQueryTemplate: string;
     collectionNameTemplate: string;
+    searchTerms: {
+      reddit: {
+        airport: string;
+        airlines: string[];
+      };
+      news: {
+        keywords: string[];
+      };
+    };
+    userAgents: {
+      reddit: string;
+      general: string;
+    };
     usage: string[];
   };
   wordCloud: {
@@ -179,6 +192,30 @@ export class AirportConfigHelper {
       airportSynonyms,
       airlines
     });
+  }
+
+  // Get Reddit search terms
+  public static getRedditSearchTerms(): string[] {
+    const config = this.getConfig();
+    const airportTerm = this.formatTemplate(config.dataCollection.searchTerms.reddit.airport);
+    const airlineTerms = config.dataCollection.searchTerms.reddit.airlines.map(term => 
+      this.formatTemplate(term)
+    );
+    return [airportTerm, ...airlineTerms];
+  }
+
+  // Get news search keywords
+  public static getNewsSearchKeywords(): string[] {
+    const config = this.getConfig();
+    return config.dataCollection.searchTerms.news.keywords.map(keyword => 
+      this.formatTemplate(keyword)
+    );
+  }
+
+  // Get configured user agents
+  public static getUserAgent(platform: 'reddit' | 'general'): string {
+    const config = this.getConfig();
+    return this.formatTemplate(config.dataCollection.userAgents[platform]);
   }
 
   // Get all airport keywords for intent validation

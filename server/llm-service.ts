@@ -153,11 +153,11 @@ JSON Response:`;
           if (isPositive) {
             await mongoService.storeAvaContext(sessionId, { waitingForInternetConsent: false }, userId);
             console.log(`🌐 [AVA] Performing internet search for: "${previousContext.originalQuery}"`);
-            return `I would search the internet for information about "${previousContext.originalQuery}" at Bangalore airport, but this feature is currently being developed. In the meantime, I can help you with passenger experiences, airline performance, and sentiment analysis from our existing social media data. What specific aspect would you like to explore?`;
+            return `I would search the internet for information about "${previousContext.originalQuery}" at ${AirportConfigHelper.getConfig().airport.city} airport, but this feature is currently being developed. In the meantime, I can help you with passenger experiences, airline performance, and sentiment analysis from our existing social media data. What specific aspect would you like to explore?`;
           } else {
             await mongoService.storeAvaContext(sessionId, { waitingForInternetConsent: false }, userId);
             console.log(`❌ [AVA] Internet search declined by user`);
-            return `No problem! I can help with other aspects of Bangalore airport like passenger experiences, airline services, security processes, or flight information. What would you like to know?`;
+            return `No problem! I can help with other aspects of ${AirportConfigHelper.getConfig().airport.city} airport like passenger experiences, airline services, security processes, or flight information. What would you like to know?`;
           }
         }
       }
@@ -287,7 +287,7 @@ ${AirportConfigHelper.getConsentPrompt(queryIntent.topic)}`;
   // Enhanced contextual response generation
   private async generateContextualResponse(query: string, events: string[], intent: any): Promise<string> {
     if (events.length === 0) {
-      return `I couldn't find specific social media data related to "${intent.topic}". Our system tracks passenger experiences about Bangalore airport including delays, airline services, baggage handling, security processes, and facility feedback. Try asking about these specific topics!`;
+      return `I couldn't find specific social media data related to "${intent.topic}". Our system tracks passenger experiences about ${AirportConfigHelper.getConfig().airport.city} airport including delays, airline services, baggage handling, security processes, and facility feedback. Try asking about these specific topics!`;
     }
 
     const contextText = events.slice(0, 3).join('\n\n'); // Limit to top 3 most relevant
@@ -297,7 +297,7 @@ ${AirportConfigHelper.getConsentPrompt(queryIntent.topic)}`;
 
 ${contextText.split('\n').map(line => line.trim()).filter(line => line.length > 10).slice(0, 3).map(line => `• ${line}`).join('\n')}
 
-This data comes from real social media posts about Bangalore airport and airline experiences.`;
+This data comes from real social media posts about ${AirportConfigHelper.getConfig().airport.city} airport and airline experiences.`;
   }
 
   async storeEventEmbedding(
@@ -521,8 +521,8 @@ This data comes from real social media posts about Bangalore airport and airline
           return content.includes('airport') || 
                  content.includes('airline') ||
                  content.includes('flight') ||
-                 content.includes('bangalore') ||
-                 content.includes('bengaluru') ||
+                 content.toLowerCase().includes(AirportConfigHelper.getConfig().airport.city.toLowerCase()) ||
+                 content.toLowerCase().includes(AirportConfigHelper.getConfig().airport.alternateCity.toLowerCase()) ||
                  queryTerms.some(term => content.includes(term));
         })
         .map(event => {
@@ -562,7 +562,7 @@ This data comes from real social media posts about Bangalore airport and airline
     if (textLower.includes(query)) score += 10;
     
     // Key airport terms
-    const airportTerms = ['bangalore airport', 'bengaluru airport', 'kempegowda', 'blr'];
+    const airportTerms = AirportConfigHelper.getLocationKeywords();
     airportTerms.forEach(term => {
       if (textLower.includes(term)) score += 5;
     });
@@ -615,7 +615,7 @@ This data comes from real social media posts about Bangalore airport and airline
       sentimentSummary = "The feedback is mixed.";
     }
     
-    return `Based on ${totalEvents} recent social media posts related to your query, here's what I found:\n\n${sentimentSummary}\n\nRecent passenger experiences:\n• ${eventSample.join('\n• ')}\n\nThis data comes from actual social media posts about Bangalore airport and airline experiences.`;
+    return `Based on ${totalEvents} recent social media posts related to your query, here's what I found:\n\n${sentimentSummary}\n\nRecent passenger experiences:\n• ${eventSample.join('\n• ')}\n\nThis data comes from actual social media posts about ${AirportConfigHelper.getConfig().airport.city} airport and airline experiences.`;
   }
 
   // Helper method to detect positive responses for internet search consent
@@ -632,7 +632,7 @@ This data comes from real social media posts about Bangalore airport and airline
   private async performInternetSearch(query: string): Promise<string> {
     console.log(`🌐 [AVA-INTERNET] Performing internet search for: "${query}"`);
     // For now, return a placeholder response
-    return `I would search the internet for information about "${query}" at Bangalore airport, but this feature is currently being developed. In the meantime, I can help you with passenger experiences, airline performance, and sentiment analysis from our existing social media data. What specific aspect would you like to explore?`;
+    return `I would search the internet for information about "${query}" at ${AirportConfigHelper.getConfig().airport.city} airport, but this feature is currently being developed. In the meantime, I can help you with passenger experiences, airline performance, and sentiment analysis from our existing social media data. What specific aspect would you like to explore?`;
   }
 }
 

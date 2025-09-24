@@ -5,6 +5,7 @@ import { DataSourceCredentials, InsertSocialEvent } from '@shared/schema';
 import { llmService } from './llm-service';
 import { mongoService } from './mongodb';
 import { storage } from './storage';
+import AirportConfigHelper from '@shared/airport-config';
 
 export class DataCollectionService {
   private credentials: DataSourceCredentials = {};
@@ -102,7 +103,7 @@ export class DataCollectionService {
           password: this.credentials.reddit_client_secret,
         },
         headers: {
-          'User-Agent': 'BLRAnalytics/1.0',
+          'User-Agent': AirportConfigHelper.getUserAgent('general'),
           'Content-Type': 'application/x-www-form-urlencoded',
         },
       });
@@ -113,7 +114,7 @@ export class DataCollectionService {
       const searchResponse = await axios.get(`https://oauth.reddit.com/search`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
-          'User-Agent': 'BLRAnalytics/1.0',
+          'User-Agent': AirportConfigHelper.getUserAgent('general'),
         },
         params: {
           q: query,
@@ -178,7 +179,7 @@ export class DataCollectionService {
       const response = await axios.get(url, {
         timeout: 10000,
         headers: {
-          'User-Agent': 'BLRAnalytics/1.0',
+          'User-Agent': AirportConfigHelper.getUserAgent('general'),
         },
       });
 

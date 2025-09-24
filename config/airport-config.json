@@ -37,7 +37,25 @@
   "dataCollection": {
     "defaultQueryTemplate": "${airportSynonyms} OR ${airlines}",
     "collectionNameTemplate": "${locationSlug}_social_events",
-    "usage": ["MongoDB collection naming", "Data source queries", "ChromaDB collection naming"]
+    "searchTerms": {
+      "reddit": {
+        "airport": "${city} airport OR ${alternateCity} airport OR ${airportName} OR ${code} airport",
+        "airlines": [
+          "IndiGo ${city} OR Indigo ${alternateCity} OR 6E ${city}",
+          "SpiceJet ${city} OR SpiceJet ${alternateCity}",
+          "Air India ${city} OR Air India ${alternateCity}",
+          "Vistara ${city} OR Vistara ${alternateCity}"
+        ]
+      },
+      "news": {
+        "keywords": ["${city} airport", "${alternateCity} airport", "airline", "flight", "travel", "aviation", "${airportName}", "passengers"]
+      }
+    },
+    "userAgents": {
+      "reddit": "${city}AirportAnalytics/1.0",
+      "general": "${code}Analytics/1.0"
+    },
+    "usage": ["MongoDB collection naming", "Data source queries", "ChromaDB collection naming", "Agent search term generation"]
   },
   "wordCloud": {
     "extraAllowedTerms": [],

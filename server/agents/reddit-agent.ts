@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { BaseAgent } from './base-agent';
 import { InsertSocialEvent } from '@shared/schema';
+import AirportConfigHelper from '@shared/airport-config';
 
 export class RedditAgent extends BaseAgent {
   constructor(credentials?: any) {
@@ -34,7 +35,7 @@ export class RedditAgent extends BaseAgent {
           headers: {
             'Authorization': `Basic ${auth}`,
             'Content-Type': 'application/x-www-form-urlencoded',
-            'User-Agent': 'BangaloreAirportAnalytics/1.0'
+            'User-Agent': AirportConfigHelper.getUserAgent('reddit')
           }
         }
       );
@@ -42,13 +43,10 @@ export class RedditAgent extends BaseAgent {
       const accessToken = authResponse.data.access_token;
       console.log('✅ Reddit access token obtained');
 
-      // Enhanced search terms for comprehensive coverage
+      // Get search terms from centralized configuration
+      const configuredSearches = AirportConfigHelper.getRedditSearchTerms();
       const searches = [
-        'Bangalore airport OR Bengaluru airport OR Kempegowda airport OR BLR airport',
-        'IndiGo Bangalore OR Indigo Bengaluru OR 6E Bangalore',
-        'SpiceJet Bangalore OR SpiceJet Bengaluru',
-        'Air India Bangalore OR Air India Bengaluru',
-        'Vistara Bangalore OR Vistara Bengaluru',
+        ...configuredSearches,
         query // Include original query
       ];
 
@@ -62,7 +60,7 @@ export class RedditAgent extends BaseAgent {
           const response = await axios.get(`https://oauth.reddit.com/search?q=${encodeURIComponent(searchTerm)}&type=link&sort=new&limit=20`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`,
-              'User-Agent': 'BangaloreAirportAnalytics/1.0'
+              'User-Agent': AirportConfigHelper.getUserAgent('reddit')
             }
           });
 
@@ -72,7 +70,7 @@ export class RedditAgent extends BaseAgent {
             console.log(`   Found ${posts.length} posts for "${searchTerm}"`);
           }
         } catch (searchError) {
-          console.warn(`⚠️ Search failed for "${searchTerm}":`, searchError.message);
+          console.warn(`⚠️ Search failed for "${searchTerm}":`, (searchError as Error).message);
         }
       }
 
@@ -94,7 +92,7 @@ export class RedditAgent extends BaseAgent {
           sentimentResult = await this.analyzeSentiment(eventText);
           console.log(`✅ Sentiment analyzed for post ${totalProcessed}`);
         } catch (sentError) {
-          console.warn(`⚠️ Sentiment analysis failed for post ${totalProcessed}:`, sentError.message);
+          console.warn(`⚠️ Sentiment analysis failed for post ${totalProcessed}:`, (sentError as Error).message);
           sentimentResult = {
             overall_sentiment: 0,
             sentiment_score: 0.5,
