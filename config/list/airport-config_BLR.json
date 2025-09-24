@@ -14,7 +14,7 @@
     "usage": ["Intent validation", "Agent location extraction", "UI normalization", "Database collection naming"]
   },
   "airlines": {
-    "primary": ["indigo", "spicejet", "air india", "vistara"],
+    "primary": ["indigo", "spicejet", "air india", "vistara", "akasa air", "airasia", "air india express"],
     "usage": ["Query generation", "Intent validation", "Data collection filters"]
   },
   "queryTerms": {
@@ -44,7 +44,10 @@
           "IndiGo ${city} OR Indigo ${alternateCity} OR 6E ${city}",
           "SpiceJet ${city} OR SpiceJet ${alternateCity}",
           "Air India ${city} OR Air India ${alternateCity}",
-          "Vistara ${city} OR Vistara ${alternateCity}"
+          "Vistara ${city} OR Vistara ${alternateCity}", 
+          "Akasa Air ${city} OR Akasa Air ${alternateCity", 
+          "AirAsia ${city} OR AirAsia ${alternateCity}", 
+          "Air India Express ${city} OR Air India Express ${alternateCity}"
         ]
       },
       "news": {
