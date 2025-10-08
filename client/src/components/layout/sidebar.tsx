@@ -58,13 +58,13 @@ export default function Sidebar() {
   });
 
   return (
-    <aside className="w-64 bg-dark-secondary border-r border-dark-border flex flex-col">
-      <div className="p-6 border-b border-dark-border">
+    <aside className="w-64 bg-card border-r border-border flex flex-col">
+      <div className="p-6 border-b border-border">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">@</span>
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <span className="text-primary-foreground font-bold text-lg">@</span>
           </div>
-          <span className="text-xl font-bold text-white">{airportConfig?.airport.code || '—'}</span>
+          <span className="text-xl font-bold text-card-foreground">{airportConfig?.airport.code || '—'}</span>
         </div>
       </div>
       
@@ -77,8 +77,8 @@ export default function Sidebar() {
                 <Link href={item.href}>
                   <span
                     className={cn(
-                      "flex items-center px-4 py-3 text-gray-300 rounded-lg hover:bg-dark-accent hover:text-white transition-colors duration-200 cursor-pointer",
-                      isActive && "bg-dark-accent text-white"
+                      "flex items-center px-4 py-3 text-muted-foreground rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors duration-200 cursor-pointer",
+                      isActive && "bg-accent text-accent-foreground"
                     )}
                   >
                     <item.icon className="mr-3 h-5 w-5" />
@@ -91,14 +91,14 @@ export default function Sidebar() {
         </ul>
       </nav>
       
-      <div className="p-4 border-t border-dark-border">
+      <div className="p-4 border-t border-border">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-            <User className="h-4 w-4" />
+          <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
+            <User className="h-4 w-4 text-muted-foreground" />
           </div>
           <div>
-            <p className="text-sm font-medium text-white">Pramit</p>
-            <p className="text-xs text-gray-400">Admin</p>
+            <p className="text-sm font-medium text-card-foreground">Pramit</p>
+            <p className="text-xs text-muted-foreground">Admin</p>
           </div>
         </div>
       </div>
