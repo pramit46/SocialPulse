@@ -127,7 +127,7 @@ export default function DataMoodVisualization() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500">Loading sentiment data...</p>
+          <p className="text-muted-foreground">Loading sentiment data...</p>
         </CardContent>
       </Card>
     );
@@ -185,17 +185,17 @@ export default function DataMoodVisualization() {
             <div>
               <ThumbsUp className="h-4 w-4 text-green-500 mx-auto mb-1" />
               <p className="text-lg font-semibold text-green-500">{moodData.overall.positive}</p>
-              <p className="text-xs text-gray-500">Positive</p>
+              <p className="text-xs text-muted-foreground">Positive</p>
             </div>
             <div>
               <Meh className="h-4 w-4 text-yellow-500 mx-auto mb-1" />
               <p className="text-lg font-semibold text-yellow-500">{moodData.overall.neutral}</p>
-              <p className="text-xs text-gray-500">Neutral</p>
+              <p className="text-xs text-muted-foreground">Neutral</p>
             </div>
             <div>
               <ThumbsDown className="h-4 w-4 text-red-500 mx-auto mb-1" />
               <p className="text-lg font-semibold text-red-500">{moodData.overall.negative}</p>
-              <p className="text-xs text-gray-500">Negative</p>
+              <p className="text-xs text-muted-foreground">Negative</p>
             </div>
           </div>
         </CardContent>

@@ -185,16 +185,16 @@ export default function WeatherAlerts() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <Card className="bg-dark-secondary border-dark-border">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+            <CardTitle className="text-lg font-semibold text-card-foreground flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-yellow-400" />
               Weather Alerts & Impact
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-center h-[200px]">
-              <div className="animate-pulse text-gray-400">Loading weather alerts...</div>
+              <div className="animate-pulse text-muted-foreground">Loading weather alerts...</div>
             </div>
           </CardContent>
         </Card>
@@ -217,74 +217,74 @@ export default function WeatherAlerts() {
       case 'orange': return 'bg-orange-500/20 text-orange-400';
       case 'green': return 'bg-green-500/20 text-green-400';
       case 'blue': return 'bg-blue-500/20 text-blue-400';
-      default: return 'bg-gray-500/20 text-gray-400';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
   return (
     <div className="space-y-4">
-      <Card className="bg-dark-secondary border-dark-border">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold text-card-foreground flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-yellow-400" />
             Weather Alerts & Impact
           </CardTitle>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-foreground">
             Real-time weather monitoring for airport operations
           </p>
         </CardHeader>
         <CardContent>
           {/* Current Weather Summary */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-dark-primary p-3 rounded-lg text-center">
+            <div className="bg-muted p-3 rounded-lg text-center">
               <Thermometer className="h-6 w-6 mx-auto mb-2 text-orange-400" />
-              <p className="text-xl font-bold text-white">{currentWeather?.temperature || 'N/A'}°C</p>
-              <p className="text-xs text-gray-400">Temperature</p>
+              <p className="text-xl font-bold text-card-foreground">{currentWeather?.temperature || 'N/A'}°C</p>
+              <p className="text-xs text-muted-foreground">Temperature</p>
             </div>
-            <div className="bg-dark-primary p-3 rounded-lg text-center">
+            <div className="bg-muted p-3 rounded-lg text-center">
               <Wind className="h-6 w-6 mx-auto mb-2 text-blue-400" />
-              <p className="text-xl font-bold text-white">{currentWeather?.windSpeed || 'N/A'} km/h</p>
-              <p className="text-xs text-gray-400">Wind Speed</p>
+              <p className="text-xl font-bold text-card-foreground">{currentWeather?.windSpeed || 'N/A'} km/h</p>
+              <p className="text-xs text-muted-foreground">Wind Speed</p>
             </div>
-            <div className="bg-dark-primary p-3 rounded-lg text-center">
-              <CloudRain className="h-6 w-6 mx-auto mb-2 text-gray-400" />
-              <p className="text-xl font-bold text-white">{currentWeather?.humidity || 'N/A'}%</p>
-              <p className="text-xs text-gray-400">Humidity</p>
+            <div className="bg-muted p-3 rounded-lg text-center">
+              <CloudRain className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+              <p className="text-xl font-bold text-card-foreground">{currentWeather?.humidity || 'N/A'}%</p>
+              <p className="text-xs text-muted-foreground">Humidity</p>
             </div>
-            <div className="bg-dark-primary p-3 rounded-lg text-center">
+            <div className="bg-muted p-3 rounded-lg text-center">
               <Sun className="h-6 w-6 mx-auto mb-2 text-yellow-400" />
-              <p className="text-xl font-bold text-white">{currentWeather?.visibility || 'N/A'} km</p>
-              <p className="text-xs text-gray-400">Visibility</p>
+              <p className="text-xl font-bold text-card-foreground">{currentWeather?.visibility || 'N/A'} km</p>
+              <p className="text-xs text-muted-foreground">Visibility</p>
             </div>
           </div>
           
           {/* Weather Alerts */}
           <div className="space-y-3">
-            <h3 className="text-sm font-medium text-white mb-3">Active Weather Alerts</h3>
+            <h3 className="text-sm font-medium text-card-foreground mb-3">Active Weather Alerts</h3>
             {weatherAlerts.length === 0 ? (
               <div className="text-center py-6">
                 <Sun className="h-8 w-8 mx-auto mb-2 text-green-400" />
-                <p className="text-gray-400">No weather alerts at this time</p>
-                <p className="text-xs text-gray-500 mt-1">Monitoring conditions continuously</p>
+                <p className="text-muted-foreground">No weather alerts at this time</p>
+                <p className="text-xs text-muted-foreground mt-1">Monitoring conditions continuously</p>
               </div>
             ) : (
               weatherAlerts.map((alert) => (
-                <Alert key={alert.id} variant={getAlertVariant(alert.type)} className="border-dark-border bg-dark-primary">
+                <Alert key={alert.id} variant={getAlertVariant(alert.type)} className="border-border bg-background">
                   <div className="flex items-start space-x-3">
                     <div className="mt-0.5">
                       {alert.icon}
                     </div>
                     <div className="flex-1">
-                      <AlertTitle className="text-white flex items-center gap-2">
+                      <AlertTitle className="text-card-foreground flex items-center gap-2">
                         {alert.condition}
                         <Badge className={getBadgeColor(alert.color)}>
                           {alert.type.toUpperCase()}
                         </Badge>
                       </AlertTitle>
-                      <AlertDescription className="text-gray-300 mt-1">
+                      <AlertDescription className="text-muted-foreground mt-1">
                         {alert.message}
                       </AlertDescription>
-                      <div className="mt-2 p-2 bg-dark-secondary rounded text-xs text-gray-400">
+                      <div className="mt-2 p-2 bg-muted rounded text-xs text-muted-foreground">
                         <strong>Expected Impact:</strong> {alert.impact}
                       </div>
                     </div>
@@ -299,24 +299,24 @@ export default function WeatherAlerts() {
             <h4 className="text-sm font-medium text-blue-400 mb-2">Weather Impact Summary</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
               <div>
-                <p className="text-gray-300 font-medium">Flight Operations</p>
-                <p className="text-gray-400">
+                <p className="text-muted-foreground font-medium">Flight Operations</p>
+                <p className="text-muted-foreground">
                   {currentWeather?.visibility >= 8 && currentWeather?.windSpeed < 25 
                     ? "Normal operations expected" 
                     : "Potential delays possible"}
                 </p>
               </div>
               <div>
-                <p className="text-gray-300 font-medium">Passenger Comfort</p>
-                <p className="text-gray-400">
+                <p className="text-muted-foreground font-medium">Passenger Comfort</p>
+                <p className="text-muted-foreground">
                   {currentWeather?.temperature >= 20 && currentWeather?.temperature <= 32 
                     ? "Comfortable conditions" 
                     : "May affect outdoor comfort"}
                 </p>
               </div>
               <div>
-                <p className="text-gray-300 font-medium">Social Sentiment</p>
-                <p className="text-gray-400">
+                <p className="text-muted-foreground font-medium">Social Sentiment</p>
+                <p className="text-muted-foreground">
                   {weatherAlerts.some(alert => alert.type === 'positive') 
                     ? "Positive feedback expected" 
                     : "Monitor for weather-related complaints"}

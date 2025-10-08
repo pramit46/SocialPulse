@@ -45,13 +45,13 @@ export default function InsightsPanel() {
 
   if (isLoading) {
     return (
-      <Card className="bg-dark-secondary border-dark-border">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-white">Actionable Insights</CardTitle>
+          <CardTitle className="text-lg font-semibold text-card-foreground">Actionable Insights</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-32">
-            <div className="animate-pulse text-gray-400">Loading insights...</div>
+            <div className="animate-pulse text-muted-foreground">Loading insights...</div>
           </div>
         </CardContent>
       </Card>
@@ -59,12 +59,12 @@ export default function InsightsPanel() {
   }
 
   return (
-    <Card className="bg-dark-secondary border-dark-border">
+    <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-white flex items-center justify-between">
+        <CardTitle className="text-lg font-semibold text-card-foreground flex items-center justify-between">
           <span>Actionable Insights</span>
           {totalPages > 1 && (
-            <span className="text-sm text-gray-400 font-normal">
+            <span className="text-sm text-muted-foreground font-normal">
               {currentPage + 1} of {totalPages}
             </span>
           )}
@@ -84,8 +84,8 @@ export default function InsightsPanel() {
                     {Icon && <Icon className="h-3 w-3 text-white" />}
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-medium text-white mb-1">{insight.title}</h4>
-                    <p className="text-sm text-gray-300 mb-2">{insight.description}</p>
+                    <h4 className="font-medium text-card-foreground mb-1">{insight.title}</h4>
+                    <p className="text-sm text-muted-foreground mb-2">{insight.description}</p>
                     <Button 
                       variant="ghost" 
                       size="sm" 
@@ -102,13 +102,13 @@ export default function InsightsPanel() {
         
         {/* Pagination Controls */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-dark-border">
+          <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-border">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
               disabled={currentPage === 0}
-              className="text-gray-400 hover:text-white disabled:opacity-50"
+              className="text-muted-foreground hover:text-foreground disabled:opacity-50"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -122,8 +122,8 @@ export default function InsightsPanel() {
                   onClick={() => setCurrentPage(index)}
                   className={`w-8 h-8 ${
                     currentPage === index 
-                      ? "bg-blue-600 text-white" 
-                      : "text-gray-400 hover:text-white"
+                      ? "bg-primary text-primary-foreground" 
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {index + 1}
@@ -136,7 +136,7 @@ export default function InsightsPanel() {
               size="sm"
               onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
               disabled={currentPage === totalPages - 1}
-              className="text-gray-400 hover:text-white disabled:opacity-50"
+              className="text-muted-foreground hover:text-foreground disabled:opacity-50"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>

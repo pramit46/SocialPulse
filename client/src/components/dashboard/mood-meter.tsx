@@ -70,13 +70,13 @@ export default function MoodMeter() {
     return (
       <Card className="bg-gradient-to-br from-purple-900/20 to-pink-900/20 border-purple-500/20">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-white">
+          <CardTitle className="flex items-center gap-2 text-card-foreground">
             <Heart className="h-5 w-5 text-pink-400" />
             Passenger Mood Meter
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-400">Analyzing passenger emotions...</p>
+          <p className="text-muted-foreground">Analyzing passenger emotions...</p>
         </CardContent>
       </Card>
     );
@@ -126,14 +126,14 @@ export default function MoodMeter() {
   return (
     <Card className={`bg-gradient-to-br ${moodData.bgColor} border-purple-500/20`}>
       <CardHeader className="py-3">
-        <CardTitle className="flex items-center justify-between text-white">
+        <CardTitle className="flex items-center justify-between text-card-foreground">
           <div className="flex items-center gap-2">
             <Heart className="h-4 w-4 text-pink-400" />
             <span className="text-sm font-semibold">Passenger Mood</span>
           </div>
           <Badge 
             variant="secondary" 
-            className="bg-white/10 text-white border-white/20 text-xs"
+            className="bg-white/10 text-card-foreground border-white/20 text-xs"
           >
             {moodMetrics.totalEvents}
           </Badge>
@@ -145,8 +145,8 @@ export default function MoodMeter() {
           <div className="flex items-center justify-center mb-2">
             <div className="scale-75">{moodData.icon}</div>
           </div>
-          <h3 className="text-lg font-bold text-white mb-1">{moodData.label}</h3>
-          <p className="text-gray-300 text-xs mb-3">{moodData.description}</p>
+          <h3 className="text-lg font-bold text-card-foreground mb-1">{moodData.label}</h3>
+          <p className="text-muted-foreground text-xs mb-3">{moodData.description}</p>
           
           {/* Mood Intensity Bar */}
           <div className="relative">
@@ -157,9 +157,9 @@ export default function MoodMeter() {
             <div className={`absolute top-0 left-0 h-3 rounded-full bg-gradient-to-r ${moodData.color} opacity-80`} 
                  style={{ width: `${moodMetrics.moodIntensity}%` }} />
           </div>
-          <div className="flex justify-between mt-2 text-xs text-gray-400">
+          <div className="flex justify-between mt-2 text-xs text-muted-foreground">
             <span>Very Negative</span>
-            <span className="text-white font-medium">{moodMetrics.moodIntensity}%</span>
+            <span className="text-card-foreground font-medium">{moodMetrics.moodIntensity}%</span>
             <span>Very Positive</span>
           </div>
         </div>
@@ -168,39 +168,39 @@ export default function MoodMeter() {
         <div className="grid grid-cols-5 gap-1 text-center">
           <div>
             <div className="w-6 h-6 bg-green-500 rounded-full mx-auto mb-1 flex items-center justify-center">
-              <span className="text-xs font-bold text-white">{moodMetrics.emotions.joy}</span>
+              <span className="text-xs font-bold text-card-foreground">{moodMetrics.emotions.joy}</span>
             </div>
-            <p className="text-xs text-gray-400">Joy</p>
+            <p className="text-xs text-muted-foreground">Joy</p>
           </div>
           <div>
             <div className="w-6 h-6 bg-blue-500 rounded-full mx-auto mb-1 flex items-center justify-center">
-              <span className="text-xs font-bold text-white">{moodMetrics.emotions.satisfaction}</span>
+              <span className="text-xs font-bold text-card-foreground">{moodMetrics.emotions.satisfaction}</span>
             </div>
-            <p className="text-xs text-gray-400">Happy</p>
+            <p className="text-xs text-muted-foreground">Happy</p>
           </div>
           <div>
             <div className="w-6 h-6 bg-yellow-500 rounded-full mx-auto mb-1 flex items-center justify-center">
-              <span className="text-xs font-bold text-white">{moodMetrics.emotions.neutral}</span>
+              <span className="text-xs font-bold text-card-foreground">{moodMetrics.emotions.neutral}</span>
             </div>
-            <p className="text-xs text-gray-400">Neutral</p>
+            <p className="text-xs text-muted-foreground">Neutral</p>
           </div>
           <div>
             <div className="w-6 h-6 bg-orange-500 rounded-full mx-auto mb-1 flex items-center justify-center">
-              <span className="text-xs font-bold text-white">{moodMetrics.emotions.frustration}</span>
+              <span className="text-xs font-bold text-card-foreground">{moodMetrics.emotions.frustration}</span>
             </div>
-            <p className="text-xs text-gray-400">Upset</p>
+            <p className="text-xs text-muted-foreground">Upset</p>
           </div>
           <div>
             <div className="w-6 h-6 bg-red-500 rounded-full mx-auto mb-1 flex items-center justify-center">
-              <span className="text-xs font-bold text-white">{moodMetrics.emotions.anger}</span>
+              <span className="text-xs font-bold text-card-foreground">{moodMetrics.emotions.anger}</span>
             </div>
-            <p className="text-xs text-gray-400">Angry</p>
+            <p className="text-xs text-muted-foreground">Angry</p>
           </div>
         </div>
 
         {/* Trend Indicator */}
         <div className="flex items-center justify-center gap-2 pt-4 border-t border-white/10">
-          <span className="text-gray-400 text-sm">Recent trend:</span>
+          <span className="text-muted-foreground text-sm">Recent trend:</span>
           <Badge 
             variant={moodMetrics.trendDirection === 'up' ? 'default' : 
                     moodMetrics.trendDirection === 'down' ? 'destructive' : 'secondary'}

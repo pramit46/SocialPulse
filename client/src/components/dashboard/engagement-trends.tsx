@@ -110,20 +110,20 @@ export default function EngagementTrends() {
   };
 
   return (
-    <Card className="bg-dark-secondary border-dark-border">
+    <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+        <CardTitle className="text-lg font-semibold text-card-foreground flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-blue-400" />
           Engagement Trends
         </CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-dark-primary">
-            <TabsTrigger value="social" className="text-gray-300 data-[state=active]:text-blue-400">
+          <TabsList className="grid w-full grid-cols-2 bg-muted">
+            <TabsTrigger value="social" className="text-muted-foreground data-[state=active]:text-blue-400">
               Social Media
             </TabsTrigger>
-            <TabsTrigger value="news" className="text-gray-300 data-[state=active]:text-blue-400">
+            <TabsTrigger value="news" className="text-muted-foreground data-[state=active]:text-blue-400">
               <Newspaper className="h-4 w-4 mr-1" />
               News Trends
             </TabsTrigger>
@@ -131,20 +131,20 @@ export default function EngagementTrends() {
           
           <TabsContent value="social" className="mt-6">
             <Tabs defaultValue="facebook" className="w-full">
-              <TabsList className="grid w-full grid-cols-5 bg-dark-primary">
-                <TabsTrigger value="facebook" className="text-xs text-gray-300 data-[state=active]:text-blue-400">
+              <TabsList className="grid w-full grid-cols-5 bg-muted">
+                <TabsTrigger value="facebook" className="text-xs text-muted-foreground data-[state=active]:text-blue-400">
                   Facebook
                 </TabsTrigger>
-                <TabsTrigger value="twitter" className="text-xs text-gray-300 data-[state=active]:text-blue-400">
+                <TabsTrigger value="twitter" className="text-xs text-muted-foreground data-[state=active]:text-blue-400">
                   Twitter
                 </TabsTrigger>
-                <TabsTrigger value="reddit" className="text-xs text-gray-300 data-[state=active]:text-blue-400">
+                <TabsTrigger value="reddit" className="text-xs text-muted-foreground data-[state=active]:text-blue-400">
                   Reddit
                 </TabsTrigger>
-                <TabsTrigger value="youtube" className="text-xs text-gray-300 data-[state=active]:text-blue-400">
+                <TabsTrigger value="youtube" className="text-xs text-muted-foreground data-[state=active]:text-blue-400">
                   YouTube
                 </TabsTrigger>
-                <TabsTrigger value="instagram" className="text-xs text-gray-300 data-[state=active]:text-blue-400">
+                <TabsTrigger value="instagram" className="text-xs text-muted-foreground data-[state=active]:text-blue-400">
                   Instagram
                 </TabsTrigger>
               </TabsList>
@@ -219,35 +219,35 @@ export default function EngagementTrends() {
                     </ResponsiveContainer>
                   </div>
                   <div className="mt-4 grid grid-cols-5 gap-4 text-center">
-                    <div className="bg-dark-primary p-3 rounded-lg">
+                    <div className="bg-muted p-3 rounded-lg">
                       <p className="text-lg font-bold text-green-400">
                         {formatNumber(data.reduce((sum, item) => sum + item.excellent, 0))}
                       </p>
-                      <p className="text-xs text-gray-400">Excellent</p>
+                      <p className="text-xs text-muted-foreground">Excellent</p>
                     </div>
-                    <div className="bg-dark-primary p-3 rounded-lg">
+                    <div className="bg-muted p-3 rounded-lg">
                       <p className="text-lg font-bold text-red-400">
                         {formatNumber(data.reduce((sum, item) => sum + item.delay, 0))}
                       </p>
-                      <p className="text-xs text-gray-400">Delay</p>
+                      <p className="text-xs text-muted-foreground">Delay</p>
                     </div>
-                    <div className="bg-dark-primary p-3 rounded-lg">
+                    <div className="bg-muted p-3 rounded-lg">
                       <p className="text-lg font-bold text-blue-400">
                         {formatNumber(data.reduce((sum, item) => sum + item.comfortable, 0))}
                       </p>
-                      <p className="text-xs text-gray-400">Comfortable</p>
+                      <p className="text-xs text-muted-foreground">Comfortable</p>
                     </div>
-                    <div className="bg-dark-primary p-3 rounded-lg">
+                    <div className="bg-muted p-3 rounded-lg">
                       <p className="text-lg font-bold text-yellow-400">
                         {formatNumber(data.reduce((sum, item) => sum + item.crowded, 0))}
                       </p>
-                      <p className="text-xs text-gray-400">Crowded</p>
+                      <p className="text-xs text-muted-foreground">Crowded</p>
                     </div>
-                    <div className="bg-dark-primary p-3 rounded-lg">
+                    <div className="bg-muted p-3 rounded-lg">
                       <p className="text-lg font-bold text-purple-400">
                         {formatNumber(data.reduce((sum, item) => sum + item.efficient, 0))}
                       </p>
-                      <p className="text-xs text-gray-400">Efficient</p>
+                      <p className="text-xs text-muted-foreground">Efficient</p>
                     </div>
                   </div>
                 </TabsContent>
@@ -322,35 +322,35 @@ export default function EngagementTrends() {
               </ResponsiveContainer>
             </div>
             <div className="mt-4 grid grid-cols-5 gap-4 text-center">
-              <div className="bg-dark-primary p-3 rounded-lg">
+              <div className="bg-muted p-3 rounded-lg">
                 <p className="text-lg font-bold text-blue-400">
                   {engagementData.newsTrends.reduce((sum, item) => sum + item[`${airportConfig?.airport.locationSlug || 'airport'}`], 0)}
                 </p>
-                <p className="text-xs text-gray-400">{airportConfig?.airport.code || 'Airport'}</p>
+                <p className="text-xs text-muted-foreground">{airportConfig?.airport.code || 'Airport'}</p>
               </div>
-              <div className="bg-dark-primary p-3 rounded-lg">
+              <div className="bg-muted p-3 rounded-lg">
                 <p className="text-lg font-bold text-green-400">
                   {engagementData.newsTrends.reduce((sum, item) => sum + item.indigo, 0)}
                 </p>
-                <p className="text-xs text-gray-400">IndiGo</p>
+                <p className="text-xs text-muted-foreground">IndiGo</p>
               </div>
-              <div className="bg-dark-primary p-3 rounded-lg">
+              <div className="bg-muted p-3 rounded-lg">
                 <p className="text-lg font-bold text-yellow-400">
                   {engagementData.newsTrends.reduce((sum, item) => sum + item.air_india, 0)}
                 </p>
-                <p className="text-xs text-gray-400">Air India</p>
+                <p className="text-xs text-muted-foreground">Air India</p>
               </div>
-              <div className="bg-dark-primary p-3 rounded-lg">
+              <div className="bg-muted p-3 rounded-lg">
                 <p className="text-lg font-bold text-red-400">
                   {engagementData.newsTrends.reduce((sum, item) => sum + item.spicejet, 0)}
                 </p>
-                <p className="text-xs text-gray-400">SpiceJet</p>
+                <p className="text-xs text-muted-foreground">SpiceJet</p>
               </div>
-              <div className="bg-dark-primary p-3 rounded-lg">
+              <div className="bg-muted p-3 rounded-lg">
                 <p className="text-lg font-bold text-purple-400">
                   {engagementData.newsTrends.reduce((sum, item) => sum + item.vistara, 0)}
                 </p>
-                <p className="text-xs text-gray-400">Vistara</p>
+                <p className="text-xs text-muted-foreground">Vistara</p>
               </div>
             </div>
           </TabsContent>

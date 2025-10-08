@@ -208,8 +208,8 @@ export default function AeroBot() {
               <Bot className="h-6 w-6 text-blue-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">AVA</h1>
-              <p className="text-gray-400">{airportConfig ? airportConfig.ui.scopeDescriptionTemplate.replace('${code}', airportConfig.airport.code).replace('${city}', airportConfig.airport.city) : 'AI-powered airport insights'}</p>
+              <h1 className="text-3xl font-bold text-card-foreground">AVA</h1>
+              <p className="text-muted-foreground">{airportConfig ? airportConfig.ui.scopeDescriptionTemplate.replace('${code}', airportConfig.airport.code).replace('${city}', airportConfig.airport.city) : 'AI-powered airport insights'}</p>
             </div>
           </div>
         </div>
@@ -218,14 +218,14 @@ export default function AeroBot() {
         <div className="w-full max-w-4xl mx-auto">
           {/* Sample Queries - Inline buttons */}
           <div className="mb-6">
-            <p className="text-gray-400 mb-3">Try these sample questions:</p>
+            <p className="text-muted-foreground mb-3">Try these sample questions:</p>
             <div className="flex flex-wrap gap-2">
               {getConfigurableSampleQueries(airportConfig).map((query, index) => (
                 <Button
                   key={index}
                   variant="outline"
                   size="sm"
-                  className="border-dark-border bg-dark-secondary/50 hover:bg-dark-secondary text-gray-300 hover:text-white text-xs"
+                  className="border-border bg-card/50 hover:bg-card text-muted-foreground hover:text-card-foreground text-xs"
                   onClick={() => handleSampleQuery(query)}
                 >
                   {query}
@@ -236,9 +236,9 @@ export default function AeroBot() {
 
           {/* Chat Interface */}
           <div className="w-full">
-            <Card className="bg-dark-secondary border-dark-border min-h-[600px] max-h-[800px] flex flex-col">
-              <CardHeader className="border-b border-dark-border flex-shrink-0">
-                <CardTitle className="text-lg font-semibold text-white">Chat with AeroBot</CardTitle>
+            <Card className="bg-card border-border min-h-[600px] max-h-[800px] flex flex-col">
+              <CardHeader className="border-b border-border flex-shrink-0">
+                <CardTitle className="text-lg font-semibold text-card-foreground">Chat with AeroBot</CardTitle>
               </CardHeader>
               
               <CardContent className="flex-1 p-0 flex flex-col overflow-hidden">
@@ -255,16 +255,16 @@ export default function AeroBot() {
                           message.sender === "user" ? "bg-blue-500" : "bg-gray-600"
                         }`}>
                           {message.sender === "user" ? (
-                            <User className="h-4 w-4 text-white" />
+                            <User className="h-4 w-4 text-card-foreground" />
                           ) : (
-                            <Bot className="h-4 w-4 text-white" />
+                            <Bot className="h-4 w-4 text-card-foreground" />
                           )}
                         </div>
                         <div
                           className={`max-w-[70%] px-3 py-2 rounded-lg word-wrap ${
                             message.sender === "user"
-                              ? "bg-blue-500 text-white"
-                              : "bg-dark-accent text-gray-100"
+                              ? "bg-blue-500 text-card-foreground"
+                              : "bg-muted text-gray-100"
                           }`}
                         >
                           <p className="text-sm whitespace-pre-wrap word-wrap">{message.content}</p>
@@ -278,9 +278,9 @@ export default function AeroBot() {
                     {isTyping && (
                       <div className="flex items-start space-x-3">
                         <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-                          <Bot className="h-4 w-4 text-white" />
+                          <Bot className="h-4 w-4 text-card-foreground" />
                         </div>
-                        <div className="bg-dark-accent text-gray-100 px-4 py-2 rounded-lg">
+                        <div className="bg-muted text-gray-100 px-4 py-2 rounded-lg">
                           <div className="flex space-x-1">
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-100"></div>
@@ -292,7 +292,7 @@ export default function AeroBot() {
                   </div>
                 </ScrollArea>
                 
-                <div className="p-4 border-t border-dark-border flex-shrink-0">
+                <div className="p-4 border-t border-border flex-shrink-0">
                   <div className="flex space-x-2">
                     <Input
                       ref={inputRef}
@@ -300,19 +300,19 @@ export default function AeroBot() {
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder={`Ask about ${airportConfig?.airport.city || 'airport'} experiences...`}
-                      className="flex-1 bg-dark-accent border-dark-border text-white placeholder-gray-500"
+                      className="flex-1 bg-muted border-border text-card-foreground placeholder-gray-500"
                       disabled={isTyping}
                       autoFocus
                     />
                     <Button
                       onClick={() => handleSendMessage()}
-                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                      className="bg-blue-500 hover:bg-blue-600 text-card-foreground"
                       disabled={isTyping || !inputValue.trim()}
                     >
                       <Send className="h-4 w-4" />
                     </Button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-muted-foreground mt-2">
                     Powered by AI analysis of social media sentiment data
                   </p>
                 </div>

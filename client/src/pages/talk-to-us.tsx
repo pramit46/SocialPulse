@@ -49,46 +49,46 @@ export default function TalkToUs() {
     <div className="p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Talk to Us</h1>
-          <p className="text-gray-400">We'd love to hear from you. About us, about the {airportConfig?.airport.city || 'airport'}, about everything (Just kidding!!!). Send us a message and we'll respond as soon as possible.</p>
+          <h1 className="text-3xl font-bold text-card-foreground mb-2">Talk to Us</h1>
+          <p className="text-muted-foreground">We'd love to hear from you. About us, about the {airportConfig?.airport.city || 'airport'}, about everything (Just kidding!!!). Send us a message and we'll respond as soon as possible.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Contact Form */}
-          <Card className="bg-dark-secondary border-dark-border">
+          <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-xl font-semibold text-white">Send us a message</CardTitle>
+              <CardTitle className="text-xl font-semibold text-card-foreground">Send us a message</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <Label htmlFor="name" className="text-sm font-medium text-gray-300 mb-2">Name</Label>
+                  <Label htmlFor="name" className="text-sm font-medium text-muted-foreground mb-2">Name</Label>
                   <Input
                     id="name"
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
-                    className="w-full bg-dark-accent border-dark-border text-white placeholder-gray-500"
+                    className="w-full bg-muted border-border text-card-foreground placeholder-gray-500"
                     placeholder="Your name"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email" className="text-sm font-medium text-gray-300 mb-2">Email</Label>
+                  <Label htmlFor="email" className="text-sm font-medium text-muted-foreground mb-2">Email</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    className="w-full bg-dark-accent border-dark-border text-white placeholder-gray-500"
+                    className="w-full bg-muted border-border text-card-foreground placeholder-gray-500"
                     placeholder="your@email.com"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="subject" className="text-sm font-medium text-gray-300 mb-2">Subject</Label>
+                  <Label htmlFor="subject" className="text-sm font-medium text-muted-foreground mb-2">Subject</Label>
                   <Select value={formData.subject} onValueChange={(value) => handleInputChange("subject", value)}>
-                    <SelectTrigger className="w-full bg-dark-accent border-dark-border text-white">
+                    <SelectTrigger className="w-full bg-muted border-border text-card-foreground">
                       <SelectValue placeholder="Select a subject" />
                     </SelectTrigger>
                     <SelectContent>
@@ -100,18 +100,18 @@ export default function TalkToUs() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="message" className="text-sm font-medium text-gray-300 mb-2">Message</Label>
+                  <Label htmlFor="message" className="text-sm font-medium text-muted-foreground mb-2">Message</Label>
                   <Textarea
                     id="message"
                     value={formData.message}
                     onChange={(e) => handleInputChange("message", e.target.value)}
-                    className="w-full bg-dark-accent border-dark-border text-white placeholder-gray-500 resize-none"
+                    className="w-full bg-muted border-border text-card-foreground placeholder-gray-500 resize-none"
                     placeholder="Tell us how we can help you..."
                     rows={4}
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium">
+                <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-card-foreground font-medium">
                   Send Message
                 </Button>
               </form>
@@ -120,9 +120,9 @@ export default function TalkToUs() {
 
           {/* Contact Information */}
           <div className="space-y-8">
-            <Card className="bg-dark-secondary border-dark-border">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold text-white">Get in touch</CardTitle>
+                <CardTitle className="text-xl font-semibold text-card-foreground">Get in touch</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-start space-x-4">
@@ -130,8 +130,8 @@ export default function TalkToUs() {
                     <Mail className="h-6 w-6 text-blue-400" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-white mb-1">Email</h3>
-                    <p className="text-gray-400">contact@{airportConfig?.airport.code.toLowerCase() || 'airport'}.analytics</p>
+                    <h3 className="font-medium text-card-foreground mb-1">Email</h3>
+                    <p className="text-muted-foreground">contact@{airportConfig?.airport.code.toLowerCase() || 'airport'}.analytics</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-4">
@@ -139,8 +139,8 @@ export default function TalkToUs() {
                     <Phone className="h-6 w-6 text-green-400" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-white mb-1">Phone</h3>
-                    <p className="text-gray-400">+1 (555) 123-4567</p>
+                    <h3 className="font-medium text-card-foreground mb-1">Phone</h3>
+                    <p className="text-muted-foreground">+1 (555) 123-4567</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-4">
@@ -148,29 +148,29 @@ export default function TalkToUs() {
                     <MapPin className="h-6 w-6 text-purple-400" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-white mb-1">Office</h3>
-                    <p className="text-gray-400">123 Analytics Street<br />San Francisco, CA 94105</p>
+                    <h3 className="font-medium text-card-foreground mb-1">Office</h3>
+                    <p className="text-muted-foreground">123 Analytics Street<br />San Francisco, CA 94105</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-dark-secondary border-dark-border">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold text-white">FAQ</CardTitle>
+                <CardTitle className="text-xl font-semibold text-card-foreground">FAQ</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="border-b border-dark-border pb-4">
-                  <h3 className="font-medium text-white mb-2">How often is data updated?</h3>
-                  <p className="text-gray-400 text-sm">Data is refreshed every 15 minutes across all connected platforms.</p>
+                <div className="border-b border-border pb-4">
+                  <h3 className="font-medium text-card-foreground mb-2">How often is data updated?</h3>
+                  <p className="text-muted-foreground text-sm">Data is refreshed every 15 minutes across all connected platforms.</p>
                 </div>
-                <div className="border-b border-dark-border pb-4">
-                  <h3 className="font-medium text-white mb-2">Which platforms do you support?</h3>
-                  <p className="text-gray-400 text-sm">We currently support Twitter, Reddit, Instagram, Facebook, and YouTube.</p>
+                <div className="border-b border-border pb-4">
+                  <h3 className="font-medium text-card-foreground mb-2">Which platforms do you support?</h3>
+                  <p className="text-muted-foreground text-sm">We currently support Twitter, Reddit, Instagram, Facebook, and YouTube.</p>
                 </div>
                 <div>
-                  <h3 className="font-medium text-white mb-2">Is my data secure?</h3>
-                  <p className="text-gray-400 text-sm">Yes, we use enterprise-grade encryption and comply with all major data protection regulations.</p>
+                  <h3 className="font-medium text-card-foreground mb-2">Is my data secure?</h3>
+                  <p className="text-muted-foreground text-sm">Yes, we use enterprise-grade encryption and comply with all major data protection regulations.</p>
                 </div>
               </CardContent>
             </Card>

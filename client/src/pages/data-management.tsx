@@ -225,56 +225,56 @@ export default function DataManagement() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Data Management</h1>
-        <p className="text-gray-400">{airportConfig?.airport.city || 'Airport'} social media data collection and analytics storage</p>
+        <h1 className="text-3xl font-bold text-card-foreground mb-2">Data Management</h1>
+        <p className="text-muted-foreground">{airportConfig?.airport.city || 'Airport'} social media data collection and analytics storage</p>
       </div>
 
       {/* Data Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="bg-dark-secondary border-dark-border">
+        <Card className="bg-card border-border">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
                 <Database className="h-6 w-6 text-blue-400" />
               </div>
             </div>
-            <h3 className="text-2xl font-bold text-white mb-1">{dataStats.totalRecords}</h3>
-            <p className="text-gray-400 text-sm">Total Records</p>
+            <h3 className="text-2xl font-bold text-card-foreground mb-1">{dataStats.totalRecords}</h3>
+            <p className="text-muted-foreground text-sm">Total Records</p>
             <p className="text-green-400 text-xs mt-2">+15.2% this month</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-dark-secondary border-dark-border">
+        <Card className="bg-card border-border">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
                 <Cloud className="h-6 w-6 text-green-400" />
               </div>
             </div>
-            <h3 className="text-2xl font-bold text-white mb-1">{dataStats.storageUsed}</h3>
-            <p className="text-gray-400 text-sm">Storage Used</p>
+            <h3 className="text-2xl font-bold text-card-foreground mb-1">{dataStats.storageUsed}</h3>
+            <p className="text-muted-foreground text-sm">Storage Used</p>
             <p className="text-yellow-400 text-xs mt-2">78% of quota</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-dark-secondary border-dark-border">
+        <Card className="bg-card border-border">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
                 <RotateCw className="h-6 w-6 text-purple-400" />
               </div>
             </div>
-            <h3 className="text-2xl font-bold text-white mb-1">{dataStats.lastSync}</h3>
-            <p className="text-gray-400 text-sm">Last Sync</p>
+            <h3 className="text-2xl font-bold text-card-foreground mb-1">{dataStats.lastSync}</h3>
+            <p className="text-muted-foreground text-sm">Last Sync</p>
             <p className="text-green-400 text-xs mt-2">All platforms active</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Collection Status */}
-      <Card className="bg-dark-secondary border-dark-border mb-6">
+      <Card className="bg-card border-border mb-6">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold text-card-foreground flex items-center gap-2">
             <RotateCw className={`h-5 w-5 ${collectionStatus.isCollecting ? 'animate-spin text-green-400' : 'text-blue-400'}`} />
             Collection Status
           </CardTitle>
@@ -282,40 +282,40 @@ export default function DataManagement() {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-white">{collectionStatus.recordsCollected.toLocaleString()}</p>
-              <p className="text-sm text-gray-400">Records Today</p>
+              <p className="text-2xl font-bold text-card-foreground">{collectionStatus.recordsCollected.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">Records Today</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-green-400">{Object.values(collectionStatus.platforms).filter(p => p.status === 'active').length}</p>
-              <p className="text-sm text-gray-400">Active Sources</p>
+              <p className="text-sm text-muted-foreground">Active Sources</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-red-400">{collectionStatus.errors}</p>
-              <p className="text-sm text-gray-400">Errors</p>
+              <p className="text-sm text-muted-foreground">Errors</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-blue-400">{new Date(collectionStatus.lastCollection).toLocaleTimeString()}</p>
-              <p className="text-sm text-gray-400">Last Sync</p>
+              <p className="text-sm text-muted-foreground">Last Sync</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Data Source Connections */}
-      <Card className="bg-dark-secondary border-dark-border mb-8">
+      <Card className="bg-card border-border mb-8">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold text-card-foreground flex items-center gap-2">
             <Settings className="h-5 w-5 text-blue-400" />
             Data Source Connections
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="social" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-dark-primary">
-              <TabsTrigger value="social" className="text-gray-300 data-[state=active]:text-blue-400">
+            <TabsList className="grid w-full grid-cols-2 bg-muted">
+              <TabsTrigger value="social" className="text-muted-foreground data-[state=active]:text-blue-400">
                 Social Media
               </TabsTrigger>
-              <TabsTrigger value="news" className="text-gray-300 data-[state=active]:text-blue-400">
+              <TabsTrigger value="news" className="text-muted-foreground data-[state=active]:text-blue-400">
                 News Sources
               </TabsTrigger>
             </TabsList>
@@ -323,13 +323,13 @@ export default function DataManagement() {
             <TabsContent value="social" className="mt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {dataSources.socialMedia.map((source) => (
-                  <div key={source.key} className="p-4 border border-dark-border rounded-lg bg-dark-primary">
+                  <div key={source.key} className="p-4 border border-border rounded-lg bg-muted">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-medium text-white">{source.name}</h3>
+                      <h3 className="font-medium text-card-foreground">{source.name}</h3>
                       {connectedSources.has(source.key) ? (
                         <CheckCircle className="h-5 w-5 text-green-400" />
                       ) : (
-                        <AlertCircle className="h-5 w-5 text-gray-400" />
+                        <AlertCircle className="h-5 w-5 text-muted-foreground" />
                       )}
                     </div>
                     
@@ -338,7 +338,7 @@ export default function DataManagement() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="w-full border-dark-border hover:bg-dark-secondary"
+                          className="w-full border-border hover:bg-card"
                           disabled={isCollecting.has(source.key)}
                         >
                           {isCollecting.has(source.key) ? (
@@ -356,17 +356,17 @@ export default function DataManagement() {
                           )}
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="bg-dark-secondary border-dark-border">
+                      <DialogContent className="bg-card border-border">
                         <DialogHeader>
-                          <DialogTitle className="text-white">Connect to {source.name}</DialogTitle>
-                          <DialogDescription className="text-gray-400">
+                          <DialogTitle className="text-card-foreground">Connect to {source.name}</DialogTitle>
+                          <DialogDescription className="text-muted-foreground">
                             Enter your credentials to collect data from {source.name}
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4">
                           {source.credentialFields.map((field) => (
                             <div key={field} className="space-y-2">
-                              <Label htmlFor={field} className="text-white">
+                              <Label htmlFor={field} className="text-card-foreground">
                                 {field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                               </Label>
                               <Input
@@ -375,7 +375,7 @@ export default function DataManagement() {
                                 placeholder={`Enter your ${field.replace(/_/g, ' ')}`}
                                 value={credentials[field as keyof DataSourceCredentials] || ''}
                                 onChange={(e) => handleCredentialChange(field, e.target.value)}
-                                className="bg-dark-primary border-dark-border text-white"
+                                className="bg-muted border-border text-card-foreground"
                               />
                             </div>
                           ))}
@@ -404,13 +404,13 @@ export default function DataManagement() {
             <TabsContent value="news" className="mt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {dataSources.news.map((source) => (
-                  <div key={source.key} className="p-4 border border-dark-border rounded-lg bg-dark-primary">
+                  <div key={source.key} className="p-4 border border-border rounded-lg bg-muted">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-medium text-white">{source.name}</h3>
+                      <h3 className="font-medium text-card-foreground">{source.name}</h3>
                       {connectedSources.has(source.key) ? (
                         <CheckCircle className="h-5 w-5 text-green-400" />
                       ) : (
-                        <AlertCircle className="h-5 w-5 text-gray-400" />
+                        <AlertCircle className="h-5 w-5 text-muted-foreground" />
                       )}
                     </div>
                     
@@ -419,7 +419,7 @@ export default function DataManagement() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="w-full border-dark-border hover:bg-dark-secondary"
+                          className="w-full border-border hover:bg-card"
                           disabled={isCollecting.has(source.key)}
                         >
                           {isCollecting.has(source.key) ? (
@@ -437,17 +437,17 @@ export default function DataManagement() {
                           )}
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="bg-dark-secondary border-dark-border">
+                      <DialogContent className="bg-card border-border">
                         <DialogHeader>
-                          <DialogTitle className="text-white">Connect to {source.name}</DialogTitle>
-                          <DialogDescription className="text-gray-400">
+                          <DialogTitle className="text-card-foreground">Connect to {source.name}</DialogTitle>
+                          <DialogDescription className="text-muted-foreground">
                             Configure data collection from {source.name}
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4">
                           {source.credentialFields.map((field) => (
                             <div key={field} className="space-y-2">
-                              <Label htmlFor={field} className="text-white">
+                              <Label htmlFor={field} className="text-card-foreground">
                                 {field.includes('rss') ? 'RSS Feed URL (optional)' : 
                                  field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                               </Label>
@@ -458,7 +458,7 @@ export default function DataManagement() {
                                            `Enter your ${field.replace(/_/g, ' ')}`}
                                 value={credentials[field as keyof DataSourceCredentials] || ''}
                                 onChange={(e) => handleCredentialChange(field, e.target.value)}
-                                className="bg-dark-primary border-dark-border text-white"
+                                className="bg-muted border-border text-card-foreground"
                               />
                             </div>
                           ))}
@@ -490,74 +490,74 @@ export default function DataManagement() {
       {/* Data Schema and Recent Records */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Data Schema */}
-        <Card className="bg-dark-secondary border-dark-border">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-white">Data Schema</CardTitle>
+            <CardTitle className="text-lg font-semibold text-card-foreground">Data Schema</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-400">author_id</span>
+                <span className="text-muted-foreground">author_id</span>
                 <span className="text-blue-400">string</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">author_name</span>
+                <span className="text-muted-foreground">author_name</span>
                 <span className="text-blue-400">string</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">clean_event_text</span>
+                <span className="text-muted-foreground">clean_event_text</span>
                 <span className="text-blue-400">string</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">engagement_metrics</span>
+                <span className="text-muted-foreground">engagement_metrics</span>
                 <span className="text-yellow-400">struct</span>
               </div>
               <div className="flex justify-between pl-4">
-                <span className="text-gray-500">├ comments</span>
+                <span className="text-muted-foreground">├ comments</span>
                 <span className="text-green-400">long</span>
               </div>
               <div className="flex justify-between pl-4">
-                <span className="text-gray-500">├ likes</span>
+                <span className="text-muted-foreground">├ likes</span>
                 <span className="text-green-400">long</span>
               </div>
               <div className="flex justify-between pl-4">
-                <span className="text-gray-500">└ shares</span>
+                <span className="text-muted-foreground">└ shares</span>
                 <span className="text-green-400">long</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">event_content</span>
+                <span className="text-muted-foreground">event_content</span>
                 <span className="text-blue-400">string</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">event_id</span>
+                <span className="text-muted-foreground">event_id</span>
                 <span className="text-blue-400">string</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">platform</span>
+                <span className="text-muted-foreground">platform</span>
                 <span className="text-blue-400">string</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">timestamp_utc</span>
+                <span className="text-muted-foreground">timestamp_utc</span>
                 <span className="text-blue-400">string</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">sentiment_analysis</span>
+                <span className="text-muted-foreground">sentiment_analysis</span>
                 <span className="text-yellow-400">struct</span>
               </div>
               <div className="flex justify-between pl-4">
-                <span className="text-gray-500">├ overall_sentiment</span>
+                <span className="text-muted-foreground">├ overall_sentiment</span>
                 <span className="text-green-400">float</span>
               </div>
               <div className="flex justify-between pl-4">
-                <span className="text-gray-500">└ categories</span>
+                <span className="text-muted-foreground">└ categories</span>
                 <span className="text-yellow-400">struct</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">location_focus</span>
+                <span className="text-muted-foreground">location_focus</span>
                 <span className="text-blue-400">string</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">airline_mentioned</span>
+                <span className="text-muted-foreground">airline_mentioned</span>
                 <span className="text-blue-400">string</span>
               </div>
             </div>
@@ -565,13 +565,13 @@ export default function DataManagement() {
         </Card>
 
         {/* Export Data Section */}
-        <Card className="xl:col-span-2 bg-dark-secondary border-dark-border">
+        <Card className="xl:col-span-2 bg-card border-border">
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle className="text-lg font-semibold text-white">Data Export</CardTitle>
+              <CardTitle className="text-lg font-semibold text-card-foreground">Data Export</CardTitle>
               <Button 
                 onClick={handleExport}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
+                className="bg-blue-500 hover:bg-blue-600 text-card-foreground"
                 size="sm"
               >
                 <Download className="h-4 w-4 mr-2" />
@@ -583,19 +583,19 @@ export default function DataManagement() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-dark-border">
-                    <th className="text-left py-3 text-gray-400 font-medium">Event ID</th>
-                    <th className="text-left py-3 text-gray-400 font-medium">Platform</th>
-                    <th className="text-left py-3 text-gray-400 font-medium">Author</th>
-                    <th className="text-left py-3 text-gray-400 font-medium">Airline</th>
-                    <th className="text-left py-3 text-gray-400 font-medium">Sentiment</th>
-                    <th className="text-left py-3 text-gray-400 font-medium">Timestamp</th>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 text-muted-foreground font-medium">Event ID</th>
+                    <th className="text-left py-3 text-muted-foreground font-medium">Platform</th>
+                    <th className="text-left py-3 text-muted-foreground font-medium">Author</th>
+                    <th className="text-left py-3 text-muted-foreground font-medium">Airline</th>
+                    <th className="text-left py-3 text-muted-foreground font-medium">Sentiment</th>
+                    <th className="text-left py-3 text-muted-foreground font-medium">Timestamp</th>
                   </tr>
                 </thead>
                 <tbody>
                   {((mongoDataSources as any)?.social_events || []).slice(0, 10).map((record: any) => (
-                    <tr key={record.id} className="border-b border-dark-border/50">
-                      <td className="py-3 text-gray-300">{record.event_id}</td>
+                    <tr key={record.id} className="border-b border-border/50">
+                      <td className="py-3 text-muted-foreground">{record.event_id}</td>
                       <td className="py-3">
                         <Badge 
                           variant="secondary" 
@@ -604,14 +604,14 @@ export default function DataManagement() {
                           {record.platform}
                         </Badge>
                       </td>
-                      <td className="py-3 text-gray-300">{record.author_name}</td>
-                      <td className="py-3 text-gray-300">
+                      <td className="py-3 text-muted-foreground">{record.author_name}</td>
+                      <td className="py-3 text-muted-foreground">
                         {record.airline_mentioned ? (
                           <Badge variant="outline" className="text-blue-400 border-blue-400/20">
                             {record.airline_mentioned?.replace(/_/g, ' ')}
                           </Badge>
                         ) : (
-                          <span className="text-gray-500">-</span>
+                          <span className="text-muted-foreground">-</span>
                         )}
                       </td>
                       <td className="py-3">
@@ -621,15 +621,15 @@ export default function DataManagement() {
                               record.sentiment_analysis.overall_sentiment >= 0.5 ? 'bg-green-400' :
                               record.sentiment_analysis.overall_sentiment >= 0 ? 'bg-yellow-400' : 'bg-red-400'
                             }`} />
-                            <span className="text-gray-300 text-xs">
+                            <span className="text-muted-foreground text-xs">
                               {(record.sentiment_analysis.overall_sentiment * 100).toFixed(0)}%
                             </span>
                           </div>
                         ) : (
-                          <span className="text-gray-500">-</span>
+                          <span className="text-muted-foreground">-</span>
                         )}
                       </td>
-                      <td className="py-3 text-gray-400">
+                      <td className="py-3 text-muted-foreground">
                         {new Date(record.timestamp_utc || record.created_at || 0).toLocaleString()}
                       </td>
                     </tr>

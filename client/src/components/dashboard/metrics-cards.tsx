@@ -47,7 +47,7 @@ export default function MetricsCards() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {metrics.map((metric) => (
-        <Card key={metric.title} className="bg-dark-secondary border-dark-border">
+        <Card key={metric.title} className="bg-card border-border">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${metric.color}`}>
@@ -55,8 +55,8 @@ export default function MetricsCards() {
               </div>
               <span className="text-green-400 text-sm font-medium">{metric.growth}</span>
             </div>
-            <h3 className="text-2xl font-bold text-white mb-1">{metric.value}</h3>
-            <p className="text-gray-400 text-sm">{metric.title}</p>
+            <h3 className="text-2xl font-bold text-card-foreground mb-1">{metric.value}</h3>
+            <p className="text-muted-foreground text-sm">{metric.title}</p>
           </CardContent>
         </Card>
       ))}

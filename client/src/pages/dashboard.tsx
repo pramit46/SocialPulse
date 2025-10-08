@@ -33,7 +33,7 @@ export default function Dashboard() {
     <CollapsibleTrigger asChild>
       <Button
         variant="ghost"
-        className="w-full justify-between p-0 mb-4 text-xl font-semibold text-white hover:text-blue-400"
+        className="w-full justify-between p-0 mb-4 text-xl font-semibold text-foreground hover:text-primary"
         onClick={onToggle}
       >
         {title}
@@ -43,11 +43,11 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="p-8">
+    <div className="p-8 bg-background">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Social Pulse</h1>
-        <p className="text-gray-400">Monitor and analyze social media performance across all platforms</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Social Pulse</h1>
+        <p className="text-muted-foreground">Monitor and analyze social media performance across all platforms</p>
       </div>
 
       {/* Sentiment Analysis */}

@@ -28,7 +28,7 @@ type SocialEvent = {
 const getSentimentColor = (sentiment: number) => {
   if (sentiment >= 0.6) return "text-green-400";
   if (sentiment >= 0.3) return "text-green-300";
-  if (sentiment >= 0) return "text-gray-300";
+  if (sentiment >= 0) return "text-muted-foreground";
   if (sentiment >= -0.3) return "text-yellow-400";
   if (sentiment >= -0.6) return "text-orange-400";
   return "text-red-400";
@@ -128,16 +128,16 @@ export default function WordCloud() {
 
   if (isLoading) {
     return (
-      <Card className="bg-dark-secondary border-dark-border">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold text-card-foreground flex items-center gap-2">
             <Cloud className="h-5 w-5 text-blue-400" />
             Buzz Words Cloud
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center min-h-[180px]">
-            <div className="animate-pulse text-gray-400">Analyzing social media buzz...</div>
+            <div className="animate-pulse text-muted-foreground">Analyzing social media buzz...</div>
           </div>
         </CardContent>
       </Card>
@@ -145,20 +145,20 @@ export default function WordCloud() {
   }
 
   return (
-    <Card className="bg-dark-secondary border-dark-border">
+    <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+        <CardTitle className="text-lg font-semibold text-card-foreground flex items-center gap-2">
           <Cloud className="h-5 w-5 text-blue-400" />
           Buzz Words Cloud
         </CardTitle>
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-muted-foreground">
           Professional word cloud with rotated text • Size = frequency • Colors = sentiment • Only filtered words displayed
         </p>
       </CardHeader>
       <CardContent>
         <div className="relative min-h-[300px] p-4 overflow-hidden">
           {wordCloudData.length === 0 ? (
-            <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-center">
+            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-center">
               <div>
                 <p>No word data available</p>
                 <p className="text-sm mt-2">Collect social media data to see trending words</p>
@@ -196,31 +196,31 @@ export default function WordCloud() {
         </div>
         
         {/* Legend */}
-        <div className="mt-3 pt-2 border-t border-dark-border">
+        <div className="mt-3 pt-2 border-t border-border">
           <div className="flex flex-wrap gap-2 justify-center text-xs">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-green-400 rounded"></div>
-              <span className="text-gray-400">Very Positive</span>
+              <span className="text-muted-foreground">Very Positive</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-green-300 rounded"></div>
-              <span className="text-gray-400">Positive</span>
+              <span className="text-muted-foreground">Positive</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-gray-300 rounded"></div>
-              <span className="text-gray-400">Neutral</span>
+              <span className="text-muted-foreground">Neutral</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-yellow-400 rounded"></div>
-              <span className="text-gray-400">Mixed</span>
+              <span className="text-muted-foreground">Mixed</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-orange-400 rounded"></div>
-              <span className="text-gray-400">Negative</span>
+              <span className="text-muted-foreground">Negative</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-red-400 rounded"></div>
-              <span className="text-gray-400">Very Negative</span>
+              <span className="text-muted-foreground">Very Negative</span>
             </div>
           </div>
         </div>

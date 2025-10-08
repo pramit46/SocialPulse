@@ -49,15 +49,15 @@ export default function RecentPosts() {
 
   if (isLoading) {
     return (
-      <Card className="bg-dark-secondary border-dark-border">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-white">Recent High-Performing Posts</CardTitle>
+          <CardTitle className="text-lg font-semibold text-card-foreground">Recent High-Performing Posts</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="animate-pulse">
-              <div className="h-4 bg-gray-600 rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-gray-700 rounded w-full"></div>
+              <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+              <div className="h-3 bg-muted rounded w-full"></div>
             </div>
           </div>
         </CardContent>
@@ -66,10 +66,10 @@ export default function RecentPosts() {
   }
 
   return (
-    <Card className="bg-dark-secondary border-dark-border">
+    <Card className="bg-card border-border">
       <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg font-semibold text-white">
+          <CardTitle className="text-lg font-semibold text-card-foreground">
             Recent Posts ({allPosts.length} collected)
           </CardTitle>
           {totalPages > 1 && (
@@ -79,11 +79,11 @@ export default function RecentPosts() {
                 size="sm"
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="text-gray-400 hover:text-white"
+                className="text-muted-foreground hover:text-foreground"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="text-sm text-gray-400">
+              <span className="text-sm text-muted-foreground">
                 {currentPage} of {totalPages}
               </span>
               <Button
@@ -91,7 +91,7 @@ export default function RecentPosts() {
                 size="sm"
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="text-gray-400 hover:text-white"
+                className="text-muted-foreground hover:text-foreground"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -103,21 +103,21 @@ export default function RecentPosts() {
         <div className="space-y-4">
           {currentPosts.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-400">No social media posts collected yet.</p>
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-muted-foreground">No social media posts collected yet.</p>
+              <p className="text-sm text-muted-foreground mt-2">
                 Run data collection from Settings → Data Management to see posts here.
               </p>
             </div>
           ) : (
             currentPosts.map((post: any) => (
-              <div key={post.id} className="flex items-start space-x-4 p-4 bg-dark-accent rounded-lg">
+              <div key={post.id} className="flex items-start space-x-4 p-4 bg-muted rounded-lg">
                 <div className={`w-10 h-10 ${platformColors[post.platform as keyof typeof platformColors] || 'bg-gray-500'} rounded-lg flex items-center justify-center`}>
                   <i className={`${platformIcons[post.platform as keyof typeof platformIcons] || 'fas fa-globe'} text-white`}></i>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white font-medium mb-1">{post.event_title || 'Social Media Post'}</p>
-                  <p className="text-gray-400 text-sm mb-2 line-clamp-2">{post.clean_event_text || post.event_content}</p>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                  <p className="text-card-foreground font-medium mb-1">{post.event_title || 'Social Media Post'}</p>
+                  <p className="text-muted-foreground text-sm mb-2 line-clamp-2">{post.clean_event_text || post.event_content}</p>
+                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                     <span>{post.platform || 'Unknown'}</span>
                     <span>{post.engagement_metrics?.likes || 0} likes</span>
                     {post.engagement_metrics?.shares && (

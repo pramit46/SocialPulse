@@ -22,8 +22,8 @@ const getWeatherIcon = (condition: string) => {
     case 'sunny': return <Sun className="h-4 w-4 text-yellow-400" />;
     case 'rain': return <CloudRain className="h-4 w-4 text-blue-400" />;
     case 'thunderstorm': return <CloudRain className="h-4 w-4 text-purple-400" />;
-    case 'fog': return <CloudSnow className="h-4 w-4 text-gray-400" />;
-    default: return <Wind className="h-4 w-4 text-gray-400" />;
+    case 'fog': return <CloudSnow className="h-4 w-4 text-muted-foreground" />;
+    default: return <Wind className="h-4 w-4 text-muted-foreground" />;
   }
 };
 
@@ -125,16 +125,16 @@ export default function WeatherSentimentCorrelation() {
 
   if (isLoading) {
     return (
-      <Card className="bg-dark-secondary border-dark-border">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold text-card-foreground flex items-center gap-2">
             <CloudRain className="h-5 w-5 text-blue-400" />
             Weather Impact Analysis
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-[300px]">
-            <div className="animate-pulse text-gray-400">Analyzing weather correlations...</div>
+            <div className="animate-pulse text-muted-foreground">Analyzing weather correlations...</div>
           </div>
         </CardContent>
       </Card>
@@ -143,23 +143,23 @@ export default function WeatherSentimentCorrelation() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-dark-secondary border-dark-border">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold text-card-foreground flex items-center gap-2">
             <CloudRain className="h-5 w-5 text-blue-400" />
             Weather Impact Analysis
           </CardTitle>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-foreground">
             How weather conditions affect passenger sentiment and airport operations
           </p>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="correlation" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-dark-primary">
-              <TabsTrigger value="correlation" className="text-gray-300 data-[state=active]:text-blue-400">
+            <TabsList className="grid w-full grid-cols-2 bg-muted">
+              <TabsTrigger value="correlation" className="text-muted-foreground data-[state=active]:text-blue-400">
                 Weather vs Sentiment
               </TabsTrigger>
-              <TabsTrigger value="timeline" className="text-gray-300 data-[state=active]:text-blue-400">
+              <TabsTrigger value="timeline" className="text-muted-foreground data-[state=active]:text-blue-400">
                 7-Day Timeline
               </TabsTrigger>
             </TabsList>
@@ -168,8 +168,8 @@ export default function WeatherSentimentCorrelation() {
               {weatherCorrelationData.length === 0 ? (
                 <div className="h-80 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="animate-pulse text-gray-400 mb-2">Loading weather correlation data...</div>
-                    <div className="text-xs text-gray-500">Fetching from MongoDB</div>
+                    <div className="animate-pulse text-muted-foreground mb-2">Loading weather correlation data...</div>
+                    <div className="text-xs text-muted-foreground">Fetching from MongoDB</div>
                   </div>
                 </div>
               ) : (
@@ -209,26 +209,26 @@ export default function WeatherSentimentCorrelation() {
                 </div>
               )}
               <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-                <div className="bg-dark-primary p-4 rounded-lg">
+                <div className="bg-muted p-4 rounded-lg">
                   <div className="flex items-center justify-center mb-2">
                     <Sun className="h-6 w-6 text-yellow-400" />
                   </div>
                   <p className="text-2xl font-bold text-green-400">+60%</p>
-                  <p className="text-xs text-gray-400">Positive sentiment on sunny days</p>
+                  <p className="text-xs text-muted-foreground">Positive sentiment on sunny days</p>
                 </div>
-                <div className="bg-dark-primary p-4 rounded-lg">
+                <div className="bg-muted p-4 rounded-lg">
                   <div className="flex items-center justify-center mb-2">
                     <CloudRain className="h-6 w-6 text-blue-400" />
                   </div>
                   <p className="text-2xl font-bold text-red-400">+200%</p>
-                  <p className="text-xs text-gray-400">Delay complaints during rain</p>
+                  <p className="text-xs text-muted-foreground">Delay complaints during rain</p>
                 </div>
-                <div className="bg-dark-primary p-4 rounded-lg">
+                <div className="bg-muted p-4 rounded-lg">
                   <div className="flex items-center justify-center mb-2">
                     <Wind className="h-6 w-6 text-purple-400" />
                   </div>
                   <p className="text-2xl font-bold text-yellow-400">+40%</p>
-                  <p className="text-xs text-gray-400">Social activity in bad weather</p>
+                  <p className="text-xs text-muted-foreground">Social activity in bad weather</p>
                 </div>
               </div>
             </TabsContent>
@@ -283,14 +283,14 @@ export default function WeatherSentimentCorrelation() {
               </div>
               <div className="mt-4 space-y-2">
                 {sentimentTimeline.slice(-3).map((day: any) => (
-                  <div key={day.date} className="flex items-center justify-between p-3 bg-dark-primary rounded-lg">
+                  <div key={day.date} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                     <div className="flex items-center space-x-3">
                       {getWeatherIcon(day.condition)}
                       <div>
-                        <p className="text-white font-medium">
+                        <p className="text-card-foreground font-medium">
                           {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                         </p>
-                        <p className="text-sm text-gray-400 capitalize">
+                        <p className="text-sm text-muted-foreground capitalize">
                           {day.condition} • {day.temperature}°C • {day.humidity}% humidity
                         </p>
                       </div>
@@ -299,7 +299,7 @@ export default function WeatherSentimentCorrelation() {
                       <p className={`font-bold ${getSentimentColor(day.sentiment)}`}>
                         {(day.sentiment * 100).toFixed(0)}%
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-muted-foreground">
                         {(day as any).events || 0} posts
                       </p>
                     </div>

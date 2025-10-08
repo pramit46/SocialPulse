@@ -10,13 +10,13 @@ export default function EngagementChart() {
 
   if (isLoading) {
     return (
-      <Card className="bg-dark-secondary border-dark-border">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-white">Engagement Trends</CardTitle>
+          <CardTitle className="text-lg font-semibold text-card-foreground">Engagement Trends</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[280px] flex items-center justify-center">
-            <div className="text-gray-400">Loading engagement data...</div>
+            <div className="text-muted-foreground">Loading engagement data...</div>
           </div>
         </CardContent>
       </Card>
@@ -24,9 +24,9 @@ export default function EngagementChart() {
   }
 
   return (
-    <Card className="bg-dark-secondary border-dark-border">
+    <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-white">Engagement Trends</CardTitle>
+        <CardTitle className="text-lg font-semibold text-card-foreground">Engagement Trends</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={280}>

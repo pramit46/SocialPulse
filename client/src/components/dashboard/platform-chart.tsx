@@ -12,8 +12,8 @@ const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0];
     return (
-      <div className="bg-dark-primary border border-dark-border rounded-lg p-3 shadow-lg">
-        <p className="text-white font-medium">{data.name}</p>
+      <div className="bg-muted border border-border rounded-lg p-3 shadow-lg">
+        <p className="text-card-foreground font-medium">{data.name}</p>
         <p className="text-blue-400">
           {data.value}% of total engagement
         </p>
@@ -72,13 +72,13 @@ export default function PlatformChart() {
 
   if (isLoading) {
     return (
-      <Card className="bg-dark-secondary border-dark-border">
+      <Card className="bg-card border-border">
         <CardHeader className="py-3">
-          <CardTitle className="text-sm font-semibold text-white">Platform Distribution</CardTitle>
+          <CardTitle className="text-sm font-semibold text-card-foreground">Platform Distribution</CardTitle>
         </CardHeader>
         <CardContent className="py-2">
           <div className="flex items-center justify-center h-[200px]">
-            <div className="animate-pulse text-gray-400">Loading platforms...</div>
+            <div className="animate-pulse text-muted-foreground">Loading platforms...</div>
           </div>
         </CardContent>
       </Card>
@@ -87,13 +87,13 @@ export default function PlatformChart() {
 
   if (platformData.length === 0) {
     return (
-      <Card className="bg-dark-secondary border-dark-border">
+      <Card className="bg-card border-border">
         <CardHeader className="py-3">
-          <CardTitle className="text-sm font-semibold text-white">Platform Distribution</CardTitle>
+          <CardTitle className="text-sm font-semibold text-card-foreground">Platform Distribution</CardTitle>
         </CardHeader>
         <CardContent className="py-2">
           <div className="flex items-center justify-center h-[200px]">
-            <div className="text-gray-400 text-center">
+            <div className="text-muted-foreground text-center">
               <p>No platform data available</p>
               <p className="text-xs mt-2">Collect social media data to see distribution</p>
             </div>
@@ -104,9 +104,9 @@ export default function PlatformChart() {
   }
 
   return (
-    <Card className="bg-dark-secondary border-dark-border">
+    <Card className="bg-card border-border">
       <CardHeader className="py-3">
-        <CardTitle className="text-sm font-semibold text-white">Platform Distribution</CardTitle>
+        <CardTitle className="text-sm font-semibold text-card-foreground">Platform Distribution</CardTitle>
       </CardHeader>
       <CardContent className="py-2">
         <ResponsiveContainer width="100%" height={200}>

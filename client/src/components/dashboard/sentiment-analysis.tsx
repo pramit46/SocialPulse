@@ -154,7 +154,7 @@ export default function SentimentAnalysis() {
         <Button 
           onClick={() => setIsVisible(true)}
           variant="outline"
-          className="border-dark-border text-gray-400 hover:text-white hover:bg-dark-accent"
+          className="border-border text-muted-foreground hover:text-foreground hover:bg-accent"
         >
           <Eye className="h-4 w-4 mr-2" />
           Show Sentiment Analysis
@@ -167,8 +167,8 @@ export default function SentimentAnalysis() {
     <div className="mb-8">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h2 className="text-xl font-semibold text-white mb-1">Sentiment Analysis</h2>
-          <p className="text-gray-400 text-sm">AI-powered sentiment insights for {airportConfig?.airport.city || 'Airport'}</p>
+          <h2 className="text-xl font-semibold text-foreground mb-1">Sentiment Analysis</h2>
+          <p className="text-muted-foreground text-sm">AI-powered sentiment insights for {airportConfig?.airport.city || 'Airport'}</p>
         </div>
         {/* <Button 
           onClick={() => setIsVisible(false)}
@@ -183,9 +183,9 @@ export default function SentimentAnalysis() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Overall Sentiment */}
-        <Card className="bg-dark-secondary border-dark-border">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-white">{airportConfig?.airport.city || 'Airport'} Overall</CardTitle>
+            <CardTitle className="text-lg font-semibold text-card-foreground">{airportConfig?.airport.city || 'Airport'} Overall</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center mb-6">
@@ -197,7 +197,7 @@ export default function SentimentAnalysis() {
                     <div className={`text-4xl font-bold mb-2 ${getSentimentColor(locationData.overall_sentiment)}`}>
                       {formatSentimentValue(locationData.overall_sentiment)}
                     </div>
-                    <div className="text-gray-400">
+                    <div className="text-muted-foreground">
                       {getSentimentLabel(locationData.overall_sentiment)}
                     </div>
                   </>
@@ -211,14 +211,14 @@ export default function SentimentAnalysis() {
                 const locationData = sentimentData[locationKey] as { overall_sentiment: number; categories: Record<string, number> } || { overall_sentiment: 0, categories: {} };
                 return Object.entries(locationData.categories).map(([category, value]) => (
                   <div key={category} className="flex justify-between items-center">
-                    <span className="text-gray-300 capitalize">
+                    <span className="text-muted-foreground capitalize">
                       {category.replace(/_/g, ' ')}
                     </span>
                     <div className="flex items-center space-x-2">
                       <span className={`font-medium ${getSentimentColor(value)}`}>
                         {formatSentimentValue(value)}
                       </span>
-                      <div className="w-16 h-2 bg-dark-accent rounded-full overflow-hidden">
+                      <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
                         <div 
                           className={`h-full transition-all duration-300 ${
                             value >= 0.5 ? 'bg-green-400' : 
@@ -236,19 +236,19 @@ export default function SentimentAnalysis() {
         </Card>
 
         {/* Airlines Sentiment */}
-        <Card className="bg-dark-secondary border-dark-border">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-white">Airlines Sentiment Comparison</CardTitle>
+            <CardTitle className="text-lg font-semibold text-card-foreground">Airlines Sentiment Comparison</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {Object.entries(sentimentData.airlines).map(([airline, data]) => (
-                <div key={airline} className="flex justify-between items-center p-3 bg-dark-accent rounded-lg">
+                <div key={airline} className="flex justify-between items-center p-3 bg-muted rounded-lg">
                   <div>
-                    <div className="font-medium text-white capitalize">
+                    <div className="font-medium text-card-foreground capitalize">
                       {airline.replace(/_/g, ' ')}
                     </div>
-                    <div className="text-sm text-gray-400">
+                    <div className="text-sm text-muted-foreground">
                       {data.mentions} mentions
                     </div>
                   </div>
@@ -256,7 +256,7 @@ export default function SentimentAnalysis() {
                     <div className={`font-bold ${getSentimentColor(data.sentiment)}`}>
                       {formatSentimentValue(data.sentiment)}
                     </div>
-                    <div className="text-xs text-gray-400">
+                    <div className="text-xs text-muted-foreground">
                       {getSentimentLabel(data.sentiment)}
                     </div>
                   </div>
@@ -265,7 +265,7 @@ export default function SentimentAnalysis() {
             </div>
 
             {isLoading ? (
-              <div className="animate-pulse text-gray-400 text-center py-4">
+              <div className="animate-pulse text-muted-foreground text-center py-4">
                 Loading sentiment analysis...
               </div>
             ) : (
@@ -273,7 +273,7 @@ export default function SentimentAnalysis() {
                 <div className="text-sm text-blue-400 font-medium mb-1">
                   AI Insight
                 </div>
-                <div className="text-xs text-gray-300">
+                <div className="text-xs text-muted-foreground">
                   {Object.values(sentimentData.airlines).some(a => a.mentions > 0) 
                     ? `Analysis based on ${Object.values(sentimentData.airlines).reduce((sum, a) => sum + a.mentions, 0)} real social media mentions` 
                     : 'No airline mentions found in recent data. Collect more social media data for insights.'
