@@ -68,9 +68,9 @@ class MongoDBService {
         databaseName,
         connectedAt: new Date().toISOString(),
       };
-      console.log(
+      //console.log(
         `Connected to MongoDB database: ${databaseName} using connection string: ${connectionString}`,
-      );
+      // );
       fs.writeFileSync(
         "./mongodb-config.json",
         JSON.stringify(config, null, 2),
@@ -152,6 +152,7 @@ class MongoDBService {
         "MongoDB not connected. Please provide connection credentials.",
       );
     }
+    console.log(`Using database: ${this.databaseName}`);
     return this.db;
   }
 
@@ -160,6 +161,7 @@ class MongoDBService {
     const db = this.getDatabase();
     // Normalize source name for collection naming
     const collectionName = sourceName.toLowerCase().replace(/[^a-z0-9]/g, "_");
+    console.log(`Using collection: ${collectionName}`);
     return db.collection(collectionName);
   }
 
