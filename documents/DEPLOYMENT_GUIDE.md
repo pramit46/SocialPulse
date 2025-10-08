@@ -270,7 +270,7 @@ open http://localhost:5000
 
 #### **Contact & Communication**
 - `POST /api/contact` - Submit contact form messages
-- `POST /api/aerobot/chat` - Chat with AVA (AI assistant)
+- `POST /api/ava/chat` - Chat with AVA (AI assistant)
 - `POST /api/query` - General LLM query processing
 
 #### **Social Media Data**

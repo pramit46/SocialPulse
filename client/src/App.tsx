@@ -9,8 +9,8 @@ import Dashboard from "@/pages/dashboard";
 import TalkToUs from "@/pages/talk-to-us";
 import DataManagement from "@/pages/data-management";
 import Settings from "@/pages/settings";
-import AeroBot from "@/pages/aerobot";
 import AppLayout from "@/components/layout/app-layout";
+import ava from "@/pages/ava";
 
 function Router() {
   return (
@@ -21,7 +21,7 @@ function Router() {
         <Route path="/pulse" component={Dashboard} />
         <Route path="/talk-to-us" component={TalkToUs} />
         <Route path="/data-management" component={DataManagement} />
-        <Route path="/ava" component={AeroBot} />
+        <Route path="/ava" component={ava} />
         <Route path="/settings" component={Settings} />
         <Route component={NotFound} />
       </Switch>

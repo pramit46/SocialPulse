@@ -79,17 +79,17 @@ async function getResponse(query: string, airportConfig?: AirportConfig): Promis
     // Route unknown queries to LLM service
     try {
       const sessionId = 'user_' + Math.random().toString(36).substr(2, 9);
-      const response = await apiRequest('POST', '/api/aerobot/chat', { message: query, sessionId });
+      const response = await apiRequest('POST', '/api/ava/chat', { message: query, sessionId });
       const data = await response.json();
       return data.response || responses.default;
     } catch (error) {
-      console.error('AeroBot API error:', error);
+      console.error('AVA API error:', error);
       return responses.default;
     }
   }
 }
 
-export default function AeroBot() {
+export default function ava() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -158,7 +158,7 @@ export default function AeroBot() {
       // Route unknown queries to LLM service
       try {
         const sessionId = 'user_' + Math.random().toString(36).substr(2, 9);
-        const response = await apiRequest("POST", "/api/aerobot/chat", { message: currentQuery, sessionId });
+        const response = await apiRequest("POST", "/api/ava/chat", { message: currentQuery, sessionId });
         const data = await response.json();
         const botResponse: Message = {
           id: (Date.now() + 1).toString(),
@@ -168,7 +168,7 @@ export default function AeroBot() {
         };
         setMessages(prev => [...prev, botResponse]);
       } catch (error) {
-        console.error("AeroBot API error:", error);
+        console.error("AVA API error:", error);
         const fallbackResponse: Message = {
           id: (Date.now() + 1).toString(),
           content: fallbackContent,
@@ -238,7 +238,7 @@ export default function AeroBot() {
           <div className="w-full">
             <Card className="bg-card border-border min-h-[600px] max-h-[800px] flex flex-col">
               <CardHeader className="border-b border-border flex-shrink-0">
-                <CardTitle className="text-lg font-semibold text-card-foreground">Chat with AeroBot</CardTitle>
+                <CardTitle className="text-lg font-semibold text-card-foreground">Chat with AVA</CardTitle>
               </CardHeader>
               
               <CardContent className="flex-1 p-0 flex flex-col overflow-hidden">
@@ -252,7 +252,7 @@ export default function AeroBot() {
                         }`}
                       >
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          message.sender === "user" ? "bg-blue-500" : "bg-gray-600"
+                          message.sender === "user" ? "bg-blue-500" : "bg-green-600"
                         }`}>
                           {message.sender === "user" ? (
                             <User className="h-4 w-4 text-card-foreground" />
@@ -264,7 +264,7 @@ export default function AeroBot() {
                           className={`max-w-[70%] px-3 py-2 rounded-lg word-wrap ${
                             message.sender === "user"
                               ? "bg-blue-500 text-card-foreground"
-                              : "bg-muted text-gray-100"
+                              : "bg-muted text-green-600 dark:text-green-100"
                           }`}
                         >
                           <p className="text-sm whitespace-pre-wrap word-wrap">{message.content}</p>
@@ -277,14 +277,14 @@ export default function AeroBot() {
                     
                     {isTyping && (
                       <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
                           <Bot className="h-4 w-4 text-card-foreground" />
                         </div>
-                        <div className="bg-muted text-gray-100 px-4 py-2 rounded-lg">
+                        <div className="bg-muted text-green-600 dark:text-green-100 px-4 py-2 rounded-lg">
                           <div className="flex space-x-1">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-100"></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-200"></div>
+                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse delay-100"></div>
+                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse delay-200"></div>
                           </div>
                         </div>
                       </div>
@@ -300,7 +300,7 @@ export default function AeroBot() {
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder={`Ask about ${airportConfig?.airport.city || 'airport'} experiences...`}
-                      className="flex-1 bg-muted border-border text-card-foreground placeholder-gray-500"
+                      className="flex-1 bg-muted border-border text-card-foreground placeholder-green-500"
                       disabled={isTyping}
                       autoFocus
                     />

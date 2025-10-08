@@ -10,7 +10,7 @@ class MongoDBService {
   private client: MongoClient | null = null;
   private db: Db | null = null;
   private connectionString: string | null = null;
-  private databaseName: string = "bangalore_airport_analytics";
+  private databaseName: string = "airport_analytics";
   private isConnected: boolean = false;
 
   constructor() {

@@ -332,9 +332,8 @@ export default function Settings() {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="font-medium text-card-foreground flex items-center gap-2">
-                      {isDarkMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                      Dark Theme
+                    <Label className="font-medium text-card-foreground flex items-center gap-2">                      
+                      Theme {isDarkMode ? <Moon className="h-6 w-6" /> : <Sun className="h-6 w-6" />}
                     </Label>
                     <p className="text-sm text-muted-foreground">
                       {isDarkMode ? 'Switch to light theme for better visibility' : 'Switch to dark theme for reduced eye strain'}

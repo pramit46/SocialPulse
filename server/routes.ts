@@ -352,8 +352,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AeroBot chatbot endpoint - RAG implementation
-  app.post("/api/aerobot/chat", async (req, res) => {
+  // AVA chatbot endpoint - RAG implementation
+  app.post("/api/ava/chat", async (req, res) => {
     try {
       console.log('📨 Received chat request body:', req.body);
       const { message, sessionId } = req.body;
@@ -385,7 +385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('AeroBot chat error:', error);
+      console.error('AVA chat error:', error);
       res.status(500).json({ 
         error: "Failed to generate response",
         details: error instanceof Error ? error.message : "Unknown error"
