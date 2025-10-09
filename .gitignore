@@ -5,9 +5,6 @@ server/public
 vite.config.ts.*
 *.tar.gz
 .env
-lib/Assets/*.png
-lib/Assets/*.jpg
-lib/Assets/*.jpeg
 logs/*
 .cache/*
 .local/*
